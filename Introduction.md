@@ -1,3 +1,5 @@
+# Introduction
+
 * explosion of assay-by-sequencing
 * multitude of transcriptome assembly tools
 * genomic and transcriptomic architecture varies widely between organisms and clades
