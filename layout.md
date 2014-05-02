@@ -1,4 +1,3 @@
-abstract.mediawiki
 Introduction.md
 results.tex
 results_table.tex
