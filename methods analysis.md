@@ -1,3 +1,4 @@
 ## Evaluating assemblies using Transrate  
 
-- demonstrate the use of transrate on several species with several assemblers?
+- demonstrate transrate on several species with several assemblers
+- demonstrare on simulated assemblies with particular errors introduced
