@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require 'transrate-paper'
+
+paper = Transrate_Paper::Transrate_Paper.new
+
+paper.install_dependencies
+
+paper.download_data

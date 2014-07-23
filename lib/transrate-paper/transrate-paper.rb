@@ -21,17 +21,22 @@ module Transrate_Paper
     def download_data
       json_str = File.open("source.json").readlines("").first
       hash = JSON.parse(json_str)
+      if !Dir.exist?("data")
+        Open3.capture3 "mkdir data"
+      end
       hash.each do |key, list|
         list.each do |file|
-          cmd = "wget #{file}"
-          stdout, stderr, status = Open3.capture3 cmd
-          if !status.success?
-            raise RuntimeError.new("Downloading #{file} from the SRA failed")
-          end
-          cmd = "fastq-dump.2.3.5.2 #{file}"
-          stdout, stderr, status = Open3.capture3 cmd
-          if !status.success?
-            raise RuntimeError.new("Couldn't extract fastq from sra #{file}")
+          if !File.exist?("data/#{file}")
+            cmd = "wget #{file}"
+            stdout, stderr, status = Open3.capture3 cmd
+            if !status.success?
+              raise RuntimeError.new("Downloading #{file} from the SRA failed")
+            end
+            cmd = "fastq-dump.2.3.5.2 #{file}"
+            stdout, stderr, status = Open3.capture3 cmd
+            if !status.success?
+              raise RuntimeError.new("Couldn't extract fastq from sra #{file}")
+            end
           end
         end
       end
