@@ -2,6 +2,7 @@
 
 require 'bindeps'
 require 'json'
+require 'yaml'
 require 'open3'
 
 module Transrate_Paper
@@ -9,6 +10,7 @@ module Transrate_Paper
   class Transrate_Paper
 
     def initialize
+      @data = {} # description and location of the data
     end
 
     def install_dependencies
@@ -19,30 +21,51 @@ module Transrate_Paper
     end
 
     def download_data
-      json_str = File.open("source.json").readlines("").first
-      hash = JSON.parse(json_str)
-      if !Dir.exist?("data")
-        Open3.capture3 "mkdir data"
-      end
-      puts "Downloading data from SRA..."
-      hash.each do |key, list|
-        list.each do |file|
-          if !File.exist?("data/#{file}")
-            cmd = "wget #{file} -P data"
-            puts cmd
-            stdout, stderr, status = Open3.capture3 cmd
-            if !status.success?
-              raise RuntimeError.new("Downloading #{file} from the SRA failed")
-            end
-            cmd = "fastq-dump.2.3.5.2 #{file}"
-            stdout, stderr, status = Open3.capture3 cmd
-            if !status.success?
-              raise RuntimeError.new("Couldn't extract fastq from sra #{file}")
+      @data = YAML.load_file "data.yaml"
+      puts "Downloading and extracting data..."
+      @data.each do |experiment_name, experiment_data|
+        experiment_data.each do |key, value|
+          output_dir = File.join("data", experiment_name.to_s, key.to_s)
+          if [:reads, :assembly, :reference].include? key
+            value.each do |description, paths|
+              if description == :url
+                paths.each do |url|
+                  # create output directory
+                  if !Dir.exist?(output_dir)
+                    Dir.mkdir(output_dir)
+                  end
+                  # download file
+                  name = File.join(output_dir, File.basename(url))
+                  if !File.exist?(name)
+                    cmd = "curl #{url} -o #{name}"
+                    puts cmd
+                    stdout, stderr, status = Open3.capture3 cmd
+                  else
+                    puts "#{name} already exists"
+                  end
+                  # uncompress file
+                  if name =~ /\.tar\.gz$/
+                    cmd = "tar xzf #{name} -C data"
+                    puts cmd
+                    `#{cmd}`
+                    if !Dir.exist?(name.gsub(".tar.gz", ""))
+                      raise RuntimeError.new("Unpacking #{file} failed")
+                    end
+                  elsif name =~ /\.gz$/
+                    cmd = "gunzip #{name}"
+                    puts cmd
+                    `#{cmd}`
+                  elsif name =~ /\.sra$/
+
+                  end
+                end
+              end
             end
           end
         end
       end
       puts "Done"
     end
+
   end
 end

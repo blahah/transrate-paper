@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_paths = %w( lib )
 
-  gem.add_dependency 'bindeps', '~> 0.0', '>= 0.0.7'
+  gem.add_dependency 'bindeps', '~> 0.0', '>= 0.0.11'
 
   gem.add_development_dependency 'rake', '~> 10.3', '>= 10.3.2'
   gem.add_development_dependency 'turn', '~> 0.9', '>= 0.9.7'
