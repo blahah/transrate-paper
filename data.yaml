@@ -27,7 +27,7 @@
     :url:
     - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_protein.fa.gz'
     :fa:
-    - path/to/reference/oryza_sativa.pep.fa
+    - 'Osativa_204_protein.fa'
 :mouse:
   :assembly:
     :url:

@@ -113,9 +113,9 @@ module Transrate_Paper
         puts cmd
         stdout, stderr, status = Open3.capture3 cmd
       elsif name =~ /\.sra$/
-        cmd = "fastq-dump.2.3.5.2 --split-3 #{name} --outdir #{output_dir}"
+        cmd = "fastq-dump.2.3.5.2 --origfmt --split-3 #{name} --outdir #{output_dir}"
         puts cmd
-        # stdout, stderr, status = Open3.capture3 cmd
+        stdout, stderr, status = Open3.capture3 cmd
       end
     end
 
