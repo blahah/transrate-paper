@@ -34,30 +34,16 @@ module Transrate_Paper
                   if !Dir.exist?(output_dir)
                     Dir.mkdir(output_dir)
                   end
-                  # download file
                   name = File.join(output_dir, File.basename(url))
-                  if !File.exist?(name)
-                    cmd = "curl #{url} -o #{name}"
-                    puts cmd
-                    stdout, stderr, status = Open3.capture3 cmd
-                  else
-                    puts "#{name} already exists"
+                  # download
+                  if !already_downloaded name
+                    curl(url, name)
                   end
-                  # uncompress file
-                  if name =~ /\.tar\.gz$/
-                    cmd = "tar xzf #{name} -C data"
-                    puts cmd
-                    `#{cmd}`
-                    if !Dir.exist?(name.gsub(".tar.gz", ""))
-                      raise RuntimeError.new("Unpacking #{file} failed")
-                    end
-                  elsif name =~ /\.gz$/
-                    cmd = "gunzip #{name}"
-                    puts cmd
-                    `#{cmd}`
-                  elsif name =~ /\.sra$/
+                  # extract
+                  if !already_extracted name
+                    extract(name, output_dir)
+                  end
 
-                  end
                 end
               end
             end
@@ -65,6 +51,72 @@ module Transrate_Paper
         end
       end
       puts "Done"
+    end
+
+    def extracted_name name
+      if name =~ /\.sra$/
+        return File.join(File.dirname(name),
+                         "#{File.basename(name, ".sra")}_1.fastq")
+      elsif name =~ /\.tar\.gz$/
+        return name.gsub(".tar.gz", "")
+      elsif name =~ /\.gz$/
+        return name.gsub(".gz", "")
+      elsif name =~ /\.zip$/
+        return name.gsub(".zip", "")
+      end
+    end
+
+    def already_extracted name
+      extracted = extracted_name name
+      # puts "extracted_name = #{extracted}"
+      if File.exist? extracted
+        return true
+      elsif Dir.exist? extracted
+        return true
+      else
+        return false
+      end
+    end
+
+    def already_downloaded name
+      extracted = extracted_name name
+      # puts "name = #{name}, extracted_name = #{extracted}"
+      if File.exist? name
+        return true
+      elsif File.exist? extracted
+        return true
+      else
+        return false
+      end
+    end
+
+    def curl(url, name)
+      cmd = "curl #{url} -o #{name}"
+      puts cmd
+      stdout, stderr, status = Open3.capture3 cmd
+      if !status.success?
+        puts "Download failed\n#{url}\n#{stdout}\n#{stderr}\n"
+      end
+    end
+
+    def extract(name, output_dir)
+      if name =~ /\.tar\.gz$/
+        cmd = "tar xzf #{name} -C #{output_dir}"
+        puts cmd
+        stdout, stderr, status = Open3.capture3 cmd
+      elsif name =~ /\.gz$/
+        cmd = "gunzip #{name}"
+        puts cmd
+        stdout, stderr, status = Open3.capture3 cmd
+      elsif name =~ /\.zip$/
+        cmd = "unzip #{name}"
+        puts cmd
+        stdout, stderr, status = Open3.capture3 cmd
+      elsif name =~ /\.sra$/
+        cmd = "fastq-dump.2.3.5.2 --split-3 #{name} --outdir #{output_dir}"
+        puts cmd
+        # stdout, stderr, status = Open3.capture3 cmd
+      end
     end
 
   end

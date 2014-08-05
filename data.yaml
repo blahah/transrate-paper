@@ -14,11 +14,15 @@
      - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR037/SRR037738/SRR037738.sra'
      - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR037/SRR037735/SRR037735.sra'
     :left:
-     - path/to/left_01.fastq
-     - path/to/left_02.fastq
+     - 'SRR037736_1.fastq'
+     - 'SRR037737_1.fastq'
+     - 'SRR037738_1.fastq'
+     - 'SRR037735_1.fastq'
     :right:
-     - path/to/right_01.fasta
-     - path/to/right_02.fasta
+     - 'SRR037736_2.fastq'
+     - 'SRR037737_2.fastq'
+     - 'SRR037738_2.fastq'
+     - 'SRR037735_2.fastq'
   :reference:
     :url:
     - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_protein.fa.gz'
@@ -36,16 +40,14 @@
     :url:
      - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR203/SRR203276/SRR203276.sra'
     :left:
-     - path/to/left_01.fastq
-     - path/to/left_02.fastq
+     - 'SRR203276_1.fastq'
     :right:
-     - path/to/right_01.fasta
-     - path/to/right_02.fasta
+     - 'SRR203276_2.fastq'
   :reference:
     :url:
     - 'ftp://ftp.ensembl.org/pub/release-64/fasta/mus_musculus/pep/Mus_musculus.NCBIM37.64.pep.all.fa.gz'
     :fa:
-    - path/to/reference/oryza_sativa.pep.fa
+    - 'Mus_musculus.NCBIM37.64.pep.all.fa'
 :chicken:
   :assembly:
     :url:
@@ -57,14 +59,11 @@
     :url:
      - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR538/SRR538807/SRR538807.sra'
     :left:
-     - path/to/left_01.fastq
-     - path/to/left_02.fastq
+     - 'SRR538807_1.fastq'
     :right:
-     - path/to/right_01.fasta
-     - path/to/right_02.fasta
+     - 'SRR538807_2.fastq'
   :reference:
     :url:
     - 'ftp://ftp.ensembl.org/pub/release-61/fasta/gallus_gallus/pep/Gallus_gallus.WASHUC2.61.pep.all.fa.gz'
     :fa:
-    - path/to/reference/chicken.pep.fa
-    - path/to/dinosaur.pep.fa
+    - 'Gallus_gallus.WASHUC2.61.pep.all.fa'
