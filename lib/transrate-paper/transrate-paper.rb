@@ -28,8 +28,8 @@ module Transrate_Paper
       end
     end
 
-    def download_data
-      @data = YAML.load_file "data.yaml"
+    def download_data yaml
+      @data = YAML.load_file yaml
       Dir.mkdir("data")
       puts "Downloading and extracting data..."
       @data.each do |experiment_name, experiment_data|
@@ -65,6 +65,9 @@ module Transrate_Paper
 
     def run_transrate
       @data.each do |experiment_name, experiment_data|
+        if !Dir.exist?(File.join("data", experiment_name.to_s, "transrate")
+          Dir.mkdir(File.join("data", experiment_name.to_s, "transrate")
+        end
         experiment_data[:assembly][:fa].each do |assembler, path|
           output_dir = File.join("data", experiment_name.to_s,
                                  "transrate", assembler.to_s)

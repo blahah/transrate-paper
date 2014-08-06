@@ -6,6 +6,6 @@ paper = Transrate_Paper::Transrate_Paper.new
 
 paper.install_dependencies
 
-paper.download_data
+paper.download_data "data.yaml"
 
 paper.run_transrate
