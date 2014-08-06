@@ -53,6 +53,47 @@ module Transrate_Paper
       puts "Done"
     end
 
+    def run_transrate
+      @data.each do |experiment_name, experiment_data|
+        experiment_data[:assembly][:fa].each do |assembler, path|
+          output_dir = File.join("data", experiment_name.to_s,
+                                 "transrate", assembler.to_s)
+          assembly_path = File.expand_path(File.join("data",
+                                      experiment_name.to_s, "assembly", path))
+          if !Dir.exist?(output_dir)
+            Dir.mkdir(output_dir)
+          end
+          Dir.chdir(output_dir) do |dir|
+            puts "changed to #{dir}"
+
+            cmd = "transrate "
+            cmd << " --assembly #{assembly_path} "
+            cmd << " --left "
+            left = []
+            experiment_data[:reads][:left].each do |fastq|
+              left << fastq
+            end
+            cmd << left.join(",")
+            cmd << " --right "
+            right = []
+            experiment_data[:reads][:right].each do |fastq|
+              right << fastq
+            end
+            cmd << right.join(",")
+            cmd << " --reference "
+            refs = []
+            experiment_data[:reference][:fa].each do |reference|
+              refs << reference
+            end
+            cmd << refs.join(",")
+            cmd << " --outfile #{assembler}"
+
+            puts cmd
+          end
+        end
+      end
+    end
+
     def extracted_name name
       if name =~ /\.sra$/
         return File.join(File.dirname(name),
