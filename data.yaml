@@ -25,9 +25,11 @@
      - 'SRR037735_2.fastq'
   :reference:
     :url:
-    - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_protein.fa.gz'
+     - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_protein.fa.gz'
+     - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Sbicolor/annotation/Sbicolor_79_protein.fa.gz'
     :fa:
-    - 'Osativa_204_protein.fa'
+     - 'Osativa_204_protein.fa'
+     - 'Sbicolor_79_protein.fa'
 :mouse:
   :assembly:
     :url:
@@ -46,24 +48,95 @@
   :reference:
     :url:
     - 'ftp://ftp.ensembl.org/pub/release-64/fasta/mus_musculus/pep/Mus_musculus.NCBIM37.64.pep.all.fa.gz'
+    - 'ftp://ftp.ensembl.org/pub/current_fasta/homo_sapiens/pep/Homo_sapiens.GRCh37.75.pep.all.fa.gz'
     :fa:
     - 'Mus_musculus.NCBIM37.64.pep.all.fa'
-:chicken:
+    - 'Homo_sapiens.GRCh37.75.pep.all.fa'
+:human:
   :assembly:
     :url:
-     - 'http://zenodo.org/record/11134/files/corset_extra_data.tar.gz'
+     - 'https://www.dropbox.com/s/4xyfqtbawbyblbs/corset_extra_data.tar.gz'
     :fa:
-      :trinity: 'corset_extra_data/Chicken-Trinity/Trinity.fasta'
-      :oases: 'corset_extra_data/Chicken-Oases/Oases.fasta'
+      :trinity: 'corset_extra_data/Human-Trinity/Trinity.fasta'
+      :oases: 'corset_extra_data/Human-Oases/Oases.fasta'
   :reads:
     :url:
-     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR538/SRR538807/SRR538807.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR493/SRR493377/SRR493377.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR493/SRR493376/SRR493376.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR493/SRR493375/SRR493375.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR493/SRR493374/SRR493374.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR493/SRR493373/SRR493373.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR493/SRR493372/SRR493372.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR493/SRR493371/SRR493371.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR493/SRR493370/SRR493370.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR493/SRR493369/SRR493369.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR493/SRR493368/SRR493368.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR493/SRR493367/SRR493367.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR493/SRR493366/SRR493366.sra'
     :left:
-     - 'SRR538807_1.fastq'
+     - 'SRR493377_1.fastq'
+     - 'SRR493376_1.fastq'
+     - 'SRR493375_1.fastq'
+     - 'SRR493374_1.fastq'
+     - 'SRR493373_1.fastq'
+     - 'SRR493372_1.fastq'
+     - 'SRR493371_1.fastq'
+     - 'SRR493370_1.fastq'
+     - 'SRR493369_1.fastq'
+     - 'SRR493368_1.fastq'
+     - 'SRR493367_1.fastq'
+     - 'SRR493366_1.fastq'
     :right:
-     - 'SRR538807_2.fastq'
+     - 'SRR493377_2.fastq'
+     - 'SRR493376_2.fastq'
+     - 'SRR493375_2.fastq'
+     - 'SRR493374_2.fastq'
+     - 'SRR493373_2.fastq'
+     - 'SRR493372_2.fastq'
+     - 'SRR493371_2.fastq'
+     - 'SRR493370_2.fastq'
+     - 'SRR493369_2.fastq'
+     - 'SRR493368_2.fastq'
+     - 'SRR493367_2.fastq'
+     - 'SRR493366_2.fastq'
   :reference:
     :url:
-    - 'ftp://ftp.ensembl.org/pub/release-61/fasta/gallus_gallus/pep/Gallus_gallus.WASHUC2.61.pep.all.fa.gz'
+    - 'ftp://ftp.ensembl.org/pub/current_fasta/homo_sapiens/pep/Homo_sapiens.GRCh37.75.pep.all.fa.gz'
+    - 'ftp://ftp.ensembl.org/pub/release-64/fasta/mus_musculus/pep/Mus_musculus.NCBIM37.64.pep.all.fa.gz'
     :fa:
-    - 'Gallus_gallus.WASHUC2.61.pep.all.fa'
+    - 'Homo_sapiens.GRCh37.75.pep.all.fa'
+    - 'Mus_musculus.NCBIM37.64.pep.all.fa'
+:yeast:
+  :assembly:
+    :url:
+     - 'https://www.dropbox.com/s/4xyfqtbawbyblbs/corset_extra_data.tar.gz'
+    :fa:
+      :trinity: 'corset_extra_data/Yeast-Trinity/Trinity.fasta'
+      :oases: 'corset_extra_data/Yeast-Oases/Oases.fasta'
+  :reads:
+    :url:
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR453/SRR453566/SRR453566.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR453/SRR453567/SRR453567.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR453/SRR453568/SRR453568.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR453/SRR453569/SRR453569.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR453/SRR453570/SRR453570.sra'
+     - 'ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR453/SRR453571/SRR453571.sra'
+    :left:
+     - 'SRR453566_1.fastq'
+     - 'SRR453567_1.fastq'
+     - 'SRR453568_1.fastq'
+     - 'SRR453569_1.fastq'
+     - 'SRR453570_1.fastq'
+     - 'SRR453571_1.fastq'
+    :right:
+     - 'SRR453566_2.fastq'
+     - 'SRR453567_2.fastq'
+     - 'SRR453568_2.fastq'
+     - 'SRR453569_2.fastq'
+     - 'SRR453570_2.fastq'
+     - 'SRR453571_2.fastq'
+  :reference:
+    :url:
+    - 'ftp://ftp.ensembl.org/pub/current_fasta/saccharomyces_cerevisiae/pep/Saccharomyces_cerevisiae.R64-1-1.75.pep.all.fa.gz'
+    :fa:
+    - 'Saccharomyces_cerevisiae.R64-1-1.75.pep.all.fa'
