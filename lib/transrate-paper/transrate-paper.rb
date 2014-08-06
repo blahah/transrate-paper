@@ -67,8 +67,8 @@ module Transrate_Paper
 
     def run_transrate
       @data.each do |experiment_name, experiment_data|
-        if !Dir.exist?(File.join("data", experiment_name.to_s, "transrate")
-          Dir.mkdir(File.join("data", experiment_name.to_s, "transrate")
+        if !Dir.exist?(File.join("data", experiment_name.to_s, "transrate"))
+          Dir.mkdir(File.join("data", experiment_name.to_s, "transrate"))
         end
         experiment_data[:assembly][:fa].each do |assembler, path|
           output_dir = File.join("data", experiment_name.to_s,
