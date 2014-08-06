@@ -30,10 +30,12 @@ module Transrate_Paper
 
     def download_data yaml
       @data = YAML.load_file yaml
-      Dir.mkdir("data")
+      Dir.mkdir("data") if !Dir.exist?("data")
       puts "Downloading and extracting data..."
       @data.each do |experiment_name, experiment_data|
-        Dir.mkdir(File.join("data", experiment_name.to_s))
+        if !Dir.exist?(File.join("data", experiment_name.to_s))
+          Dir.mkdir(File.join("data", experiment_name.to_s))
+        end
         experiment_data.each do |key, value|
           output_dir = File.join("data", experiment_name.to_s, key.to_s)
           if [:reads, :assembly, :reference].include? key
