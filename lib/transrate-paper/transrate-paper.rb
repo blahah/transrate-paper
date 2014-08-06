@@ -4,6 +4,8 @@ require 'bindeps'
 require 'json'
 require 'yaml'
 require 'open3'
+require 'which'
+include Which
 
 module Transrate_Paper
 
@@ -18,6 +20,12 @@ module Transrate_Paper
       gem_dir = Gem.loaded_specs['transrate-paper'].full_gem_path
       gem_deps = File.join(gem_dir, 'deps', 'deps.yaml')
       Bindeps.require gem_deps
+      @curl = which('curl').first
+      @wget = which('wget').first
+      if !@curl and !@wget
+        msg = "Don't know how to download files without curl or wget installed"
+        raise RuntimeError.new(msg)
+      end
     end
 
     def download_data
@@ -39,7 +47,7 @@ module Transrate_Paper
                   name = File.join(output_dir, File.basename(url))
                   # download
                   if !already_downloaded name
-                    curl(url, name)
+                    download(url, name)
                   end
                   # extract
                   if !already_extracted name
@@ -133,8 +141,14 @@ module Transrate_Paper
       end
     end
 
-    def curl(url, name)
-      cmd = "curl #{url} -o #{name}"
+    def download(url, name)
+      if @curl
+        cmd = "curl #{url} -o #{name}"
+      elsif @wget
+        cmd = "wget #{url} -O #{name}"
+      else
+        raise RuntimeError.new("Neither curl or wget installed")
+      end
       puts cmd
       stdout, stderr, status = Open3.capture3 cmd
       if !status.success?
