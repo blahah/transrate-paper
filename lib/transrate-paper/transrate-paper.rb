@@ -101,9 +101,15 @@ module Transrate_Paper
               refs << reference
             end
             cmd << refs.join(",")
+            cmd << " --threads 8"
             cmd << " --outfile #{assembler}"
 
             puts cmd
+            stdout, stderr, status = Open3.capture3 cmd
+            File.open("log-#{experiment_name.to_s}-#{assembler.to_s}","wb") do |out|
+              out.write(stdout)
+              out.write(stderr)
+            end
           end
         end
       end
