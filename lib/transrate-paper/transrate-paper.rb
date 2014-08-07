@@ -13,6 +13,7 @@ module Transrate_Paper
 
     def initialize
       @data = {} # description and location of the data
+      @gem_dir = Gem.loaded_specs['crb-blast'].full_gem_path
     end
 
     def install_dependencies
@@ -30,14 +31,17 @@ module Transrate_Paper
 
     def download_data yaml
       @data = YAML.load_file yaml
-      Dir.mkdir("data") if !Dir.exist?("data")
+      if !Dir.exist?(File.join(@gem_dir, "data"))
+        Dir.mkdir(File.join(@gem_dir, "data"))
+      end
       puts "Downloading and extracting data..."
       @data.each do |experiment_name, experiment_data|
-        if !Dir.exist?(File.join("data", experiment_name.to_s))
-          Dir.mkdir(File.join("data", experiment_name.to_s))
+        if !Dir.exist?(File.join(@gem_dir, "data", experiment_name.to_s))
+          Dir.mkdir(File.join(@gem_dir, "data", experiment_name.to_s))
         end
         experiment_data.each do |key, value|
-          output_dir = File.join("data", experiment_name.to_s, key.to_s)
+          output_dir = File.join(@gem_dir, "data",
+                                 experiment_name.to_s, key.to_s)
           if [:reads, :assembly, :reference].include? key
             value.each do |description, paths|
               if description == :url
@@ -67,13 +71,15 @@ module Transrate_Paper
 
     def run_transrate threads
       @data.each do |experiment_name, experiment_data|
-        if !Dir.exist?(File.join("data", experiment_name.to_s, "transrate"))
-          Dir.mkdir(File.join("data", experiment_name.to_s, "transrate"))
+        if !Dir.exist?(File.join(@gem_dir, "data", experiment_name.to_s,
+                                 "transrate"))
+          Dir.mkdir(File.join(@gem_dir, "data", experiment_name.to_s,
+                              "transrate"))
         end
         experiment_data[:assembly][:fa].each do |assembler, path|
-          output_dir = File.join("data", experiment_name.to_s,
+          output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
                                  "transrate", assembler.to_s)
-          assembly_path = File.expand_path(File.join("data",
+          assembly_path = File.expand_path(File.join(@gem_dir, "data",
                                       experiment_name.to_s, "assembly", path))
           puts "output dir : #{output_dir}"
           if !Dir.exist?(output_dir)
@@ -82,7 +88,8 @@ module Transrate_Paper
           Dir.chdir(output_dir) do |dir|
             puts "changed to #{dir}"
             experiment_data[:reference][:fa].each do |reference|
-              reference_path = File.expand_path(File.join("data", experiment_name.to_s, "reference", reference))
+              reference_path = File.expand_path(File.join(@gem_dir, "data",
+                                experiment_name.to_s, "reference", reference))
               cmd = "transrate "
               cmd << " --assembly #{assembly_path} "
               cmd << " --left "
@@ -102,11 +109,11 @@ module Transrate_Paper
               cmd << " --outfile #{assembler}-#{reference}"
 
               puts cmd
-              stdout, stderr, status = Open3.capture3 cmd
-              File.open("log-#{assembler.to_s}-#{reference}","wb") do |out|
-               out.write(stdout)
-               out.write(stderr)
-              end
+              # stdout, stderr, status = Open3.capture3 cmd
+              # File.open("log-#{assembler.to_s}-#{reference}","wb") do |out|
+              #  out.write(stdout)
+              #  out.write(stderr)
+              # end
             end
           end
         end
