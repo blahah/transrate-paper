@@ -13,7 +13,7 @@ module Transrate_Paper
 
     def initialize
       @data = {} # description and location of the data
-      @gem_dir = Gem.loaded_specs['crb-blast'].full_gem_path
+      @gem_dir = Gem.loaded_specs['transrate-paper'].full_gem_path
     end
 
     def install_dependencies
@@ -81,7 +81,6 @@ module Transrate_Paper
                                  "transrate", assembler.to_s)
           assembly_path = File.expand_path(File.join(@gem_dir, "data",
                                       experiment_name.to_s, "assembly", path))
-          puts "output dir : #{output_dir}"
           if !Dir.exist?(output_dir)
             Dir.mkdir(output_dir)
           end
@@ -95,13 +94,15 @@ module Transrate_Paper
               cmd << " --left "
               left = []
               experiment_data[:reads][:left].each do |fastq|
-                left << fastq
+                left << File.expand_path(File.join(@gem_dir, "data",
+                                       experiment_name.to_s, "reads", fastq))
               end
               cmd << left.join(",")
               cmd << " --right "
               right = []
               experiment_data[:reads][:right].each do |fastq|
-                right << fastq
+                right << File.expand_path(File.join(@gem_dir, "data",
+                                       experiment_name.to_s, "reads", fastq))
               end
               cmd << right.join(",")
               cmd << " --reference #{reference_path}"
@@ -109,11 +110,11 @@ module Transrate_Paper
               cmd << " --outfile #{assembler}-#{reference}"
 
               puts cmd
-              # stdout, stderr, status = Open3.capture3 cmd
-              # File.open("log-#{assembler.to_s}-#{reference}","wb") do |out|
-              #  out.write(stdout)
-              #  out.write(stderr)
-              # end
+              stdout, stderr, status = Open3.capture3 cmd
+              File.open("log-#{assembler.to_s}-#{reference}.txt","wb") do |out|
+               out.write(stdout)
+               out.write(stderr)
+              end
             end
           end
         end
