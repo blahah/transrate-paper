@@ -8,4 +8,4 @@ paper.install_dependencies
 
 paper.download_data "data.yaml"
 
-paper.run_transrate
+paper.run_transrate 8

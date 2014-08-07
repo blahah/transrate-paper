@@ -65,7 +65,7 @@ module Transrate_Paper
       puts "Done"
     end
 
-    def run_transrate
+    def run_transrate threads
       @data.each do |experiment_name, experiment_data|
         if !Dir.exist?(File.join("data", experiment_name.to_s, "transrate"))
           Dir.mkdir(File.join("data", experiment_name.to_s, "transrate"))
@@ -75,40 +75,38 @@ module Transrate_Paper
                                  "transrate", assembler.to_s)
           assembly_path = File.expand_path(File.join("data",
                                       experiment_name.to_s, "assembly", path))
+          puts "output dir : #{output_dir}"
           if !Dir.exist?(output_dir)
             Dir.mkdir(output_dir)
           end
           Dir.chdir(output_dir) do |dir|
             puts "changed to #{dir}"
-
-            cmd = "transrate "
-            cmd << " --assembly #{assembly_path} "
-            cmd << " --left "
-            left = []
-            experiment_data[:reads][:left].each do |fastq|
-              left << fastq
-            end
-            cmd << left.join(",")
-            cmd << " --right "
-            right = []
-            experiment_data[:reads][:right].each do |fastq|
-              right << fastq
-            end
-            cmd << right.join(",")
-            cmd << " --reference "
-            refs = []
             experiment_data[:reference][:fa].each do |reference|
-              refs << reference
-            end
-            cmd << refs.join(",")
-            cmd << " --threads 8"
-            cmd << " --outfile #{assembler}"
+              reference_path = File.expand_path(File.join("data", experiment_name.to_s, "reference", reference))
+              cmd = "transrate "
+              cmd << " --assembly #{assembly_path} "
+              cmd << " --left "
+              left = []
+              experiment_data[:reads][:left].each do |fastq|
+                left << fastq
+              end
+              cmd << left.join(",")
+              cmd << " --right "
+              right = []
+              experiment_data[:reads][:right].each do |fastq|
+                right << fastq
+              end
+              cmd << right.join(",")
+              cmd << " --reference #{reference_path}"
+              cmd << " --threads #{threads}"
+              cmd << " --outfile #{assembler}-#{reference}"
 
-            puts cmd
-            stdout, stderr, status = Open3.capture3 cmd
-            File.open("log-#{experiment_name.to_s}-#{assembler.to_s}","wb") do |out|
-              out.write(stdout)
-              out.write(stderr)
+              puts cmd
+              stdout, stderr, status = Open3.capture3 cmd
+              File.open("log-#{assembler.to_s}-#{reference}","wb") do |out|
+               out.write(stdout)
+               out.write(stderr)
+              end
             end
           end
         end
