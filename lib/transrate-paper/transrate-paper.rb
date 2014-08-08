@@ -110,10 +110,12 @@ module Transrate_Paper
               cmd << " --outfile #{assembler}-#{reference}"
 
               puts cmd
-              stdout, stderr, status = Open3.capture3 cmd
-              File.open("log-#{assembler.to_s}-#{reference}.txt","wb") do |out|
-               out.write(stdout)
-               out.write(stderr)
+              if !File.exist?("#{assembler}-#{reference}_assemblies.csv")
+                stdout, stderr, status = Open3.capture3 cmd
+                File.open("log-#{assembler.to_s}-#{reference}.txt","wb") do |out|
+                  out.write(stdout)
+                  out.write(stderr)
+                end
               end
             end
           end
