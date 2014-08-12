@@ -55,7 +55,7 @@
 :human:
   :assembly:
     :url:
-     - 'https://www.dropbox.com/s/4xyfqtbawbyblbs/corset_extra_data.tar.gz'
+     - 'http://zenodo.org/record/11134/files/corset_extra_data.tar.gz'
     :fa:
       :trinity: 'corset_extra_data/Human-Trinity/Trinity.fasta'
       :oases: 'corset_extra_data/Human-Oases/Oases.fasta'
@@ -109,7 +109,7 @@
 :yeast:
   :assembly:
     :url:
-     - 'https://www.dropbox.com/s/4xyfqtbawbyblbs/corset_extra_data.tar.gz'
+     - 'http://zenodo.org/record/11134/files/corset_extra_data.tar.gz'
     :fa:
       :trinity: 'corset_extra_data/Yeast-Trinity/Trinity.fasta'
       :oases: 'corset_extra_data/Yeast-Oases/Oases.fasta'
