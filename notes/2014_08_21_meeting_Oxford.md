@@ -13,7 +13,7 @@
 
 - take geometric mean of all contig scores
   - can't have contig scores of 0
-- take geometric mean of that score and the proportion of reads that mapped good
+- take geometric mean of that score and the proportion of reads that mapped good  
 
 ### Contig score
 
@@ -29,7 +29,6 @@ consists of
 - proportion of reads mapping to the contig that map good
 - 1 - edit distance (normalised across the dataset?)
 - proportion of bases with mapQ >5 (maybe change to geometric mean of mapq probs - try and plot)
-
 
 test this by running the score analysis on an existing dataset
 - look at top 10
@@ -53,7 +52,7 @@ analyse them all with contig and read metrics, before and after filtering the cr
 
 - normalise inverse edit distance prob
 - calculate p_bases_covered and p_unique_bases by considering only the effective contig
-- include length cutoff in the score
+- include length cutoff in the score -> don't need to do this if we sort out good read alignments as below
 - double check all score calculations
 - p_good should *not* allow reads where the mate doesn't map the same contig
 
