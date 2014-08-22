@@ -1,0 +1,138 @@
+---
+title: "Transrate contig score SOAPpaper-trinity-rice"
+author: "Richard Smith-Unna"
+date: "21 August 2014"
+output: html_document
+---
+
+```{r}
+setwd('~/code/transrate-paper/analysis/score-testing/')
+df <- read.csv('trinity-Osativa_204_protein.fa_Trinity.fasta_contigs.csv', as.is=T)
+# assembly score
+df$score[df$score==0] <- 0.01
+exp(mean(log(df$score[!is.na(df$score)])))
+```
+
+# Contig score distribution
+
+```{r, echo=FALSE}
+library(ggplot2)
+ggplot(df, aes(x=score)) + geom_histogram()
+```
+
+# Score component scatterplot matrix
+
+note: correlations in the scatterplot matrix are pearsons - not ideal
+
+```{r, echo=FALSE}
+library(reshape2)
+# score_cols <- c('contig_name', 'length', 'p_unambiguous', 'p_bases_covered', 'inverse_edit_dist', 'p_good', 'p_unique_bases')
+score_cols <- c('contig_name', 'length', 'p_unambiguous', 'p_bases_covered', 'edit_distance_per_base', 'p_good', 'p_low_uniqueness_bases')
+df_score <- df[,score_cols]
+df_score$inverse_edit_dist <- 1 - df_score$edit_distance_per_base
+df_score$p_unique_bases <- 1 - df_score$p_low_uniqueness_bases
+df_score_melt <- melt(df_score[, c('contig_name', 'p_unambiguous', 'p_bases_covered', 'p_good', 'p_unique_bases', 'inverse_edit_dist')], id='contig_name')
+score_components <- df_score[, c('length', 'p_unambiguous', 'p_bases_covered', 'p_good', 'p_unique_bases', 'inverse_edit_dist')]
+```
+
+# Distribution of score components
+
+```{r, echo=FALSE}
+ggplot(df_score_melt, aes(x=value)) +
+  geom_histogram() +
+  facet_grid(variable ~ ., scales="free_y") +
+  scale_y_log10()
+```
+
+# Correlation between score components
+
+note: in this assembly, p_unambiguous is always 1 because Trinity replaces unambiguous bases.
+
+```{r, echo=FALSE}
+library(reshape2)
+score_cor <- cor(as.matrix(score_components[complete.cases(score_components),]), method="spearman")
+score_cor_melt <- melt(score_cor)
+# score_cor_melt <- score_cor_melt[-which(score_cor_melt$value == 1), ]
+ggplot(score_cor_melt, aes(x=Var1, y=Var2, fill=value)) + 
+  scale_fill_gradient2(limits=c(-1, 1)) +
+  geom_tile() +
+  geom_text(aes(label = round(value, 2)))
+```
+
+# Score vs length, orf length
+
+```{r}
+ggplot(df, aes(score, length)) + geom_point()
+```
+
+# How many got extreme scores?
+
+```{r}
+# score == 1
+length(which(df$score == 1))
+# 0.99
+length(which(df$score > 0.99))
+# 0.95
+length(which(df$score > 0.95))
+# score == 0
+length(which(df$score == 0))
+```
+
+# Top and bottom lists
+
+```{r}
+# Top 10
+head(df[with(df, order(-score)),], n=10)
+# Bottom 10
+head(df[with(df, order(score)),], n=10)
+```
+
+# What if we set minimum length = 200 and minimum ORF size = 50
+```{r}
+strict_df <- subset(df, length > 200 & orf_length >= 50)
+# score == 1
+length(which(strict_df$score == 1))
+# 0.99
+length(which(strict_df$score > 0.99))
+# 0.95
+length(which(strict_df$score > 0.95))
+# score == 0
+length(which(strict_df$score == 0))
+# score < 0.5
+length(which(strict_df$score < 0.5))
+# Top 10
+top10 <- head(strict_df[with(strict_df, order(-score)),], n=10)
+# Bottom 10
+bot10 <- head(strict_df[with(strict_df, order(score)),], n=10)
+```
+
+```{r}
+strict_df_score <- strict_df[,score_cols]
+score_components <- strict_df_score[, c('length', 'p_unambiguous', 'p_bases_covered', 'p_good', 'p_unique_bases', 'inverse_edit_dist')]
+score_cor <- cor(as.matrix(score_components[complete.cases(score_components),]), method="spearman")
+score_cor_melt <- melt(score_cor)
+# score_cor_melt <- score_cor_melt[-which(score_cor_melt$value == 1), ]
+ggplot(score_cor_melt, aes(x=Var1, y=Var2, fill=value)) + 
+  scale_fill_gradient2(limits=c(-1, 1)) +
+  geom_tile() +
+  geom_text(aes(label = round(value, 2)))
+```
+
+```{r}
+# df$eff_length <- max(df$length-200, 1)
+# df$n_good <- df$length * df$p_good
+# df$eff_p_good <- df$n_good / df$
+# assembly score
+com_strict <- strict_df[,c('reference_coverage', 'score')]
+com_strict <- com_strict[complete.cases(com_strict),]
+cor(com_strict)
+```
+
+```{r}
+geomean <- function(x) {
+  exp(mean(log(x)))
+}
+df_score$score_w_p_bases <- apply(df_score[,c('p_bases_covered', 'p_unambiguous', 'p_good', 'p_unique_bases', 'inverse_edit_dist')], MARGIN=1, FUN=geomean)
+ggplot(df_score, aes(x=score_w_p_bases)) + geom_histogram()
+ggplot(df_score, aes(reference_coverage, score_no_p_bases)) + geom_hex() + scale_fill_gradient(na.value = "white", low="white", high="red", )
+```
