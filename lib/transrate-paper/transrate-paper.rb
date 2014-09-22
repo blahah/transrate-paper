@@ -7,9 +7,9 @@ require 'open3'
 require 'which'
 include Which
 
-module Transrate_Paper
+module TransratePaper
 
-  class Transrate_Paper
+  class TransratePaper
 
     def initialize
       @data = {} # description and location of the data
@@ -119,6 +119,44 @@ module Transrate_Paper
               end
             end
           end
+        end
+      end
+    end
+
+    def transonerate threads
+      @data.each do |experiment_name, experiment_data|
+        if !Dir.exist?(File.join(@gem_dir, "data", experiment_name.to_s,
+                                 "transonerate"))
+          Dir.mkdir(File.join(@gem_dir, "data", experiment_name.to_s,
+                              "transonerate"))
+        end
+        genome = experiment_data[:genome][:fa]
+        gtf = experiment_data[:annotation][:gtf]
+        experiment_data[:assembly][:fa].each do |assembler, path|
+          output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
+                                 "transonerate", assembler.to_s)
+          cmd << "transonerate "
+          cmd << " --assembly #{path}"
+          cmd << " --genome #{genome}"
+          cmd << " --gtf #{gtf}"
+
+          left = []
+          experiment_data[:reads][:left].each do |fastq|
+            left << File.expand_path(File.join(@gem_dir, "data",
+                                   experiment_name.to_s, "reads", fastq))
+          end
+          cmd << left.join(",")
+          cmd << " --left #{left}"
+
+          right = []
+          experiment_data[:reads][:right].each do |fastq|
+            right << File.expand_path(File.join(@gem_dir, "data",
+                                   experiment_name.to_s, "reads", fastq))
+          end
+          cmd << right.join(",")
+          cmd << " --right #{right}"
+
+          puts cmd
         end
       end
     end

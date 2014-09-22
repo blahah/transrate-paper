@@ -30,6 +30,16 @@
     :fa:
      - 'Osativa_204_protein.fa'
      - 'Sbicolor_79_protein.fa'
+  :genome:
+    :url:
+     - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/assembly/Osativa_204.fa.gz'
+    :fa:
+     - 'Osativa_204.fa'
+  :annotation:
+    :url:
+     - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_gene_exons.gff3.gz'
+    :fa:
+     - 'Osativa_204_gene_exons.gff3'
 :mouse:
   :assembly:
     :url:
@@ -52,6 +62,16 @@
     :fa:
     - 'Mus_musculus.NCBIM37.64.pep.all.fa'
     - 'Homo_sapiens.GRCh37.75.pep.all.fa'
+  :genome:
+    :url:
+     - 'ftp://ftp.ensembl.org/pub/release-64/fasta/mus_musculus/dna/Mus_musculus.NCBIM37.64.dna.toplevel.fa.gz'
+    :fa:
+     - 'Mus_musculus.NCBIM37.64.dna.toplevel.fa'
+  :annotation:
+    :url:
+     - 'ftp://ftp.ensembl.org/pub/release-64/gtf/mus_musculus/Mus_musculus.NCBIM37.64.gtf.gz'
+    :fa:
+     - 'Mus_musculus.NCBIM37.64.gtf'
 :human:
   :assembly:
     :url:
@@ -106,6 +126,16 @@
     :fa:
     - 'Homo_sapiens.GRCh37.75.pep.all.fa'
     - 'Mus_musculus.NCBIM37.64.pep.all.fa'
+  :genome:
+    :url:
+     - 'ftp://ftp.ensembl.org/pub/release-64/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.64.dna.toplevel.fa.gz'
+    :fa:
+     - 'Homo_sapiens.GRCh37.64.dna.toplevel.fa'
+  :annotation:
+    :url:
+     - 'ftp://ftp.ensembl.org/pub/release-64/gtf/homo_sapiens/Homo_sapiens.GRCh37.64.gtf.gz'
+    :fa:
+     - 'Homo_sapiens.GRCh37.64.gtf'
 :yeast:
   :assembly:
     :url:
@@ -142,3 +172,13 @@
     :fa:
     - 'Saccharomyces_cerevisiae.R64-1-1.75.pep.all.fa'
     - 'Schizosaccharomyces_pombe.ASM294v2.22.pep.all.fa'
+  :genome:
+    :url:
+     - 'ftp://ftp.ensembl.org/pub/release-64/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.EF3.64.dna.toplevel.fa.gz'
+    :fa:
+     - 'Saccharomyces_cerevisiae.EF3.64.dna.toplevel.fa'
+  :annotation:
+    :url:
+     - 'ftp://ftp.ensembl.org/pub/release-64/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.EF3.64.gtf.gz'
+    :fa:
+     - 'Saccharomyces_cerevisiae.EF3.64.gtf'
