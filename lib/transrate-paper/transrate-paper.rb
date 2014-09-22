@@ -130,12 +130,12 @@ module TransratePaper
           Dir.mkdir(File.join(@gem_dir, "data", experiment_name.to_s,
                               "transonerate"))
         end
-        genome = experiment_data[:genome][:fa]
-        gtf = experiment_data[:annotation][:gtf]
+        genome = experiment_data[:genome][:fa].first
+        gtf = experiment_data[:annotation][:gtf].first
         experiment_data[:assembly][:fa].each do |assembler, path|
           output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
                                  "transonerate", assembler.to_s)
-          cmd << "transonerate "
+          cmd = "transonerate "
           cmd << " --assembly #{path}"
           cmd << " --genome #{genome}"
           cmd << " --gtf #{gtf}"
