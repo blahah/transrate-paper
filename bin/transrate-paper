@@ -11,4 +11,4 @@ paper.download_data "data.yaml"
 
 paper.run_transrate 8
 
-paper.transonerate
+paper.transonerate 8
