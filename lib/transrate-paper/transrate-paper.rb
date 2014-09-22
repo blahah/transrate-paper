@@ -42,7 +42,7 @@ module TransratePaper
         experiment_data.each do |key, value|
           output_dir = File.join(@gem_dir, "data",
                                  experiment_name.to_s, key.to_s)
-          if [:reads, :assembly, :reference].include? key
+          if [:reads, :assembly, :reference, :genome, :annotation].include? key
             value.each do |description, paths|
               if description == :url
                 paths.each do |url|
