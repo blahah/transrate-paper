@@ -38,7 +38,7 @@
   :annotation:
     :url:
      - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_gene_exons.gff3.gz'
-    :fa:
+    :gtf:
      - 'Osativa_204_gene_exons.gff3'
 :mouse:
   :assembly:
@@ -70,7 +70,7 @@
   :annotation:
     :url:
      - 'ftp://ftp.ensembl.org/pub/release-64/gtf/mus_musculus/Mus_musculus.NCBIM37.64.gtf.gz'
-    :fa:
+    :gtf:
      - 'Mus_musculus.NCBIM37.64.gtf'
 :human:
   :assembly:
@@ -134,7 +134,7 @@
   :annotation:
     :url:
      - 'ftp://ftp.ensembl.org/pub/release-64/gtf/homo_sapiens/Homo_sapiens.GRCh37.64.gtf.gz'
-    :fa:
+    :gtf:
      - 'Homo_sapiens.GRCh37.64.gtf'
 :yeast:
   :assembly:
@@ -180,5 +180,5 @@
   :annotation:
     :url:
      - 'ftp://ftp.ensembl.org/pub/release-64/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.EF3.64.gtf.gz'
-    :fa:
+    :gtf:
      - 'Saccharomyces_cerevisiae.EF3.64.gtf'

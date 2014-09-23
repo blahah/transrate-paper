@@ -135,28 +135,36 @@ module TransratePaper
         experiment_data[:assembly][:fa].each do |assembler, path|
           output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
                                  "transonerate", assembler.to_s)
-          cmd = "transonerate "
-          cmd << " --assembly #{path}"
-          cmd << " --genome #{genome}"
-          cmd << " --gtf #{gtf}"
-
-          left = []
-          experiment_data[:reads][:left].each do |fastq|
-            left << File.expand_path(File.join(@gem_dir, "data",
-                                   experiment_name.to_s, "reads", fastq))
+          if !Dir.exist?(output_dir)
+            Dir.mkdir(output_dir)
           end
-          cmd << left.join(",")
-          cmd << " --left #{left}"
+          puts "changing to #{output_dir}"
+          Dir.chdir(output_dir) do
+            cmd = "transonerate "
+            cmd << " --assembly #{path}"
+            cmd << " --genome #{genome}"
+            cmd << " --gtf #{gtf}"
 
-          right = []
-          experiment_data[:reads][:right].each do |fastq|
-            right << File.expand_path(File.join(@gem_dir, "data",
-                                   experiment_name.to_s, "reads", fastq))
+            left = []
+            experiment_data[:reads][:left].each do |fastq|
+              left << File.expand_path(File.join(@gem_dir, "data",
+                                     experiment_name.to_s, "reads", fastq))
+            end
+            cmd << " --left "
+            cmd << left.join(",")
+
+
+            right = []
+            experiment_data[:reads][:right].each do |fastq|
+              right << File.expand_path(File.join(@gem_dir, "data",
+                                     experiment_name.to_s, "reads", fastq))
+            end
+            cmd << " --right "
+            cmd << right.join(",")
+
+
+            puts cmd
           end
-          cmd << right.join(",")
-          cmd << " --right #{right}"
-
-          puts cmd
         end
       end
     end
