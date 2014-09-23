@@ -131,19 +131,26 @@ module TransratePaper
                               "transonerate"))
         end
         genome = experiment_data[:genome][:fa].first
+        genome_path = File.expand_path(File.join(@gem_dir, "data",
+                                      experiment_name.to_s, "genome", genome))
         gtf = experiment_data[:annotation][:gtf].first
+        gtf_path = File.expand_path(File.join(@gem_dir, "data",
+                                     experiment_name.to_s, "annotation", gtf))
         experiment_data[:assembly][:fa].each do |assembler, path|
           output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
                                  "transonerate", assembler.to_s)
+          assembly_path = File.expand_path(File.join(@gem_dir, "data",
+                                      experiment_name.to_s, "assembly", path))
           if !Dir.exist?(output_dir)
             Dir.mkdir(output_dir)
           end
           puts "changing to #{output_dir}"
           Dir.chdir(output_dir) do
             cmd = "transonerate "
-            cmd << " --assembly #{path}"
-            cmd << " --genome #{genome}"
-            cmd << " --gtf #{gtf}"
+            cmd << " --assembly #{assembly_path}"
+            cmd << " --genome #{genome_path}"
+            cmd << " --gtf #{gtf_path}"
+            cmd << " --output exonerate.out"
 
             left = []
             experiment_data[:reads][:left].each do |fastq|
