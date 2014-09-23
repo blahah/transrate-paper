@@ -164,6 +164,12 @@ module TransratePaper
 
 
             puts cmd
+            stdout, stderr, status = Open3.capture3 cmd
+            if !status.success?
+              puts stdout
+              puts stderr
+              abort "something went wrong with transonerate"
+            end
           end
         end
       end
