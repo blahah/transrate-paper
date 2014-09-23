@@ -150,7 +150,6 @@ module TransratePaper
             cmd << " --assembly #{assembly_path}"
             cmd << " --genome #{genome_path}"
             cmd << " --gtf #{gtf_path}"
-            cmd << " --output exonerate.out"
 
             left = []
             experiment_data[:reads][:left].each do |fastq|
@@ -169,6 +168,8 @@ module TransratePaper
             cmd << " --right "
             cmd << right.join(",")
 
+            cmd << " --output exonerate.out"
+            cmd << " --threads #{threads}"
 
             puts cmd
             stdout, stderr, status = Open3.capture3 cmd
