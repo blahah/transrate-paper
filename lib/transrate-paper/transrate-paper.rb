@@ -136,48 +136,50 @@ module TransratePaper
         gtf = experiment_data[:annotation][:gtf].first
         gtf_path = File.expand_path(File.join(@gem_dir, "data",
                                      experiment_name.to_s, "annotation", gtf))
+        output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
+                                 "transonerate")
+        assemblers = []
         experiment_data[:assembly][:fa].each do |assembler, path|
-          output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
-                                 "transonerate", assembler.to_s)
           assembly_path = File.expand_path(File.join(@gem_dir, "data",
                                       experiment_name.to_s, "assembly", path))
-          if !Dir.exist?(output_dir)
-            Dir.mkdir(output_dir)
+          assemblers << assembly_path
+        end
+
+        if !Dir.exist?(output_dir)
+          Dir.mkdir(output_dir)
+        end
+        puts "changing to #{output_dir}"
+        Dir.chdir(output_dir) do
+          cmd = "transonerate "
+          cmd << " --assembly #{assemblers.join(",")}"
+          cmd << " --genome #{genome_path}"
+          cmd << " --gtf #{gtf_path}"
+
+          left = []
+          experiment_data[:reads][:left].each do |fastq|
+            left << File.expand_path(File.join(@gem_dir, "data",
+                                   experiment_name.to_s, "reads", fastq))
           end
-          puts "changing to #{output_dir}"
-          Dir.chdir(output_dir) do
-            cmd = "transonerate "
-            cmd << " --assembly #{assembly_path}"
-            cmd << " --genome #{genome_path}"
-            cmd << " --gtf #{gtf_path}"
+          cmd << " --left "
+          cmd << left.join(",")
 
-            left = []
-            experiment_data[:reads][:left].each do |fastq|
-              left << File.expand_path(File.join(@gem_dir, "data",
-                                     experiment_name.to_s, "reads", fastq))
-            end
-            cmd << " --left "
-            cmd << left.join(",")
+          right = []
+          experiment_data[:reads][:right].each do |fastq|
+            right << File.expand_path(File.join(@gem_dir, "data",
+                                   experiment_name.to_s, "reads", fastq))
+          end
+          cmd << " --right "
+          cmd << right.join(",")
 
+          cmd << " --output exonerate.out"
+          cmd << " --threads #{threads}"
 
-            right = []
-            experiment_data[:reads][:right].each do |fastq|
-              right << File.expand_path(File.join(@gem_dir, "data",
-                                     experiment_name.to_s, "reads", fastq))
-            end
-            cmd << " --right "
-            cmd << right.join(",")
-
-            cmd << " --output exonerate.out"
-            cmd << " --threads #{threads}"
-
-            puts cmd
-            stdout, stderr, status = Open3.capture3 cmd
-            if !status.success?
-              puts stdout
-              puts stderr
-              abort "something went wrong with transonerate"
-            end
+          puts cmd
+          stdout, stderr, status = Open3.capture3 cmd
+          if !status.success?
+            puts stdout
+            puts stderr
+            abort "something went wrong with transonerate"
           end
         end
       end
