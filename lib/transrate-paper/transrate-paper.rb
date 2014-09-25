@@ -171,7 +171,7 @@ module TransratePaper
           cmd << " --right "
           cmd << right.join(",")
 
-          cmd << " --output exonerate.out"
+          cmd << " --output transonerate.out" # output is a suffix
           cmd << " --threads #{threads}"
 
           puts cmd
