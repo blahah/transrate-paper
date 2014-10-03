@@ -2,16 +2,135 @@ module TransratePaper
 
   class Tsa
 
+    # tsa.XXXX.##.gbff.gz     RNA GenBank flatfiles
+    # tsa.XXXX.##.fsa_nt.gz   RNA FASTA files
+
+    # tsa.XXXX.##.gnp.gz      Protein GenPept flatfiles
+    # tsa.XXXX.##.fsa_aa.gz   Protein FASTA files
+
+    # tsa.XXXX.mstr.gbff.gz   TSA master-record GenBank flatfile
+    # stats.tsa.XXXX          Summary TSA statistics
+
     def initialize
       @ftp = "ftp://ftp.ncbi.nih.gov/genbank/tsa/"
+      @sra_sam = "ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR133/SRR1336770/SRR1336770.sra"
       @list = "tsa_list.txt"
       @gem_dir = Gem.loaded_specs['transrate-paper'].full_gem_path
       @data = {}
+      ## fastq-dump
+      which = "which fastq-dump.2.3.5.2"
+      stdout, stderr, status = Open3.capture3 which
+      if !status.success?
+        msg = "fastq-dump not installed. please run "
+        msg << "transrate-paper --install-deps"
+        abort msg
+      end
+      @fastq_dump = stdout.split("\n").first
+      ##
     end
 
     def run_transrate threads
       #cmd = "fastq-dump.2.3.5.2 --origfmt --split-3 #{name} --outdir #{output_dir}"
+      if !Dir.exist?("#{@gem_dir}/data/genbank")
+        Dir.mkdir("#{@gem_dir}/data/genbank")
+      end
+      Dir.chdir("#{@gem_dir}/data/genbank") do
+        File.open(@list).each_line do |line|
+          cols = line.chomp.split("\t")
+          tsa = cols[0]
+          sra = cols[1].split(",")
+          transcripts = cols[2]
+          if tsa =~ /tsa.([A-Z]{4}).mstr.gbff/
+            code = $1
+          end
+          if sra.length == 1
+            download_tsa_assembly(code)
+            download_tsa_sra(code, sra.first)
+            cmd = "transrate --assembly #{code}.fa"
+            cmd << " --left #{code}_1.fastq"
+            cmd << " --right #{code}_2.fastq"
+            cmd << " --threads #{threads}"
+            cmd << " --outfile #{code}"
+            stdout, stderr, status = Open3.capture3 cmd
+            if !status.success?
+              abort "something went wrong running transrate on #{code}"
+            end
+            File.open("#{code}-transrate.out", "wb") do |io|
+              io.write stdout
+            end
+          end
+        end
+      end
     end
+
+    def download_tsa_assembly code # ie GAAA
+      if !Dir.exist?("#{@gem_dir}/data/genbank/#{code}")
+        Dir.mkdir("#{@gem_dir}/data/genbank/#{code}")
+      end
+      Dir.chdir("#{@gem_dir}/data/genbank/#{code}") do
+        if !File.exist?("#{code}.fa")
+          dest = "#{code}.fa.gz"
+          dl_assembly = "curl #{@ftp}tsa.#{code}.1.fsa_nt.gz -o #{dest}"
+          stdout, stderr, status = Open3.capture3 dl_assembly
+          if !status.success?
+            puts "couldn't download #{code} assembly"
+            return false
+          end
+          if File.exist?(dest)
+            uncompress = "gunzip #{dest}"
+            stdout, stderr, status = Open3.capture3 uncompress
+            if !status.success?
+              puts "something went wrong with gunzipping #{dest}"
+              return false
+            end
+          else
+            puts "couldn't find #{dest}"
+            return false
+          end
+        end
+      end
+      return true
+    end
+
+    def download_tsa_sra code, sra
+      if !Dir.exist?("#{@gem_dir}/data/genbank/#{code}")
+        Dir.mkdir("#{@gem_dir}/data/genbank/#{code}")
+      end
+      Dir.chdir("#{@gem_dir}/data/genbank/#{code}") do
+        dest = "#{code}.sra"
+        if !File.exist?(dest)
+          url = "ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/"
+          url << "sra/SRR/#{sra[0..5]}/#{sra}/#{sra}.sra"
+          dl_sra = "curl #{url} -o #{dest}"
+          stdout, stderr, status = Open3.capture3 dl_sra
+          if !status.success?
+            puts "couldn't download #{code} sra"
+            return false
+          end
+        end
+        if File.exist?(dest) and !File.exist?("#{code}_1.fastq")
+          abort "don't do this again"
+          dump = "#{@fastq_dump} --origfmt --split-3 #{dest}"
+          stdout, stderr, status = Open3.capture3 dump
+          if !status.success?
+            puts "something went wrong with fastq-dump of #{dest}"
+            return false
+          end
+        elsif !File.exist?(dest)
+          puts "couldn't find #{dest}"
+          return false
+        end
+
+      end
+      return true
+    end
+
+    ## the code below this line isn't used, but was used initially to generate
+    ## the list of tsa genbank files
+
+    # list is a file containing a single column of identifiers
+    # file in test/data/test_list_full.txt
+    # eg tsa.GAFD.mstr.gbff.gz
 
     def download_genbank list
       @genbank=[]
@@ -54,15 +173,15 @@ module TransratePaper
           parse_genbank gb
         end
       end
-      File.open("tsa_list.txt", "w") do |io|
+      File.open("tsa_list_sra_long.txt", "w") do |io|
         @data.each do |key, hash|
           if hash[:contigs] >= 5000
             if hash[:assembly_method]
-              if hash[:sra] and hash[:sra].size>0
+              if hash[:sra] and hash[:sra].size>0 # maybe make this: size==1
                 if check_paired(hash[:sra].first)
                   out = ""
                   out << "#{key}\t"
-                  out << "#{hash[:sra].first}\t"
+                  out << "#{hash[:sra].join(",")}\t"
                   out << "#{hash[:contigs]}\t"
                   out << "#{hash[:assembly_method]}\t"
                   out << "#{hash[:organism]}\n"
@@ -176,6 +295,7 @@ module TransratePaper
       puts "checking sra: #{sra}"
       cmd = "curl http://www.ncbi.nlm.nih.gov/sra/?term=#{sra}"
       paired = false
+      size = 0
       stdout, stderr, status = Open3.capture3 cmd
       if status.success?
         if stdout =~ /PAIRED/

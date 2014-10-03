@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'transrate-paper'
-require 'transonerate'
 
 paper = TransratePaper::TransratePaper.new
 
@@ -10,5 +9,3 @@ paper.install_dependencies
 paper.download_data "data.yaml"
 
 paper.run_transrate 8
-
-paper.transonerate 8
