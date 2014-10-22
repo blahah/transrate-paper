@@ -65,7 +65,7 @@ The assembly score captures the fact that a well-assembled transcriptome:
 - is made up of high-quality contigs (and thus has high per-contig scores)
 - is complete (and thus incorporates a high proportion of the experimental evidence)
 
-Our confidence $q_A$ in the quality of an assembly can thefore be expressed as:
+Our confidence $q_A$ in the quality of an assembly can therefore be expressed as:
 
 $$q_A=\sqrt{\left(\prod_{c=1}^nq_c\right)^\frac{1}{n}good(R)}$$
 
