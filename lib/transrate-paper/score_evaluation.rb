@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 require 'bindeps'
 require 'json'
 require 'yaml'
