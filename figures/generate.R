@@ -16,9 +16,9 @@ assemblers <- c('trinity', 'oases', 'soapdenovotrans')
 datasets <- expand.grid(species_list, assemblers)
 datasets <- apply(datasets, MARGIN = 2, FUN = as.character)
 
-score_cols <- c('p_good', 'p_bases_covered',
-                'inverse_edit_dist', 'p_unique_bases', 'score',
-                'length', 'effective_mean_coverage')
+score_cols <- c('p_good', 'p_not_segmented', 'p_bases_covered',
+                'p_seq_true', 'p_unique', 'score',
+                'length', 'coverage')
 data <-  data.frame()
 wide_data <- data.frame()
 library(reshape2)
@@ -34,36 +34,38 @@ for (rowno in 1:nrow(datasets)) {
   }
 
   # list all contig files and select the most recent one
+  filelist <- list.files(path, pattern = "*contigs*")
+  if (length(filelist) == 0) {
+    next
+  }
   files <- data.frame(file = paste(path,
-                                   list.files(path, pattern = "*contigs*"),
+                                   filelist,
                                    sep="/"),
                       stringsAsFactors = FALSE)
   files$mtime <- unlist(lapply(files$file, function(x){ file.info(x)$mtime}))
   mostrecent <- subset(files, mtime == max(files$mtime))$file
+  print(mostrecent)
 
   # load the most recent file and save the relevant columns
   csv <- read.csv(mostrecent, as.is=T)[,score_cols]
-  # normalise inverse edit distance
-  # TODO: remove this once it's implemented in transrate
-  csv$inverse_edit_dist <- (csv$inverse_edit_dist - 0.65) * (1 / 0.35)
   csv$species <- species
   csv$assembler <- assembler
   wide_data <- rbind(wide_data, csv[complete.cases(csv),])
-  csv <- melt(csv, id.vars = c('species', 'assembler', 'score', 'length', 'effective_mean_coverage'),
+  csv <- melt(csv, id.vars = c('species', 'assembler', 'score', 'length', 'coverage'),
               variable.name = 'score_component')
   data <- rbind(data, csv[complete.cases(csv),])
 }
 data$assembler[data$assembler == 'soapdenovotrans'] <- 'soapdt'
 
-# fixing the score
-# TODO: remove this once implemented
-comp <- c('p_good', 'p_bases_covered',
-          'inverse_edit_dist', 'p_unique_bases')
-wide_data$score <- apply(wide_data[,comp], 1, function(x){
-  return(prod(x))
-})
+# # fixing the score
+# # TODO: remove this once implemented
+# comp <- c('p_good', 'p_bases_covered',
+#           'p_seq_true', 'p_unique_bases')
+# wide_data$score <- apply(wide_data[,comp], 1, function(x){
+#   return(prod(x))
+# })
 data <- melt(wide_data, id.vars = c('species', 'assembler', 'score',
-                                    'length', 'effective_mean_coverage'),
+                                    'length', 'coverage'),
              variable.name = 'score_component')
 data$species <- factor(data$species, levels=species_list)
 
@@ -90,13 +92,13 @@ library(plyr)
 downsampled <- ddply(wide_data, .(assembler, species), function(x) {
   x[sample(1:nrow(x), 5000),]
 })
-cor_data <- melt(cor(downsampled[,1:4]))
+cor_data <- melt(cor(downsampled[,1:5]))
 right_panel <- ggplot(cor_data,
        aes(x=Var1, y=Var2, fill=value)) +
   geom_tile() +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  scale_fill_gradient2(na.value = "grey10", limits = c(-1, 1)) +
+  scale_fill_gradientn(colours = rainbow(3), limits=c(-1, 1)) +
   scale_x_discrete(expand = c(0, 0)) +
   scale_y_discrete(expand = c(0, 0)) +
   labs(x=NULL, y=NULL)
@@ -136,7 +138,7 @@ fig4bottom <-
         axis.title.x = element_blank())
 
 fig4 <- arrangeGrob(fig4top, fig4bottom, ncol=2)
-ggsave(plot, filename = "figure_4/figure.pdf", width = 10, height = 3)
+ggsave(fig4, filename = "figure_4/figure.pdf", width = 10, height = 3)
 
 
 ## Figure 5
@@ -164,8 +166,8 @@ fig5_a <- ggplot(data[sample(nrow(data), 100000), c('species', 'assembler', 'sco
 
 # The second panel shows contig score plotted against effective coverage,
 # coloured by assembler and with point style mapped to species
-fig5_b <- ggplot(data[sample(nrow(data), 100000),c('species', 'assembler', 'score', 'effective_mean_coverage')],
-                 aes(x=effective_mean_coverage, y=score, pch=species)) +
+fig5_b <- ggplot(data[sample(nrow(data), 100000),c('species', 'assembler', 'score', 'coverage')],
+                 aes(x=coverage, y=score, pch=species)) +
   stat_density2d(aes(alpha=..level.., fill=..level..),
                  bins=5, geom="polygon") +
   scale_fill_gradient(low = "yellow", high = "red", guide = guide_legend(title="Density")) +
