@@ -166,6 +166,7 @@ module TransratePaper
     # generate list of tsa entries for analysis
     # select entries that have at least 5000 contigs
     # and contain a paired reads in a sra link
+    # should have only a small size of sra files (1 lib, < 8GB)
     def download_data
       Dir.chdir("#{@gem_dir}/data/genbank") do
         @genbank.each do |gb|
