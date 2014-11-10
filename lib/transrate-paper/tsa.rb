@@ -14,8 +14,8 @@ module TransratePaper
     def initialize
       @ftp = "ftp://ftp.ncbi.nih.gov/genbank/tsa/"
       @sra_sam = "ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/sra/SRR/SRR133/SRR1336770/SRR1336770.sra"
-      @list = "tsa_list.txt"
       @gem_dir = Gem.loaded_specs['transrate-paper'].full_gem_path
+      @list = "#{@gem_dir}/tsa_list.txt"
       @data = {}
       ## fastq-dump
       which = "which fastq-dump.2.3.5.2"
@@ -30,7 +30,6 @@ module TransratePaper
     end
 
     def run_transrate threads
-      #cmd = "fastq-dump.2.3.5.2 --origfmt --split-3 #{name} --outdir #{output_dir}"
       if !Dir.exist?("#{@gem_dir}/data/genbank")
         Dir.mkdir("#{@gem_dir}/data/genbank")
       end
@@ -71,6 +70,7 @@ module TransratePaper
         if !File.exist?("#{code}.fa")
           dest = "#{code}.fa.gz"
           dl_assembly = "curl #{@ftp}tsa.#{code}.1.fsa_nt.gz -o #{dest}"
+          puts dl_assembly
           stdout, stderr, status = Open3.capture3 dl_assembly
           if !status.success?
             puts "couldn't download #{code} assembly"
@@ -78,6 +78,7 @@ module TransratePaper
           end
           if File.exist?(dest)
             uncompress = "gunzip #{dest}"
+            puts uncompress
             stdout, stderr, status = Open3.capture3 uncompress
             if !status.success?
               puts "something went wrong with gunzipping #{dest}"
@@ -102,6 +103,7 @@ module TransratePaper
           url = "ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/"
           url << "sra/SRR/#{sra[0..5]}/#{sra}/#{sra}.sra"
           dl_sra = "curl #{url} -o #{dest}"
+          puts dl_sra
           stdout, stderr, status = Open3.capture3 dl_sra
           if !status.success?
             puts "couldn't download #{code} sra"
