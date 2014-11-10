@@ -69,7 +69,7 @@ module TransratePaper
       Dir.chdir("#{@gem_dir}/data/genbank/#{code}") do
         if !File.exist?("#{code}.fa")
           dest = "#{code}.fa.gz"
-          dl_assembly = "curl #{@ftp}tsa.#{code}.1.fsa_nt.gz -o #{dest}"
+          dl_assembly = "wget #{@ftp}tsa.#{code}.1.fsa_nt.gz -O #{dest}"
           puts dl_assembly
           stdout, stderr, status = Open3.capture3 dl_assembly
           if !status.success?
@@ -102,7 +102,7 @@ module TransratePaper
         if !File.exist?(dest)
           url = "ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/"
           url << "sra/SRR/#{sra[0..5]}/#{sra}/#{sra}.sra"
-          dl_sra = "curl #{url} -o #{dest}"
+          dl_sra = "wget #{url} -O #{dest}"
           puts dl_sra
           stdout, stderr, status = Open3.capture3 dl_sra
           if !status.success?
@@ -151,9 +151,9 @@ module TransratePaper
           end
           Dir.chdir("genbank") do
             if !File.exist?("#{link}")
-              curl = "curl #{@ftp}#{link}.gz -o #{link}.gz"
-              puts curl
-              `#{curl}`
+              wget = "wget #{@ftp}#{link}.gz -O #{link}.gz"
+              puts wget
+              `#{wget}`
               gunzip = "gunzip #{link}.gz"
               puts gunzip
               `#{gunzip}`
@@ -311,7 +311,7 @@ module TransratePaper
       else
         puts stdout
         puts stderr
-        puts "something went wrong with curling #{sra}"
+        puts "something went wrong with curl #{sra}"
       end
       sleep 1
       return paired
