@@ -9,3 +9,7 @@ paper.install_dependencies
 paper.download_data "data.yaml"
 
 paper.run_transrate 8
+
+tsa = TransratePaper::Tsa.new
+
+tsa.run_transrate 8
