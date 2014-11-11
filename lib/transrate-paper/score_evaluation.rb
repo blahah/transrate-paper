@@ -7,14 +7,14 @@ require 'open3'
 require 'which'
 include Which
 
-module Transrate_Paper
+module TransratePaper
 
   # The ScoreEvaluation class uses ground-truth datasets and simulation to
   # evaluate the accuracy of the transrate contig score
   class ScoreEvaluation
 
-    def initialize data
-      @data = data # description and location of the data
+    def initialize yaml
+      @yaml = yaml # description and location of the data
       @gem_dir = Gem.loaded_specs['transrate-paper'].full_gem_path
     end
 
@@ -25,10 +25,14 @@ module Transrate_Paper
     def run threads
       @threads = threads
       # simulation
-      ### download rice reference transcriptome (us local for the moment)
-      transcriptome = File.join(@gem_dir, "rice_reference.fa")
-      ### simulation_accuracy
-      score = simulation_accuracy transcriptome
+      ### download rice reference transcriptome (use local for the moment)
+      @data = YAML.load_file @yaml
+      @data.each do |experiment_name, experiment_data|
+        puts experiment_name
+        transcriptome = experiment_data[:reference][:fa][0]
+        score = simulation_accuracy transcriptome
+      end
+
     end
 
     # Align assembly to genome with BLAT and evaluate the proportion of
@@ -53,19 +57,24 @@ module Transrate_Paper
       # simulate reads
       out_dir = File.join(@gem_dir,"data","simulation",transcriptome)
       make_dir out_dir
+      score = 0
       Dir.chdir(out_dir) do |dir|
-        simulator = Simulator.new transcriptome, 5, 100, 250, 50
+        simulator = Simulator.new transcriptome, 100, 250, 50
         prefix = "#{File.basename(transcriptome)}_sim"
-        simulator.simulate prefix
+        left, right = simulator.simulate prefix
         # run transrate with reads against transcriptome
         cmd = "transrate --assembly #{transcriptome}"
-        cmd << " --left  #{prefix}_1.fastq"
-        cmd << " --right #{prefix}_2.fastq"
+        cmd << " --left #{left}"
+        cmd << " --right #{right}"
         cmd << " --outfile #{prefix}"
         cmd << " --threads #{@threads}"
         stdout, stderr, status = Open3.capture3(cmd)
         # return score
+        if stdout =~ /TRANSRATE.ASSEMBLY.SCORE:.([0-9\.]+)/
+          score = $1
+        end
       end
+      score
     end
 
     def make_dir dir

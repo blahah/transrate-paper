@@ -7,7 +7,7 @@ require 'open3'
 require 'which'
 include Which
 
-module Transrate_Paper
+module TransratePaper
 
   # The Segmentation class tests the segmentation detection function
   # of transrate. Specifically, it runs a simulation experiment for each

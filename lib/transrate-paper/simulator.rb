@@ -17,19 +17,23 @@ module TransratePaper
     def simulate prefix
       transcriptome = Bio::FastaFormat.open(@reference)
       rng = Distribution::Exponential.rng(0.5)
+      maxrng = Distribution::Normal.rng(40_000, 3000)
       count = 0
+      @left = "#{prefix}.l.fq"
+      @right = "#{prefix}.r.fq"
       transcriptome.each do |entry|
         key = entry.definition.split(/\s/).first
         expr = (Math.exp(rng.call) * entry.seq.length * 0.01).to_i
-        expr = [expr, 10 * entry.seq.length / @read_length].max
+        expr = [expr, (30 * entry.seq.length / @read_length).to_i].max
+        expr = [expr, maxrng.call.to_i].min
         simulate_reads_with_expr(entry.seq, expr, key, prefix)
       end
-
+      [@left, @right]
     end # simulate
 
     def simulate_reads_with_expr(seq, expr, name, prefix)
-      left = File.open(prefix + '.l.fq', 'a')
-      right = File.open(prefix + '.r.fq', 'a')
+      left = File.open(@left, 'a')
+      right = File.open(@right, 'a')
       rng = Distribution::Normal.rng(@fragment_size, @fragment_sd)
       read_length = @read_length
       read_length = seq.length - 1 if read_length >= seq.length

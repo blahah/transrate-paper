@@ -25,18 +25,21 @@ class TestSimulate < Test::Unit::TestCase
     end
 
     should "simulate reads and run transrate with them" do
-      tmpdir = Dir.mktmpdir
-      puts tmpdir
-      Dir.chdir tmpdir do
-        reference = File.join(File.dirname(__FILE__), 'data', 'rice_large.fa')
-        simulator = TransratePaper::Simulator.new(reference, 100, 200, 50)
-        simulator.simulate "rice"
-        cmd = "transrate --assembly #{reference}"
-        cmd << " --left #{tmpdir}/rice.l.fq"
-        cmd << " --right #{tmpdir}/rice.r.fq"
-        cmd << " --outfile rice"
-        stdout, stderr, status = Open3.capture3 cmd
-        puts stdout
+      Dir.mktmpdir do |tmpdir|
+        Dir.chdir tmpdir do
+          reference = File.join(File.dirname(__FILE__), 'data', 'rice_medium.fa')
+          simulator = TransratePaper::Simulator.new(reference, 100, 200, 50)
+          simulator.simulate "rice"
+          cmd = "transrate --assembly #{reference}"
+          cmd << " --left #{tmpdir}/rice.l.fq"
+          cmd << " --right #{tmpdir}/rice.r.fq"
+          cmd << " --outfile rice"
+          stdout, stderr, status = Open3.capture3 cmd
+          if stdout =~ /TRANSRATE.ASSEMBLY.SCORE:.([0-9\.]+)/
+            score = $1.to_f
+            assert score > 0.9, "transrate score is good"
+          end
+        end
       end
     end
   end
