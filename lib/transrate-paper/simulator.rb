@@ -21,12 +21,15 @@ module TransratePaper
       count = 0
       @left = "#{prefix}.l.fq"
       @right = "#{prefix}.r.fq"
-      transcriptome.each do |entry|
-        key = entry.definition.split(/\s/).first
-        expr = (Math.exp(rng.call) * entry.seq.length * 0.01).to_i
-        expr = [expr, (30 * entry.seq.length / @read_length).to_i].max
-        expr = [expr, maxrng.call.to_i].min
-        simulate_reads_with_expr(entry.seq, expr, key, prefix)
+      if !File.exist?(@left)
+        File.delete(@right) if File.exist?(@right)
+        transcriptome.each do |entry|
+          key = entry.definition.split(/\s/).first
+          expr = (Math.exp(rng.call) * entry.seq.length * 0.01).to_i
+          expr = [expr, (30 * entry.seq.length / @read_length).to_i].max
+          expr = [expr, maxrng.call.to_i].min
+          simulate_reads_with_expr(entry.seq, expr, key, prefix)
+        end
       end
       [@left, @right]
     end # simulate
