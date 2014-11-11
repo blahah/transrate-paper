@@ -13,8 +13,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = %w( lib )
 
   gem.add_dependency 'bindeps', '~> 0.1', '>= 0.1.3'
-  gem.add_dependency 'which', '~> 0.0', '>= 0.0.2'
   gem.add_dependency 'transrate'
+  gem.add_dependency 'distribution', '~> 0.7', '>= 0.7.1'
 
   gem.add_development_dependency 'rake', '~> 10.3', '>= 10.3.2'
   gem.add_development_dependency 'turn', '~> 0.9', '>= 0.9.7'

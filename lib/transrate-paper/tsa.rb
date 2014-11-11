@@ -45,17 +45,20 @@ module TransratePaper
           if sra.length == 1
             download_tsa_assembly(code)
             download_tsa_sra(code, sra.first)
-            cmd = "transrate --assembly #{code}.fa"
-            cmd << " --left #{code}_1.fastq"
-            cmd << " --right #{code}_2.fastq"
-            cmd << " --threads #{threads}"
-            cmd << " --outfile #{code}"
-            stdout, stderr, status = Open3.capture3 cmd
-            if !status.success?
-              abort "something went wrong running transrate on #{code}"
-            end
-            File.open("#{code}-transrate.out", "wb") do |io|
-              io.write stdout
+            Dir.chdir("#{@gemdir}/data/genbank/#{code}") do |dir|
+              cmd = "transrate --assembly #{code}.fa"
+              cmd << " --left #{code}_1.fastq"
+              cmd << " --right #{code}_2.fastq"
+              cmd << " --threads #{threads}"
+              cmd << " --outfile #{code}"
+              puts cmd
+              stdout, stderr, status = Open3.capture3 cmd
+              if !status.success?
+                abort "ERROR: transrate : #{code}\n#{stdout}"
+              end
+              File.open("#{code}-transrate.out", "wb") do |io|
+                io.write stdout
+              end
             end
           end
         end
@@ -111,8 +114,8 @@ module TransratePaper
           end
         end
         if File.exist?(dest) and !File.exist?("#{code}_1.fastq")
-          abort "don't do this again"
           dump = "#{@fastq_dump} --origfmt --split-3 #{dest}"
+          puts dump
           stdout, stderr, status = Open3.capture3 dump
           if !status.success?
             puts "something went wrong with fastq-dump of #{dest}"

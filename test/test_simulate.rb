@@ -1,5 +1,6 @@
 require 'helper'
 require 'tmpdir'
+require 'open3'
 
 class TestSimulate < Test::Unit::TestCase
 
@@ -7,7 +8,7 @@ class TestSimulate < Test::Unit::TestCase
 
     setup do
       reference = File.join(File.dirname(__FILE__), 'data', 'reference.fa')
-      @simulator = TransratePaper::Simulator.new(reference, 10, 100, 200, 50)
+      @simulator = TransratePaper::Simulator.new(reference, 100, 200, 50)
     end
 
     teardown do
@@ -17,9 +18,25 @@ class TestSimulate < Test::Unit::TestCase
       Dir.mktmpdir do |tmpdir|
         Dir.chdir tmpdir do
           @simulator.simulate "test"
-          assert File.exist?("test_1.fastq")
-          assert File.exist?("test_2.fastq")
+          assert File.exist?("test.l.fq")
+          assert File.exist?("test.r.fq")
         end
+      end
+    end
+
+    should "simulate reads and run transrate with them" do
+      tmpdir = Dir.mktmpdir
+      puts tmpdir
+      Dir.chdir tmpdir do
+        reference = File.join(File.dirname(__FILE__), 'data', 'rice_large.fa')
+        simulator = TransratePaper::Simulator.new(reference, 100, 200, 50)
+        simulator.simulate "rice"
+        cmd = "transrate --assembly #{reference}"
+        cmd << " --left #{tmpdir}/rice.l.fq"
+        cmd << " --right #{tmpdir}/rice.r.fq"
+        cmd << " --outfile rice"
+        stdout, stderr, status = Open3.capture3 cmd
+        puts stdout
       end
     end
   end
