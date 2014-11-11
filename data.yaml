@@ -30,6 +30,9 @@
     :fa:
      - 'Osativa_204_protein.fa'
      - 'Sbicolor_79_protein.fa'
+  :transcriptome:
+    :url: 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_transcript_primaryTranscriptOnly.fa.gz'
+    :fa: 'Osativa_204_transcript_primaryTranscriptOnly.fa'
   :genome:
     :url:
      - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/assembly/Osativa_204.fa.gz'
@@ -62,6 +65,9 @@
     :fa:
     - 'Mus_musculus.NCBIM37.64.pep.all.fa'
     - 'Homo_sapiens.GRCh37.75.pep.all.fa'
+  :transcriptome:
+    :url: 'ftp://ftp.ensembl.org/pub/release-64/fasta/mus_musculus/cdna/Mus_musculus.NCBIM37.64.cdna.abinitio.fa.gz'
+    :fa: 'Mus_musculus.NCBIM37.64.cdna.abinitio.fa'
   :genome:
     :url:
      - 'ftp://ftp.ensembl.org/pub/release-64/fasta/mus_musculus/dna/Mus_musculus.NCBIM37.64.dna.toplevel.fa.gz'
@@ -126,6 +132,9 @@
     :fa:
     - 'Homo_sapiens.GRCh37.75.pep.all.fa'
     - 'Mus_musculus.NCBIM37.64.pep.all.fa'
+  :transcriptome:
+    :url: 'ftp://ftp.ensembl.org/pub/current_fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.abinitio.fa.gz'
+    :fa: 'Homo_sapiens.GRCh38.cdna.abinitio.fa'
   :genome:
     :url:
      - 'ftp://ftp.ensembl.org/pub/release-64/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.64.dna.toplevel.fa.gz'
@@ -172,6 +181,9 @@
     :fa:
     - 'Saccharomyces_cerevisiae.R64-1-1.75.pep.all.fa'
     - 'Schizosaccharomyces_pombe.ASM294v2.22.pep.all.fa'
+  :transcriptome:
+    :url: 'ftp://ftp.ensembl.org/pub/current_fasta/saccharomyces_cerevisiae/cdna/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa.gz'
+    :fa: 'Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa'
   :genome:
     :url:
      - 'ftp://ftp.ensembl.org/pub/release-64/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.EF3.64.dna.toplevel.fa.gz'

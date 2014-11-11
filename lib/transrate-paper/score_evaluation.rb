@@ -26,13 +26,46 @@ module TransratePaper
       @threads = threads
       # simulation
       ### download rice reference transcriptome (use local for the moment)
-      @data = YAML.load_file @yaml
-      @data.each do |experiment_name, experiment_data|
+      data = YAML.load_file @yaml
+      download_transcriptomes(data)
+      data.each do |experiment_name, experiment_data|
         puts experiment_name
-        transcriptome = experiment_data[:reference][:fa][0]
-        score = simulation_accuracy transcriptome
+        transcriptome = File.join(@gem_dir, "data", experiment_name.to_s,
+          "transcriptome", experiment_data[:transcriptome][:fa])
+        puts transcriptome
+        score = simulation_accuracy(experiment_name.to_s, transcriptome)
       end
 
+    end
+
+    def download_transcriptomes data
+      puts "Downloading transcriptomes..."
+      dir = File.join(@gem_dir, "data")
+      Dir.mkdir(dir) if !Dir.exist?(dir)
+      data.each do |experiment_name, experiment_data|
+        edir = "#{dir}/#{experiment_name.to_s}"
+        Dir.mkdir(edir) if !Dir.exist?(edir)
+        tdir = "#{edir}/transcriptome"
+        Dir.mkdir(tdir) if !Dir.exist?(tdir)
+        url = experiment_data[:transcriptome][:url]
+        dest = File.join(tdir, File.basename(url))
+        fa = File.join(tdir, experiment_data[:transcriptome][:fa])
+        if !File.exist?(dest) and !File.exist?(fa)
+          cmd = "wget #{url} -O #{dest}"
+          puts cmd
+          stdout, stderr, status = Open3.capture3(cmd)
+          if !status.success?
+            puts "something went wrong with the download of: #{url}"
+          end
+        else
+          puts "#{dest} already exists"
+        end
+        if File.exist?(dest) and !File.exist?(fa)
+          cmd = "gunzip #{dest}"
+          puts cmd
+          stdout, stderr, status = Open3.capture3(cmd)
+        end
+      end
     end
 
     # Align assembly to genome with BLAT and evaluate the proportion of
@@ -53,9 +86,9 @@ module TransratePaper
     # Simulate reads from a reference transcriptome such that the reads
     # perfectly agree with the reference. Transrate run with these reads
     # should give a near-perfect score.
-    def simulation_accuracy transcriptome
+    def simulation_accuracy name, transcriptome
       # simulate reads
-      out_dir = File.join(@gem_dir,"data","simulation",transcriptome)
+      out_dir = File.join(@gem_dir, "data", name, "simulation")
       make_dir out_dir
       score = 0
       Dir.chdir(out_dir) do |dir|
@@ -69,7 +102,6 @@ module TransratePaper
         cmd << " --outfile #{prefix}"
         cmd << " --threads #{@threads}"
         stdout, stderr, status = Open3.capture3(cmd)
-        # return score
         if stdout =~ /TRANSRATE.ASSEMBLY.SCORE:.([0-9\.]+)/
           score = $1
         end
