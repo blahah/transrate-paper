@@ -54,7 +54,7 @@ module TransratePaper
               puts cmd
               stdout, stderr, status = Open3.capture3 cmd
               if !status.success?
-                abort "ERROR: transrate : #{code}\n#{stdout}"
+                abort "ERROR: transrate : #{code}\n#{stdout}\n#{stderr}"
               end
               File.open("#{code}-transrate.out", "wb") do |io|
                 io.write stdout
