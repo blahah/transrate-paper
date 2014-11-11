@@ -13,3 +13,7 @@ paper.run_transrate 8
 tsa = TransratePaper::Tsa.new
 
 tsa.run_transrate 8
+
+evaluation = TransratePaper::ScoreEvaluation.new "data.yaml"
+
+evaluation.run 8
