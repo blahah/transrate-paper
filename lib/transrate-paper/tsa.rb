@@ -45,7 +45,7 @@ module TransratePaper
           if sra.length == 1
             download_tsa_assembly(code)
             download_tsa_sra(code, sra.first)
-            Dir.chdir("#{@gemdir}/data/genbank/#{code}") do |dir|
+            Dir.chdir("#{@gem_dir}/data/genbank/#{code}") do |dir|
               cmd = "transrate --assembly #{code}.fa"
               cmd << " --left #{code}_1.fastq"
               cmd << " --right #{code}_2.fastq"
