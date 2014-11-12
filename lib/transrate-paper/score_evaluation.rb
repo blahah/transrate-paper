@@ -105,7 +105,7 @@ module TransratePaper
         stdout, stderr, status = Open3.capture3(cmd)
         if stdout =~ /TRANSRATE.ASSEMBLY.SCORE:.([0-9\.]+)/
           score = $1
-          File.open("#{prefix}.out") { |io| io.write(stdout) }
+          File.open("#{prefix}.out", "w") { |io| io.write(stdout) }
         end
       end
       score
