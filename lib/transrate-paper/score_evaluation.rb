@@ -34,6 +34,7 @@ module TransratePaper
           "transcriptome", experiment_data[:transcriptome][:fa])
         puts transcriptome
         score = simulation_accuracy(experiment_name.to_s, transcriptome)
+        puts score
       end
 
     end
@@ -104,6 +105,7 @@ module TransratePaper
         stdout, stderr, status = Open3.capture3(cmd)
         if stdout =~ /TRANSRATE.ASSEMBLY.SCORE:.([0-9\.]+)/
           score = $1
+          File.open("#{prefix}.out") { |io| io.write(stdout) }
         end
       end
       score
