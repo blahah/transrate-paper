@@ -48,12 +48,12 @@ module TransratePaper
         pos = (rand * (len - fragment + 1)).to_i
         bases = seq[pos..(pos + fragment - 1)]
         # read 1
-        left.puts "@read:#{count}:#{name}/1"
+        left.puts "@read:#{count}:#{name}:#{pos}/1"
         left.puts bases[0..(read_length - 1)]
         left.puts "+"
         left.puts "I" * read_length
         # read 2
-        right.puts "@read:#{count}:#{name}/2"
+        right.puts "@read:#{count}:#{name}:#{pos}/2"
         right.puts bases[(-read_length)..-1].tr("ACGT", "TGCA").reverse
         right.puts "+"
         right.puts "I" * read_length

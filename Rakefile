@@ -16,5 +16,11 @@ Rake::TestTask.new do |t|
   t.test_files = ['test/test_simulate.rb']
 end
 
+Rake::TestTask.new do |t|
+  t.name = :eval
+  t.libs << 'test'
+  t.test_files = ['test/test_evaluate.rb']
+end
+
 desc "Run tests"
 task :default => :test
