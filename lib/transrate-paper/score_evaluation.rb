@@ -5,6 +5,7 @@ require 'json'
 require 'yaml'
 require 'open3'
 require 'which'
+require 'crb-blast'
 include Which
 
 module TransratePaper
@@ -13,20 +14,20 @@ module TransratePaper
   # evaluate the accuracy of the transrate contig score
   class ScoreEvaluation
 
-    def initialize yaml
-      @yaml = yaml # description and location of the data
+    def initialize
       @gem_dir = Gem.loaded_specs['transrate-paper'].full_gem_path
+      @threads = 8
     end
 
     def install_dependencies
 
     end
 
-    def run threads
+    def run yaml, threads=8
       @threads = threads
       # simulation
       ### download rice reference transcriptome (use local for the moment)
-      data = YAML.load_file @yaml
+      data = YAML.load_file yaml
       download_transcriptomes(data)
       data.each do |experiment_name, experiment_data|
         puts experiment_name
@@ -84,10 +85,69 @@ module TransratePaper
 
     end
 
+    # Simulate reads from a reference transcriptome
+    # Assemble reads with trinity, soap, oases
+    # Transrate the assembly
+    # crb-blast the contigs to the reference
+    def assembly_accuracy(name, transcriptome)
+      out_dir = File.join(@gem_dir, "data", name, "assembly_simulation")
+      make_dir out_dir
+      Dir.chdir(out_dir) do |dir|
+        puts "changing to #{out_dir}"
+        simulator = Simulator.new transcriptome, 100, 250, 50
+        prefix = "#{File.basename(transcriptome)}_sim"
+        left, right = simulator.simulate prefix
+        left = File.expand_path(left)
+        right = File.expand_path(right)
+        puts "simulated reads:\n#{left}\n#{right}"
+
+        make_dir "#{out_dir}/soap"
+        Dir.chdir("#{out_dir}/soap") do |dir|
+          contigs = soap(left, right)
+          # run transrate with the reads against the contigs
+          score = run_transrate(left, right, transcriptome, prefix)
+          # crb-blast the soap contigs against the transcriptome reference
+          crb = CRB_Blast::CRB_Blast.new(contigs, transcriptome)
+          crb.run
+          crb.write_output
+        end
+
+      end
+    end
+
+    def soap(left, right)
+      config = "max_rd_len=5000\n"
+      config << "[LIB]\n"
+      config << "avg_ins=\n"
+      config << "reverse_seq=0\n"
+      config << "asm_flags=3\n"
+      config << "q1=#{left}\n"
+      config << "q2=#{right}\n"
+      File.open("sdt.config", "w") { |io| io.write config }
+      cmd = "SOAPdenovo-Trans-127mer all"
+      cmd << " -s sdt.config"
+      cmd << " -o output"
+      cmd << " -K 37"
+      cmd << " -d 1"
+      # cmd << " -S -F"
+      puts cmd
+      puts "starting soap assembly"
+      stdout, stderr, status = Open3.capture3(cmd)
+      return "output.contig"
+    end
+
+    def trinity(left, right)
+
+    end
+
+    def oases(left, right)
+
+    end
+
     # Simulate reads from a reference transcriptome such that the reads
     # perfectly agree with the reference. Transrate run with these reads
     # should give a near-perfect score.
-    def simulation_accuracy name, transcriptome
+    def simulation_accuracy(name, transcriptome)
       # simulate reads
       out_dir = File.join(@gem_dir, "data", name, "simulation")
       make_dir out_dir
@@ -97,18 +157,31 @@ module TransratePaper
         prefix = "#{File.basename(transcriptome)}_sim"
         left, right = simulator.simulate prefix
         # run transrate with reads against transcriptome
-        cmd = "transrate --assembly #{transcriptome}"
-        cmd << " --left #{left}"
-        cmd << " --right #{right}"
-        cmd << " --outfile #{prefix}"
-        cmd << " --threads #{@threads}"
-        stdout, stderr, status = Open3.capture3(cmd)
-        if stdout =~ /TRANSRATE.ASSEMBLY.SCORE:.([0-9\.]+)/
-          score = $1
-          File.open("#{prefix}.out", "w") { |io| io.write(stdout) }
-        end
+        score = run_transrate left, right, transcriptome, prefix
       end
       score
+    end
+
+    def run_transrate(left, right, reference, prefix)
+      score = 0
+      cmd = "transrate --assembly #{reference}"
+      cmd << " --left #{left}"
+      cmd << " --right #{right}"
+      cmd << " --outfile #{prefix}"
+      cmd << " --threads #{@threads}"
+      stdout, stderr, status = Open3.capture3(cmd)
+      if status.success?
+        if stdout =~ /TRANSRATE.ASSEMBLY.SCORE:.([0-9\.]+)/
+          score = $1
+          File.open("#{prefix}.transrate", "w") { |io| io.write(stdout) }
+        end
+      else
+        puts "transrate failed"
+        File.open("#{prefix}.transrate.failed", "w") do |io|
+          io.write("#{stdout}\n#{stderr}")
+        end
+      end
+      return score
     end
 
     def make_dir dir
