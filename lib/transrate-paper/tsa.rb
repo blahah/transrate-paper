@@ -30,9 +30,7 @@ module TransratePaper
     end
 
     def run_transrate threads
-      if !Dir.exist?("#{@gem_dir}/data/genbank")
-        Dir.mkdir("#{@gem_dir}/data/genbank")
-      end
+      make_dir("#{@gem_dir}/data/genbank")
       Dir.chdir("#{@gem_dir}/data/genbank") do
         File.open(@list).each_line do |line|
           cols = line.chomp.split("\t")
@@ -66,9 +64,7 @@ module TransratePaper
     end
 
     def download_tsa_assembly code # ie GAAA
-      if !Dir.exist?("#{@gem_dir}/data/genbank/#{code}")
-        Dir.mkdir("#{@gem_dir}/data/genbank/#{code}")
-      end
+      make_dir("#{@gem_dir}/data/genbank/#{code}")
       Dir.chdir("#{@gem_dir}/data/genbank/#{code}") do
         if !File.exist?("#{code}.fa")
           dest = "#{code}.fa.gz"
@@ -97,23 +93,27 @@ module TransratePaper
     end
 
     def download_tsa_sra code, sra
-      if !Dir.exist?("#{@gem_dir}/data/genbank/#{code}")
-        Dir.mkdir("#{@gem_dir}/data/genbank/#{code}")
-      end
+      make_dir("#{@gem_dir}/data/genbank/#{code}")
       Dir.chdir("#{@gem_dir}/data/genbank/#{code}") do
         dest = "#{code}.sra"
-        if !File.exist?(dest)
-          url = "ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/"
-          url << "sra/SRR/#{sra[0..5]}/#{sra}/#{sra}.sra"
-          dl_sra = "wget #{url} -O #{dest}"
-          puts dl_sra
-          stdout, stderr, status = Open3.capture3 dl_sra
-          if !status.success?
-            puts "couldn't download #{code} sra"
-            return false
+        if File.exist?("#{code}.fastq") or File.exist?("#{code}_1.fastq")
+          # fastq already exists
+          return true
+        else
+          if File.exist?("#{code}.sra")
+            # sra already exists
+          else
+            # download sra
+            url = "ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByRun/"
+            url << "sra/SRR/#{sra[0..5]}/#{sra}/#{sra}.sra"
+            dl_sra = "wget #{url} -O #{dest}"
+            puts dl_sra
+            stdout, stderr, status = Open3.capture3 dl_sra
+            if !status.success?
+              puts "couldn't download #{code} sra"
+              return false
+            end
           end
-        end
-        if File.exist?(dest) and !File.exist?("#{code}_1.fastq")
           dump = "#{@fastq_dump} --origfmt --split-3 #{dest}"
           puts dump
           stdout, stderr, status = Open3.capture3 dump
@@ -121,11 +121,8 @@ module TransratePaper
             puts "something went wrong with fastq-dump of #{dest}"
             return false
           end
-        elsif !File.exist?(dest)
-          puts "couldn't find #{dest}"
-          return false
+          File.delete(dest)
         end
-
       end
       return true
     end
@@ -142,16 +139,12 @@ module TransratePaper
       File.open(list).each_line do |line|
         @genbank << line.chomp
       end
+      make_dir("#{@gem_dir}/data/genbank")
       @genbank.each do |link|
         dl = "#{@ftp}#{link}.gz"
         # puts "downloading this file: #{dl}"
-        if !Dir.exist?("#{@gem_dir}/data")
-          Dir.mkdir("#{@gem_dir}/data")
-        end
+
         Dir.chdir("#{@gem_dir}/data") do
-          if !Dir.exist?("#{@gem_dir}/data/genbank")
-            Dir.mkdir("#{@gem_dir}/data/genbank")
-          end
           Dir.chdir("genbank") do
             if !File.exist?("#{link}")
               wget = "wget #{@ftp}#{link}.gz -O #{link}.gz"
@@ -318,6 +311,15 @@ module TransratePaper
       end
       sleep 1
       return paired
+    end
+
+    def make_dir dir
+      if Dir.exist?(dir) or dir==""
+      else
+        dirname = File.dirname(dir)
+        make_dir dirname
+        Dir.mkdir(dir)
+      end
     end
 
   end
