@@ -42,20 +42,22 @@ module TransratePaper
           end
           if sra.length == 1
             download_tsa_assembly(code)
-            download_tsa_sra(code, sra.first)
-            Dir.chdir("#{@gem_dir}/data/genbank/#{code}") do |dir|
-              cmd = "transrate --assembly #{code}.fa"
-              cmd << " --left #{code}_1.fastq"
-              cmd << " --right #{code}_2.fastq"
-              cmd << " --threads #{threads}"
-              cmd << " --outfile #{code}"
-              puts cmd
-              stdout, stderr, status = Open3.capture3 cmd
-              if !status.success?
-                abort "ERROR: transrate : #{code}\n#{stdout}\n#{stderr}"
-              end
-              File.open("#{code}-transrate.out", "wb") do |io|
-                io.write stdout
+            result = download_tsa_sra(code, sra.first)
+            if result
+              Dir.chdir("#{@gem_dir}/data/genbank/#{code}") do |dir|
+                cmd = "transrate --assembly #{code}.fa"
+                cmd << " --left #{code}_1.fastq"
+                cmd << " --right #{code}_2.fastq"
+                cmd << " --threads #{threads}"
+                cmd << " --outfile #{code}"
+                puts cmd
+                stdout, stderr, status = Open3.capture3 cmd
+                if !status.success?
+                  abort "ERROR: transrate : #{code}\n#{stdout}\n#{stderr}"
+                end
+                File.open("#{code}-transrate.out", "wb") do |io|
+                  io.write stdout
+                end
               end
             end
           end
@@ -96,7 +98,7 @@ module TransratePaper
       make_dir("#{@gem_dir}/data/genbank/#{code}")
       Dir.chdir("#{@gem_dir}/data/genbank/#{code}") do
         dest = "#{code}.sra"
-        if File.exist?("#{code}.fastq") or File.exist?("#{code}_1.fastq")
+        if File.exist?("#{code}_1.fastq")
           # fastq already exists
           return true
         else
