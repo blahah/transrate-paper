@@ -124,6 +124,9 @@ module TransratePaper
             return false
           end
           File.delete(dest)
+          if File.exist?("#{code}.fastq")
+            return false
+          end
         end
       end
       return true
