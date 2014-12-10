@@ -8,3 +8,13 @@ fastqdump:
     64bit:
       macosx: http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.3.5-2/sratoolkit.2.3.5-2-mac64.tar.gz
       linux: http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.3.5-2/sratoolkit.2.3.5-2-ubuntu64.tar.gz
+exonerate:
+  binaries:
+   - exonerate
+  version:
+    number: '2.2.0'
+    command: 'exonerate --version'
+  url:
+    64bit:
+      linux: https://www.ebi.ac.uk/~guy/exonerate/exonerate-2.2.0-x86_64.tar.gz
+      macosx: https://www.ebi.ac.uk/~guy/exonerate/exonerate-2.2.0-x86_64.tar.gz

@@ -5,7 +5,7 @@ class TestTransratePaper < Test::Unit::TestCase
   context "Transrate-Paper" do
 
     setup do
-      @paper = Transrate_Paper::Transrate_Paper.new
+      @paper = TransratePaper::TransratePaper.new
     end
 
     teardown do
