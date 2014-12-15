@@ -17,6 +17,7 @@ module TransratePaper
       @gem_dir = Gem.loaded_specs['transrate-paper'].full_gem_path
       @list = "#{@gem_dir}/tsa_list.txt"
       @data = {}
+      @results = {}
       ## fastq-dump
       which = "which fastq-dump.2.3.5.2"
       stdout, stderr, status = Open3.capture3 which
@@ -57,10 +58,18 @@ module TransratePaper
                 end
                 File.open("#{code}-transrate.out", "wb") do |io|
                   io.write stdout
+                  if stdout =~ /TRANSRATE ASSEMBLY SCORE:\s([0-9.]+)/
+                    @results[code] = $1.to_f
+                  end
                 end
               end
             end
           end
+        end
+      end
+      File.open("tsa-results.txt", "wb") do |io|
+        @results.each do |code, score|
+          io.write "#{code}\t#{score}\n"
         end
       end
     end
