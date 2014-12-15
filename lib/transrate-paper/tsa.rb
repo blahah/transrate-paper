@@ -38,6 +38,8 @@ module TransratePaper
           tsa = cols[0]
           sra = cols[1].split(",")
           transcripts = cols[2]
+          tool = cols[3]
+          phylogeny = cols[4]
           if tsa =~ /tsa.([A-Z]{4}).mstr.gbff/
             code = $1
           end
@@ -56,10 +58,14 @@ module TransratePaper
                 if !status.success?
                   abort "ERROR: transrate : #{code}\n#{stdout}\n#{stderr}"
                 end
+                read_length = get_read_length("#{code}_1.fastq", "#{code}_2.fastq")
                 File.open("#{code}-transrate.out", "wb") do |io|
                   io.write stdout
                   if stdout =~ /TRANSRATE ASSEMBLY SCORE:\s([0-9.]+)/
-                    @results[code] = $1.to_f
+                    @results[code] = { :score => $1.to_f,
+                                       :tool => tool,
+                                       :phylogeny => phylogeny,
+                                       :read_length => read_length }
                   end
                 end
               end
@@ -68,8 +74,10 @@ module TransratePaper
         end
       end
       File.open("tsa-results.txt", "wb") do |io|
-        @results.each do |code, score|
-          io.write "#{code}\t#{score}\n"
+        @results.each do |code, hash|
+          out = "#{code}\t#{hash[:score]}\t#{hash[:read_length]}"
+          out << "#{hash[:tool]}\t#{hash[:phylogeny]}\n"
+          io.write out
         end
       end
     end
@@ -325,6 +333,25 @@ module TransratePaper
       end
       sleep 1
       return paired
+    end
+
+    def get_read_length(left, right)
+      count=0
+      file = File.open(left.split(",").first)
+      name = file.readline.chomp
+      seq = file.readline.chomp
+      na = file.readline.chomp
+      qual = file.readline.chomp
+      read_length = 0
+      while name and count < 5000 # get max read length from first 5000 reads
+        read_length = [read_length, seq.length].max
+        name = file.readline.chomp rescue nil
+        seq = file.readline.chomp rescue nil
+        na = file.readline.chomp rescue nil
+        qual = file.readline.chomp rescue nil
+        count+=1
+      end
+      read_length
     end
 
     def make_dir dir
