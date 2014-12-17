@@ -75,7 +75,7 @@ module TransratePaper
       end
       File.open("tsa-results.txt", "wb") do |io|
         @results.each do |code, hash|
-          out = "#{code}\t#{hash[:score]}\t#{hash[:read_length]}"
+          out = "#{code}\t#{hash[:score]}\t#{hash[:read_length]}\t"
           out << "#{hash[:tool]}\t#{hash[:phylogeny]}\n"
           io.write out
         end
