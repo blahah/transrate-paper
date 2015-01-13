@@ -4,9 +4,8 @@ require 'bindeps'
 require 'json'
 require 'yaml'
 require 'open3'
-require 'which'
+require 'fixwhich'
 require 'crb-blast'
-include Which
 
 module TransratePaper
 

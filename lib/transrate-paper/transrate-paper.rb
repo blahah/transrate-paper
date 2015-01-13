@@ -41,7 +41,7 @@ module TransratePaper
         experiment_data.each do |key, value|
           output_dir = File.join(@gem_dir, "data",
                                  experiment_name.to_s, key.to_s)
-          if [:reads, :assembly, :reference].include? key
+          if [:reads, :assembly].include? key
             value.each do |description, paths|
               if description == :url
                 paths.each do |url|
@@ -70,115 +70,41 @@ module TransratePaper
 
     def run_transrate threads
       @data.each do |experiment_name, experiment_data|
-        if !Dir.exist?(File.join(@gem_dir, "data", experiment_name.to_s,
-                                 "transrate"))
-          Dir.mkdir(File.join(@gem_dir, "data", experiment_name.to_s,
-                              "transrate"))
-        end
         experiment_data[:assembly][:fa].each do |assembler, path|
           output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
                                  "transrate", assembler.to_s)
           assembly_path = File.expand_path(File.join(@gem_dir, "data",
                                       experiment_name.to_s, "assembly", path))
-          if !Dir.exist?(output_dir)
-            Dir.mkdir(output_dir)
-          end
+          make_dir output_dir
           Dir.chdir(output_dir) do |dir|
             puts "changed to #{dir}"
-            experiment_data[:reference][:fa].each do |reference|
-              reference_path = File.expand_path(File.join(@gem_dir, "data",
-                                experiment_name.to_s, "reference", reference))
-              cmd = "transrate "
-              cmd << " --assembly #{assembly_path} "
-              cmd << " --left "
-              left = []
-              experiment_data[:reads][:left].each do |fastq|
-                left << File.expand_path(File.join(@gem_dir, "data",
-                                       experiment_name.to_s, "reads", fastq))
-              end
-              cmd << left.join(",")
-              cmd << " --right "
-              right = []
-              experiment_data[:reads][:right].each do |fastq|
-                right << File.expand_path(File.join(@gem_dir, "data",
-                                       experiment_name.to_s, "reads", fastq))
-              end
-              cmd << right.join(",")
-              cmd << " --reference #{reference_path}"
-              cmd << " --threads #{threads}"
-              cmd << " --outfile #{assembler}-#{reference}"
+            cmd = "transrate "
+            cmd << " --assembly #{assembly_path} "
+            cmd << " --left "
+            left = []
+            experiment_data[:reads][:left].each do |fastq|
+              left << File.expand_path(File.join(@gem_dir, "data",
+                                     experiment_name.to_s, "reads", fastq))
+            end
+            cmd << left.join(",")
+            cmd << " --right "
+            right = []
+            experiment_data[:reads][:right].each do |fastq|
+              right << File.expand_path(File.join(@gem_dir, "data",
+                                     experiment_name.to_s, "reads", fastq))
+            end
+            cmd << right.join(",")
+            cmd << " --threads #{threads}"
+            cmd << " --outfile #{experiment_name.to_s}-#{assembler}"
 
-              puts cmd
-              if !File.exist?("#{assembler}-#{reference}_assemblies.csv")
-                stdout, stderr, status = Open3.capture3 cmd
-                File.open("log-#{assembler.to_s}-#{reference}.txt","wb") do |out|
-                  out.write(stdout)
-                  out.write(stderr)
-                end
+            puts cmd
+            if !File.exist?("#{experiment_name.to_s}-#{assembler}_assemblies.csv")
+              stdout, stderr, status = Open3.capture3 cmd
+              File.open("log-#{experiment_name.to_s}-#{assembler.to_s}.txt","wb") do |out|
+                out.write(stdout)
+                out.write(stderr)
               end
             end
-          end
-        end
-      end
-    end
-
-    def transonerate threads
-      @data.each do |experiment_name, experiment_data|
-        if !Dir.exist?(File.join(@gem_dir, "data", experiment_name.to_s,
-                                 "transonerate"))
-          Dir.mkdir(File.join(@gem_dir, "data", experiment_name.to_s,
-                              "transonerate"))
-        end
-        genome = experiment_data[:genome][:fa].first
-        genome_path = File.expand_path(File.join(@gem_dir, "data",
-                                      experiment_name.to_s, "genome", genome))
-        gtf = experiment_data[:annotation][:gtf].first
-        gtf_path = File.expand_path(File.join(@gem_dir, "data",
-                                     experiment_name.to_s, "annotation", gtf))
-        output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
-                                 "transonerate")
-        assemblers = []
-        experiment_data[:assembly][:fa].each do |assembler, path|
-          assembly_path = File.expand_path(File.join(@gem_dir, "data",
-                                      experiment_name.to_s, "assembly", path))
-          assemblers << assembly_path
-        end
-
-        if !Dir.exist?(output_dir)
-          Dir.mkdir(output_dir)
-        end
-        puts "changing to #{output_dir}"
-        Dir.chdir(output_dir) do
-          cmd = "transonerate "
-          cmd << " --assembly #{assemblers.join(",")}"
-          cmd << " --genome #{genome_path}"
-          cmd << " --gtf #{gtf_path}"
-
-          left = []
-          experiment_data[:reads][:left].each do |fastq|
-            left << File.expand_path(File.join(@gem_dir, "data",
-                                   experiment_name.to_s, "reads", fastq))
-          end
-          cmd << " --left "
-          cmd << left.join(",")
-
-          right = []
-          experiment_data[:reads][:right].each do |fastq|
-            right << File.expand_path(File.join(@gem_dir, "data",
-                                   experiment_name.to_s, "reads", fastq))
-          end
-          cmd << " --right "
-          cmd << right.join(",")
-
-          cmd << " --output transonerate.out" # output is a suffix
-          cmd << " --threads #{threads}"
-
-          puts cmd
-          stdout, stderr, status = Open3.capture3 cmd
-          if !status.success?
-            puts stdout
-            puts stderr
-            abort "something went wrong with transonerate"
           end
         end
       end
@@ -253,6 +179,15 @@ module TransratePaper
         cmd = "fastq-dump.2.3.5.2 --origfmt --split-3 #{name} --outdir #{output_dir}"
         puts cmd
         stdout, stderr, status = Open3.capture3 cmd
+      end
+    end
+
+    def make_dir dir
+      if Dir.exist?(dir) or dir==""
+      else
+        dirname = File.dirname(dir)
+        make_dir dirname
+        Dir.mkdir(dir)
       end
     end
 
