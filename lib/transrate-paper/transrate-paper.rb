@@ -30,14 +30,8 @@ module TransratePaper
 
     def download_data yaml
       @data = YAML.load_file yaml
-      if !Dir.exist?(File.join(@gem_dir, "data"))
-        Dir.mkdir(File.join(@gem_dir, "data"))
-      end
       puts "Downloading and extracting data..."
       @data.each do |experiment_name, experiment_data|
-        if !Dir.exist?(File.join(@gem_dir, "data", experiment_name.to_s))
-          Dir.mkdir(File.join(@gem_dir, "data", experiment_name.to_s))
-        end
         experiment_data.each do |key, value|
           output_dir = File.join(@gem_dir, "data",
                                  experiment_name.to_s, key.to_s)
@@ -46,9 +40,7 @@ module TransratePaper
               if description == :url
                 paths.each do |url|
                   # create output directory
-                  if !Dir.exist?(output_dir)
-                    Dir.mkdir(output_dir)
-                  end
+                  make_dir(output_dir)
                   name = File.join(output_dir, File.basename(url))
                   # download
                   if !already_downloaded name
