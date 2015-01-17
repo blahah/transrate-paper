@@ -2,8 +2,9 @@
 
 In order to examine the validity and utility of the transrate method we examined its performance on a variety of existing transcriptome assemblies from previous publications.
 
-### Transrate score components are independent and uncorrelated
+### Contig score components are independent and uncorrelated
 
+q
 
 ### Contigs can be classified by transrate score
 
