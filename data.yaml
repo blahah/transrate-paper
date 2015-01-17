@@ -30,6 +30,11 @@
     :fa:
      - 'Osativa_204_protein.fa'
      - 'Sbicolor_79_protein.fa'
+  :transcriptome:
+    :url:
+     - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_transcript.fa.gz'
+    :fa:
+     - 'Osativa_204_transcript.fa'
 :mouse:
   :assembly:
     :url:
