@@ -18,38 +18,33 @@ Reads are aligned to each assembly using SNAP v1.0.0.dev67 [cite snap]. Alignmen
 
 BAM-format alignments produced by SNAP are passed to Salmon (part of the Sailfish suite, [cite sailfish]) to assign multi-mapping reads to their most likely contig of origin.
 
-## The contig score
+## The transrate score
 
-We developed a reference-free statistical measure of assembly quality, the transrate score. An assembly $A$ generated from a set of reads $R$ is composed of $n$ contigs, $c_1...c_n$, each of which is composed of $m$ bases, $b_1...b_m$, which can have values $a$, $c$, $g$, $t$, or $n$, where $n$ captures all ambiguous bases. A sequence has composition $\theta$, where $\theta_a$, $\theta_n$, etc. represent the proportion of bases made up of a specific base.
+We developed a reference-free statistical measure of assembly quality, the transrate score.
+
+An assembly consists of a set of contigs $C$ derived from a set of reads $\hat{R}$. Reads are aligned and assigned to contigs such that $\forall c_i \in C, \exists R_i \in \hat{R} : R_i$ is the set of reads assigned to $c_i$.
 
 ### For contigs
 
-The per-contig score captures the fact that a well-assembled contig:
+We model a perfect contig as:
 
-- has experimental evidence (in the form of read coverage) for all assembled bases
-- is not completely contained within any other contig (and thus has a high overall mapQ score)
-- accurately represents the information in the reads (and thus has a low per-base edit distance)
-- is assembled completely and without chimerism (and thus no reads aligning to it give evidence to the contrary)
+1. being a representation of a single transcript such that:
+  a. each base in the contig must be derived from only one transcript
+  b. all bases in the contig must be derived from the same transcript
+2. unambiguously and accurately representing the identity of each base in the transcript
+3. being structurally accurate and complete, such that the ordering of bases in the contig faithfully recreates the ordering of bases in the transcript
 
-Our confidence $q_c$ in the quality of a contig $c$ can therefore be expressed as:
+The transrate contig score is an estimate of the probability that a contig is perfect, i.e. meets all these criteria, using the aligned, assigned reads as evidence. We estimate the contig score $p(c_i)$ by taking the product of the probability of the components $S_1..S_4$, mapping to the criteria above.
 
-$$q_c=
-\sqrt[5]{
-  \left(\prod_{i=1}^ncov_{c_i}\right)^{\frac{1}{n}}
-  \left(1-\frac{\prod_{i=1}^R{1-edit(R_{c_i})}}{R}\right)
-  \left(\frac{\prod_{i=1}^R{good(R_{c_i})}}{R}\right)}$$
+To estimate our confidence $p(S_1)$ that each base in the contig is derived from a single transcript, we use the alignment edit distance, i.e. the number of changes that must be made to a read in order for it to perfectly match the contig sequence. We denote the edit distance of an assigned read $r_{ij} \in R_i$ as $e_{r_{ij}}$ and the set of reads that cover base $k$ ($k \in [1,n]$) as $\varrho k$. The maximum possible edit distance for alignment is fixed by the aligner, denoted as $\hat{e}$. Then the probability $p(b)$ that a base is derived from a single transcript is estimated as the arithmetic mean of $1 - \frac{e_{r_{ij}}}{\hat{e}}$ for each $r_{ij} \in \varrho k $, and the probability $p(S_1)$ that each base in a contig is derived from a single transcript is then the root mean square of $p(b)$.
 
-TODO:
-- choose a new letter for indexing bases in a contig - n is already number of contigs
-- choose better notation for indexing the mapping reads
+We adapt the Bayesian segmentation algorithm of [liu and lawrence 1999] to estimate $p(S_2)$, our confidence that all bases in a contig derive from the same transcript. We assume that a contig that represents a single transcript will have a read coverage related to the expression level of that transcript in the sequenced sample. A contig that is a chimera derived from two or more transcripts will have multiple levels of read coverage representing the expression levels of its component transcripts. We therefore approximate $p(S_2)$ by the probability that the read coverage over a contig has a single level. To make the computation tractable, we further simplify the problem by treating the read coverage along the contig as a sequence of letters in an unordered alphabet. We achieve this representation by discretising the coverage at each base by taking the absolute its base-2 logarithm, rounded to the nearest integer. $p(S_2)$ can then be stated as the probability that the sequence of coverage values does not change composition at any point along its length, i.e. that it is composed of a single composition segment. The Liu and Lawrence (1999) algorithm is applied to find this probability.
 
-Or, the geometric mean of:
+Whether the contig accurately represents base identity of the transcript of origin is partially captured in $p(S_1)$ for bases that have reads assigned to them. We thus capture the missing information required to include this confidence in the score as $p(S_3)$, which is estimated as the proportion of bases that are supported by assigned reads.
 
-- the proportion of bases with coverage > 0
-- the geometric mean of the RMS mapQ score at each base
-- the proportion of bases that are unambiguous
-- 1 - the mean edit distance per base for all reads mapping to the contig
-- the proportion of reads mapping to the contig that have alignments giving positive evidence of contig assembly quality
+Confidence in the structural accuracy and completeness of a contig, $p(S_3), is estimated using the pairing information of reads. We classify alignments of read pairs according to whether they are biologically plausible if we assume that the contig is structurally accurate and complete. Thus a read pair must meet all the following criteria to be valid: (a) both reads in the pair align to the same contig, (b) in an orientation that matches the sequencing protocol, (c) within a plausible distance given the fragmentation and size selection applied in the sequencing protocol. $p(S_3)$ is then approximated by the proportion of reads $R_i$ that are assigned to a contig that are valid.
+
+
 
 ### The assembly score
 
