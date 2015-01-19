@@ -14,7 +14,7 @@ Transrate is written in Ruby and C++. It is open source, released under the MIT 
 
 ### Read alignment and assignment
 
-Reads are aligned to each assembly using SNAP v1.0.0.dev66 [cite snap]. Alignments are reported up to a maximum edit distance of 30. Up tp 10 multiple alignments are reported per read where available (`-omax 10`), up to a maximum edit distance of 5 from the best-scoring alignment (`-om 5`). Exploration within an edit distance of 5 from each alignment is allowed for the calculation of MAPQ scores (`-D 5`).
+Reads are aligned to each assembly using SNAP v1.0.0.dev67 [cite snap]. Alignments are reported up to a maximum edit distance of 30. Up tp 10 multiple alignments are reported per read where available (`-omax 10`), up to a maximum edit distance of 5 from the best-scoring alignment (`-om 5`). Exploration within an edit distance of 5 from each alignment is allowed for the calculation of MAPQ scores (`-D 5`).
 
 BAM-format alignments produced by SNAP are passed to Salmon (part of the Sailfish suite, [cite sailfish]) to assign multi-mapping reads to their most likely contig of origin.
 
@@ -74,24 +74,30 @@ To evaluate the transrate algorithm, we opted to use data from previously publis
 
 ### Detailed algorithm evaluation
 
+#### Using real data
+
 To evaluate the contig and assembly scores, we used transrate to analyse assemblies from two previous publications: [cite soapdenovotrans], and [cite corset].
 
-From [soapdenovotrans] paper, assemblies were available for rice (Oryza sativa) and mouse (Mus musculus) that had been assembled using Oases [cite], Trinity [cite], and SOAPdenovo-Trans [cite]. From [corset], assemblies were available for human (Homo sapiens) and yeast (Saccharomyces cerevisiae) that had been assembled with Oases and Trinity.
+From [soapdenovotrans] paper, assemblies were available for rice (*Oryza sativa*) and mouse (*Mus musculus*) that had been assembled using Oases [oases], Trinity [trinity], and SOAPdenovo-Trans [soapdt]. From [corset], assemblies were available for human (*Homo sapiens*) and yeast (*Saccharomyces cerevisiae*) that had been assembled with Oases and Trinity.
 
 These assemblies were chosen because they represent a phylogenetically diverse range of species assembled with several assemblers, with the read data and the transcriptome assemblies available to download, and with a relatively well-annotated reference genome available for each species.
 
 Transrate was run separately for each species, with the full set of reads and all assemblies for that species as input.
 
-#### Contig score accuracy evaluation
+For the pre-made assemblies, we generated a reference-based score for each contig in each of the ten assemblies. A reference dataset was compiled by including all transcripts plus any non-coding RNAs described in the reference annotation for each species.
 
-To evaluate the accuracy of the contig score, we generated a reference-based score for each contig in each of the ten assemblies. A reference dataset was compiled by including all transcripts plus any non-coding RNAs described in the reference annotation for each species.
+Contigs were compared to the reference dataset by nucleotide-nucleotide local alignment with BLAST+ blastn version 2.2.29 [cite blast+]. Because no genome annotation is complete, de-novo transcriptome assemblies are likely to contain contigs that are well-assembled representations of real transcripts not present in the reference. We therefore only considered contigs for score comparison if they aligned successfully to at least one reference transcript.
 
-Contigs were compared to the reference dataset by nucleotide-nucleotide alignment with BLAST+ blastn version 2.2.29 [cite blast+]. Because no genome annotation is complete, de-novo transcriptome assemblies are likely to contain contigs that are well-assembled representations of real transcripts not present in the reference. We therefore only considered contigs for score comparison if they aligned successfully to at least one reference transcript.
+Each contig that has at least one hit was given a reference score by selecting the alignment with the lowest bitscore for each contig, then taking the product of the proportion of the reference covered, the proportion of the query covered, and the identity of the alignment.
 
-Each contig that has at least one hit was given a reference score by selecting the alignment with the lowest bitscore for each contig, and multiplying the proportion of the reference that was covered by the alignment by the identity of the alignment to produce a score between 0 and 1. This score corresponds to the proportion of reference bases found in the contig.
+#### Using simulated data
 
-Accuracy was evaluated in
+We generated reads by simulated sequencing for each of the four species (rice, mouse, human and yeast) using flux-simulator as follows: For each species, a total of 10 million mRNA molecules were simulated from across the full set of annotated mRNAs from the Ensembl annotation with a random (exponentially distributed) expression distribution. mRNA molecules were uniform-randomly fragmented and then size-selected to a mean of 400 and standard distribution of 50. From the resulting fragments, 8 million 100bp paired-end reads were simulated using a learned error profile from real Illumina reads.
+
+Two assemblies were generated from each set of simulated reads, one using Oases and another using SOAPdenovo-trans.
+
+Accuracy was evaluated as for real data, except that all contigs (including those that did not align) were incorporated into the accuracy calculation.
 
 ### Assembly score survey
 
-A survey of the range of achievable assembly scores was conducted by analysing transcriptome assemblies from the Transcriptome Shotgun Archive.
+A survey of the range of achievable assembly scores was conducted by analysing transcriptome assemblies from the Transcriptome Shotgun Archive (TSA). Entries in the were filtered to retain only those where paired-end reads were provided, the assembler was named in the metadata, and the number of contigs was at least 5,000.
