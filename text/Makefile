@@ -1,11 +1,14 @@
+DRAFTNAME = draft_$(shell date +'%y_%m_%d')
+
 all:
-	pandoc -o draft.pdf -o draft.docx --bibliography=bib.bib 0*md
+	$(pdf)
+	$(docx)
 
 pdf: bib.bib
-	pandoc -o draft.pdf --bibliography=bib.bib 0*md
+	pandoc -o $(DRAFTNAME).pdf --bibliography=bib.bib 0*md
 
 docx: bib.bib
-	pandoc -o draft.docx --bibliography=bib.bib 0*md
+	pandoc -o $(DRAFTNAME).docx --bibliography=bib.bib 0*md
 
 clean:
-	$(RM) draft.pdf draft.docx
+	$(RM) $(DRAFTNAME).pdf $(DRAFTNAME).docx
