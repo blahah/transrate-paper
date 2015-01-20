@@ -16,7 +16,7 @@ Transrate is written in Ruby and C++. It is open source, released under the MIT 
 
 Reads are aligned to each assembly using SNAP v1.0.0.dev67 [@zaharia_faster_2011]. Alignments are reported up to a maximum edit distance of 30. Up to 10 multiple alignments are reported per read where available (`-omax 10`), up to a maximum edit distance of 5 from the best-scoring alignment (`-om 5`). Exploration within an edit distance of 5 from each alignment is allowed for the calculation of MAPQ scores (`-D 5`).
 
-BAM-format alignments produced by SNAP are passed to Salmon (part of the Sailfish suite, [@patro_sailfish_2014]) to assign multi-mapping reads to their most likely contig of origin.
+BAM-format alignments produced by SNAP are passed to Salmon, part of the Sailfish suite, [@patro_sailfish_2014], to assign multi-mapping reads to their most likely contig of origin.
 
 ## The transrate score
 
@@ -74,7 +74,7 @@ Transrate was run separately for each species, with the full set of reads and al
 
 For the pre-made assemblies, we generated a reference-based score for each contig in each of the ten assemblies. A reference dataset was compiled by including all transcripts plus any non-coding RNAs described in the reference annotation for each species.
 
-Contigs were compared to the reference dataset by nucleotide-nucleotide local alignment with BLAST+ blastn version 2.2.29 [@camacho_blast+:_2009]. Because no genome annotation is complete, de-novo transcriptome assemblies are likely to contain contigs that are well-assembled representations of real transcripts not present in the reference. We therefore only considered contigs for score comparison if they aligned successfully to at least one reference transcript.
+Contigs were compared to the reference dataset by nucleotide-nucleotide local alignment with BLAST+ blastn version 2.2.29 [@camacho_blast:_2009]. Because no genome annotation is complete, de-novo transcriptome assemblies are likely to contain contigs that are well-assembled representations of real transcripts not present in the reference. We therefore only considered contigs for score comparison if they aligned successfully to at least one reference transcript.
 
 Each contig that has at least one hit was given a reference score by selecting the alignment with the lowest bitscore for each contig, then taking the product of the proportion of the reference covered, the proportion of the query covered, and the identity of the alignment.
 

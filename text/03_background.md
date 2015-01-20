@@ -18,7 +18,7 @@ In addition to quality varying between assemblies, contigs within an assembly ca
 
 It is therefore desirable to be able to select out the well-assembled contigs, likely to be of use in downstream biological interpretation, from those that are not suitable for downstream use.
 
-Compared to transcriptome assemblies, evaluation of the quality of genome and metagenome assemblies is a relatively mature field. Approaches include providing a range of basic metrics about assemblies [@quast], or explicitly modelling the sequencing and assembly process to provide a likelihood-based measure of quality [@clark_ale:_2013, @rahman_cgal:_2013].
+Compared to transcriptome assemblies, evaluation of the quality of genome and metagenome assemblies is a relatively mature field. Approaches include providing a range of basic metrics about assemblies [@gurevich_quast:_2013], or explicitly modelling the sequencing and assembly process to provide a likelihood-based measure of quality [@clark_ale:_2013, @rahman_cgal:_2013].
 
 Some authors have used reference-based measures for evaluation of de-novo transcriptome assemblies [@elijah_k_lowe_evaluating_2014; @oneil_assessing_2013, @oneil_population-level_2010]. However, in most cases, a high-quality, closely related reference transcriptome is not available, limiting the usefulness of these metrics in practice [@li_evaluation_2014].
 
