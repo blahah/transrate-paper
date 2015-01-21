@@ -10,7 +10,7 @@ Analysis proceeds by aligning the reads to the assemblies. For reads with multip
 
 ### Implementation
 
-Transrate is written in Ruby and C++. It is open source, released under the MIT license. Code is available at http://github.com/Blahah/transrate, while help and full documentation are available at http://hibberdlab.com/transrate. The code is fully covered by automated tests. The software is operated via a user-friendly command line interface and can be used on OSX and linux.
+Transrate is written in Ruby and C++. It is open source, released under the MIT license. Code is available at http://github.com/Blahah/transrate, while help and full documentation are available at http://hibberdlab.com/transrate. The code is fully covered by automated tests. The software is operated via a user-friendly command line interface and can be used on OSX and linux. Transrate can also be used programmatically as a Ruby gem.
 
 ### Read alignment and assignment
 
