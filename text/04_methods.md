@@ -47,16 +47,18 @@ Confidence in the structural accuracy and completeness of a contig, $p(S_3)$, is
 
 ### The assembly score
 
-The assembly score captures the fact that a well-assembled transcriptome:
+We model a perfect assembly descriptively such that:
 
-- is made up of high-quality contigs (and thus has high per-contig scores)
-- is complete (and thus incorporates a high proportion of the experimental evidence)
+1. a perfect assembly is made up of a perfect contig representing each transcript that it contains (and thus has high per-contig scores)
+2. has all transcripts represented (and thus incorporates a high proportion of the experimental evidence)
 
-Our confidence $q_A$ in the quality of an assembly can therefore be expressed as:
+We take the geometric mean of the contig scores to represent (1), and use the proportion of read pairs that had at least one structurally valid alignment to represent the completeness of the assembly.
 
-$$q_A=\sqrt{\left(\prod_{c=1}^nq_c\right)^\frac{1}{n}good(R)}$$
+Our confidence $p(C)$ in the quality of an assembly can therefore be expressed as:
 
-## Evaluation using published assemblies
+$$q_A=\sqrt{\left(\prod_{c=1}^nq_c\right)^\frac{1}{n}R_{valid}}$$
+
+## Evaluation
 
 To evaluate the transrate algorithm, we opted to use data from previously published assembly papers. Two different strands of analysis were performed: a detailed evaluation of the algorithm using ten assemblies from four species, and a broader survey of the range of assembly scores achievable using the entire NCBI Transcriptome Shotgun Archive.
 
@@ -82,7 +84,7 @@ Each contig that has at least one hit was given a reference score by selecting t
 
 We generated reads by simulated sequencing for each of the four species (rice, mouse, human and yeast) using flux-simulator v1.2.1 [@griebel_modelling_2012]. For each species, a total of 10 million mRNA molecules were simulated from across the full set of annotated mRNAs from the Ensembl annotation with a random (exponentially distributed) expression distribution. mRNA molecules were uniform-randomly fragmented and then size-selected to a mean of 400 and standard distribution of 50. From the resulting fragments, 8 million 100bp paired-end reads were simulated using a learned error profile from real Illumina reads.
 
-Two assemblies were generated from each set of simulated reads, one using Oases and another using SOAPdenovo-trans.
+From each set of simulated reads, an assembly was generated using Oases, with a kmer size of 23, and defaults for all other parameters.
 
 Accuracy was evaluated as for real data, except that all contigs (including those that did not align) were incorporated into the accuracy calculation.
 
