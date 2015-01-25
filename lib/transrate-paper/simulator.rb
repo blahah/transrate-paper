@@ -4,10 +4,18 @@ module TransratePaper
 
     require 'fileutils'
     require 'yaml'
+    require 'which'
+    include Which
 
     def initialize
       @gem_dir = Gem.loaded_specs['transrate-paper'].full_gem_path
       @data = YAML.load_file File.join(@gem_dir, 'data.yaml')
+      @curl = which('curl').first
+      @wget = which('wget').first
+      if !@curl and !@wget
+        msg = "Don't know how to download files without curl or wget installed"
+        raise RuntimeError.new(msg)
+      end
     end
 
     # run flux capacitor simulation for each species
@@ -17,7 +25,8 @@ module TransratePaper
           puts "Preparing to simulate reads for #{name.to_s}"
           thissim = data[:sim_inputs]
           # change to experiment dir
-          datadir = File.join(@gem_dir, "data", name.to_s, 'sim_inputs')
+          expdir = File.join(@gem_dir, "data", name.to_s)
+          datadir = File.join(expdir, 'sim_inputs')
           unless File.exists? datadir
             FileUtils.mkdir_p datadir
           end
@@ -31,41 +40,43 @@ module TransratePaper
             download_inputs thissim
           end
           # create dir for full simulation and run it
-          Dir.mkdir 'simulation' unless Dir.exist? 'simulation'
-          Dir.chdir 'simulation' do
+          simdir = File.join(expdir, 'simulation')
+          Dir.mkdir simdir unless Dir.exist? simdir
+          Dir.chdir simdir do
+            inputs[:full] = inputs[:full].merge({
+              :left => File.expand_path('left.fq'),
+              :right => File.expand_path('right.fq')
+            })
             if File.exists? 'sim.fastq'
               puts "sim.fastq already exists for full simulation, skipping"
               puts "(if you want to re-run the simulation, delete sim.fastq)"
             else
               puts "Simulating large read set (5 million reads)"
-              run_flux(full_inputs, 10_000_000, 5_000_000)
+              run_flux(inputs[:full], 10_000_000, 5_000_000)
             end
-            inputs[:full] = inputs[:full].merge {
-              :left => File.expand_path 'left.fq'
-              :right => File.expand_path 'right.fq'
-            }
           end
           # create dir for mini simulation and run it
-          Dir.mkdir 'tinysim' unless Dir.exist? 'tinysim'
-          Dir.chdir 'tinysim' do
+          tinydir = File.join(expdir, 'tinysim')
+          Dir.mkdir tinydir unless Dir.exist? tinydir
+          Dir.chdir tinydir do
+            inputs[:tiny] = {
+              :genome => inputs[:full][:genome],
+              :annotation =>  File.join(datadir, 'chr1.gtf'),
+              :left => File.expand_path('left.fq'),
+              :right => File.expand_path('right.fq')
+            }
             if File.exists? 'sim.fastq'
-              puts "sim.fastq already exists for full simulation, skipping"
+              puts "sim.fastq already exists for tiny simulation, skipping"
               puts "(if you want to re-run the simulation, delete sim.fastq)"
             else
               puts "Simulating small read set (5 hundred thousand reads) " +
                    "from a single chromosome"
               make_tiny_inputs inputs[:full]
-              run_flux(tiny_inputs, 2_000_000, 500_000)
+              run_flux(inputs[:tiny], 2_000_000, 500_000)
             end
-            inputs[:tiny] = {
-              :genome => inputs[:full][:genome],
-              :annotation =>  File.join(datadir, 'chr1.gtf')
-              :left => File.expand_path 'left.fq'
-              :right => File.expand_path 'right.fq'
-            }
-          end
           end
         end
+      end
       inputs
     end # simulate
 
@@ -78,14 +89,16 @@ module TransratePaper
       `grep "^#{first}\s" #{inputs[:annotation_path]} > chr1.gtf`
     end
 
-    # run flux and deinterleave the reads for a given number of molecules and reads
+    # run flux and deinterleave the reads for a given number of molecules
+    # and reads
     def run_flux(inputs, nmol, nreads)
+      puts `pwd`
       # cleanup previous run
       puts "Removing any leftover files from previous runs"
       `rm sim.*`
       # generate param file
       puts "Generating flux simulator parameter file"
-      make_flux_params simdata
+      make_flux_params(inputs[:genome], inputs[:annotation], nmol, nreads)
       # run flux simulator
       puts "Simulating reads..."
       `flux-simulator -p sim.par -x -l -s`
@@ -100,57 +113,58 @@ module TransratePaper
       `#{cmd}`
       puts "...done! Reads ready for assembly"
       {
-        :left => File.expand_path 'left.fq',
-        :right => File.expand_path 'right.fq'
+        :left => File.expand_path('left.fq'),
+        :right => File.expand_path('right.fq')
       }
     end
 
     # download Ensembl genome and annotation
     def download_inputs data
-      gtf = thissim[:annotation][:gtf]
+      gtf = data[:annotation][:gtf]
       inputs = {}
       if File.exist? gtf
         puts "GTF already exists, skipping download"
         puts "(if you want to redownload reference, delete the GTF)"
       else
         puts "Downloading reference set from Ensembl"
-        download(thissim[:annotation][:url], gtf)
+        download(data[:annotation][:url])
         extract('*.gz', '.')
+        raise "Couldn't download data from Ensembl" unless File.exist? gtf
         Dir.mkdir 'genome' unless Dir.exists? 'genome'
         Dir.chdir 'genome' do
-          download(thissim[:genome][:url])
+          download(data[:genome][:url])
           extract('*.gz', '.')
         end
       end
     end
 
     # generate flux simulator parameter file
-    def make_flux_params(nmol, nreads, genomepath, annotation)
-      File.open('sim.par', 'wx') do |f|
-        f.write "REF_FILE_NAME\t#{annotation}"\
-                "GEN_DIR\t#{genomepath}"\
-                "NB_MOLECULES\t#{nmol}"\
-                "POLYA_SCALE\tNaN"\
-                "POLYA_SHAPE\tNaN"\
-                "FRAG_SUBSTRATE\tRNA"\
-                "FRAG_METHOD\tUR"\
-                "FRAG_UR_ETA\t350"\
-                "FILTERING\tYES"\
-                "SIZE_DISTRIBUTION\tN(400, 50)"\
-                "READ_NUMBER\t#{nreads}"\
-                "READ_LENGTH\t100"\
-                "PAIRED_END\tYES"\
-                "FASTA\tYES"\
-                "ERR_FILE\t76"\
-                "UNIQUE_IDS\tYES"
+    def make_flux_params(genomepath, annotation, nmol, nreads)
+      File.open('sim.par', 'w') do |f|
+        f.write "REF_FILE_NAME\t#{annotation}\n"\
+                "GEN_DIR\t#{genomepath}\n"\
+                "NB_MOLECULES\t#{nmol}\n"\
+                "POLYA_SCALE\tNaN\n"\
+                "POLYA_SHAPE\tNaN\n"\
+                "FRAG_SUBSTRATE\tRNA\n"\
+                "FRAG_METHOD\tUR\n"\
+                "FRAG_UR_ETA\t350\n"\
+                "FILTERING\tYES\n"\
+                "SIZE_DISTRIBUTION\tN(400, 50)\n"\
+                "READ_NUMBER\t#{nreads}\n"\
+                "READ_LENGTH\t100\n"\
+                "PAIRED_END\tYES\n"\
+                "FASTA\tYES\n"\
+                "ERR_FILE\t76\n"\
+                "UNIQUE_IDS\tYES\n"
       end
     end
 
-    def download(url, name)
+    def download(url)
       if @curl
-        cmd = "curl #{url} -o #{name}"
+        cmd = "curl -O -J -L #{url}"
       elsif @wget
-        cmd = "wget #{url} -O #{name}"
+        cmd = "wget #{url}"
       else
         raise RuntimeError.new("Neither curl or wget installed")
       end
