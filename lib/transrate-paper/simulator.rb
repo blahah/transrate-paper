@@ -10,10 +10,9 @@ module TransratePaper
     def initialize
       @gem_dir = Gem.loaded_specs['transrate-paper'].full_gem_path
       @data = YAML.load_file File.join(@gem_dir, 'data.yaml')
-      @curl = which('curl').first
       @wget = which('wget').first
-      if !@curl and !@wget
-        msg = "Don't know how to download files without curl or wget installed"
+      if !@wget
+        msg = "Don't know how to download files without wget installed"
         raise RuntimeError.new(msg)
       end
     end
@@ -47,13 +46,8 @@ module TransratePaper
               :left => File.expand_path('left.fq'),
               :right => File.expand_path('right.fq')
             })
-            if File.exists? 'sim.fastq'
-              puts "sim.fastq already exists for full simulation, skipping"
-              puts "(if you want to re-run the simulation, delete sim.fastq)"
-            else
-              puts "Simulating large read set (5 million reads)"
-              run_flux(inputs[:full], 10_000_000, 5_000_000)
-            end
+            puts "Simulating large read set (5 million reads)"
+            run_flux(inputs[:full], 10_000_000, 5_000_000)
           end
           # create dir for mini simulation and run it
           tinydir = File.join(expdir, 'tinysim')
@@ -65,15 +59,10 @@ module TransratePaper
               :left => File.expand_path('left.fq'),
               :right => File.expand_path('right.fq')
             }
-            if File.exists? 'sim.fastq'
-              puts "sim.fastq already exists for tiny simulation, skipping"
-              puts "(if you want to re-run the simulation, delete sim.fastq)"
-            else
-              puts "Simulating small read set (5 hundred thousand reads) " +
+            puts "Simulating small read set (5 hundred thousand reads) " +
                    "from a single chromosome"
-              make_tiny_inputs inputs[:full]
-              run_flux(inputs[:tiny], 2_000_000, 500_000)
-            end
+            make_tiny_inputs inputs[:full]
+            run_flux(inputs[:tiny], 2_000_000, 500_000)
           end
         end
       end
@@ -84,34 +73,62 @@ module TransratePaper
     # extract out a subset of the chromosomes and generate a reference
     # for that
     def make_tiny_inputs inputs
-      chromosomes = `cut -f1 #{inputs[:annotation_path]} | sort | uniq`
-      first = chromosomes.split("\n").first.chomp
-      `grep "^#{first}\s" #{inputs[:annotation_path]} > chr1.gtf`
+      base = File.dirname(inputs[:annotation])
+      chr1 =  File.join(base, 'chr1.gtf')
+      if File.exist? chr1
+        puts "chr1.gtf exists, skipping GTF chromosome subsetting"
+      else
+        puts "Subsetting GTF to get a single chromosome"
+        cmd = "cut -f1 #{inputs[:annotation]} | sort | uniq"
+        chromosomes = `#{cmd}`
+        first = chromosomes.split("\n").first.chomp
+        puts "Single chromosome selected: #{first}"
+        `grep "^#{first}\\s" #{inputs[:annotation]} > #{chr1}`
+        raise "GTF subsetting failed :(" unless File.exist? chr1
+      end
     end
 
     # run flux and deinterleave the reads for a given number of molecules
     # and reads
     def run_flux(inputs, nmol, nreads)
-      puts `pwd`
-      # cleanup previous run
-      puts "Removing any leftover files from previous runs"
-      `rm sim.*`
-      # generate param file
-      puts "Generating flux simulator parameter file"
-      make_flux_params(inputs[:genome], inputs[:annotation], nmol, nreads)
-      # run flux simulator
-      puts "Simulating reads..."
-      `flux-simulator -p sim.par -x -l -s`
-      puts "...done simulating reads"
-      # deinterleave and randomise reads
-      puts "Deinterleaving and randomising simulated reads..."
-      cmd = "paste - - - - - - - - < sim.fastq | "\
-            "shuf | "\
-            "tee >(cut -f 1-4 | tr '\t' '\n' > left.fq) | "\
-            "cut -f 5-8 | "\
-            "tr '\t' '\n' > right.fq"
-      `#{cmd}`
-      puts "...done! Reads ready for assembly"
+      if File.exists? 'sim.fastq'
+        puts "sim.fastq already exists, skipping simulation"
+        puts "(if you want to re-run the simulation, delete sim.fastq)"
+      else
+        # cleanup previous run
+        puts "Removing any leftover files from previous runs"
+        `rm sim.*` unless Dir['sim*'].empty?
+        # generate param file
+        puts "Generating flux simulator parameter file"
+        make_flux_params(inputs[:genome], inputs[:annotation], nmol, nreads)
+        # run flux simulator
+        puts "Simulating reads..."
+        `flux-simulator -p sim.par -x -l -s`
+        raise "Simulation failed :(" unless File.exists? 'sim.fastq'
+        puts "...done simulating reads"
+      end
+      if File.exist?('left.fq') && File.exist?('right.fq')
+        puts "deinterleaved FASTQ files exist, skipping deinterleaving"
+      else
+        # deinterleave and randomise reads
+        puts "Deinterleaving and randomising simulated reads..."
+        # here we add to the PATH temporarily to get raw coreutils commands
+        # on OSX
+        cmd = "#! /usr/bin/env bash\n" \
+              "PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH &&"\
+              "paste - - - - - - - - < sim.fastq | "\
+              "shuf | "\
+              "tee >(cut -f 1-4 | tr '\\t' '\\n' > left.fq) | "\
+              "cut -f 5-8 | "\
+              "tr '\\t' '\\n' > right.fq"
+        File.open('split_shuffle.sh', 'w') { |f| f.write cmd }
+        File.chmod(0777, 'split_shuffle.sh')
+        `./split_shuffle.sh`
+        unless File.exists? 'left.fq'
+          raise "Failed to deinterleave FASTQ file"
+        end
+        puts "...done! Reads ready for assembly"
+      end
       {
         :left => File.expand_path('left.fq'),
         :right => File.expand_path('right.fq')
@@ -124,18 +141,49 @@ module TransratePaper
       inputs = {}
       if File.exist? gtf
         puts "GTF already exists, skipping download"
-        puts "(if you want to redownload reference, delete the GTF)"
       else
-        puts "Downloading reference set from Ensembl"
+        puts "Downloading reference annotation set from Ensembl"
         download(data[:annotation][:url])
         extract('*.gz', '.')
         raise "Couldn't download data from Ensembl" unless File.exist? gtf
-        Dir.mkdir 'genome' unless Dir.exists? 'genome'
-        Dir.chdir 'genome' do
+      end
+      Dir.mkdir 'genome' unless Dir.exists? 'genome'
+      Dir.chdir 'genome' do
+        if (Dir['*.fa'].empty? && Dir['*.gz'].empty?)
           download(data[:genome][:url])
+        else
+          puts "Files already in the genome directory, skipping download"
+        end
+        if (Dir['*.gz'].empty?)
+          puts "No gzip files in genome directory - skipping gunzip"
+        else
           extract('*.gz', '.')
         end
+        rename_chromosome_fastas
+        puts "Final list of chromosome files: #{Dir['*fa'].join(', ')}"
       end
+    end
+
+    # rename genome fasta files to have just the chromosome name/number
+    # by removing the common prefix of all the filenames
+    def rename_chromosome_fastas
+      prefix = common_prefix(Dir['*.fa'])
+      if prefix.length > 0
+        fastas = Dir['*.fa']
+        fastas.each do |file|
+          newfile = file.clone
+          newfile.slice! prefix
+          File.rename(file, newfile)
+        end
+        puts "Stripped prefix: #{prefix} from #{fastas.length} FASTA files"
+      end
+    end
+
+    # return the longest common prefix of an array of strings
+    def common_prefix(strings)
+      chars  = strings.map(&:chars)
+      length = chars.first.zip( *chars[1..-1] ).index{ |a| a.uniq.length>1 }
+      strings.first[0,length]
     end
 
     # generate flux simulator parameter file
@@ -161,12 +209,10 @@ module TransratePaper
     end
 
     def download(url)
-      if @curl
-        cmd = "curl -O -J -L #{url}"
-      elsif @wget
+      if @wget
         cmd = "wget #{url}"
       else
-        raise RuntimeError.new("Neither curl or wget installed")
+        raise RuntimeError.new("wget is not installed")
       end
       puts cmd
       stdout, stderr, status = Open3.capture3 cmd
