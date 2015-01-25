@@ -26,15 +26,19 @@
   :reference:
     :url:
      - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_protein.fa.gz'
-     - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Sbicolor/annotation/Sbicolor_79_protein.fa.gz'
     :fa:
      - 'Osativa_204_protein.fa'
-     - 'Sbicolor_79_protein.fa'
   :transcriptome:
     :url:
      - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_transcript.fa.gz'
     :fa:
      - 'Osativa_204_transcript.fa'
+  :sim_inputs:
+    :genome:
+      :url: 'ftp://ftp.ensemblgenomes.org/pub/release-25/plants/fasta/oryza_sativa/dna/Oryza_sativa.IRGSP-1.0.25.dna.chromosome.*.fa.gz'
+    :annotation:
+      :url: 'ftp://ftp.ensemblgenomes.org/pub/release-25/plants/gtf/oryza_sativa/Oryza_sativa.IRGSP-1.0.25.gtf.gz'
+      :gtf: 'Oryza_sativa.IRGSP-1.0.25.gtf'
 :mouse:
   :assembly:
     :url:
@@ -53,10 +57,14 @@
   :reference:
     :url:
     - 'ftp://ftp.ensembl.org/pub/release-64/fasta/mus_musculus/pep/Mus_musculus.NCBIM37.64.pep.all.fa.gz'
-    - 'ftp://ftp.ensembl.org/pub/current_fasta/homo_sapiens/pep/Homo_sapiens.GRCh37.75.pep.all.fa.gz'
     :fa:
     - 'Mus_musculus.NCBIM37.64.pep.all.fa'
-    - 'Homo_sapiens.GRCh37.75.pep.all.fa'
+  :sim_inputs:
+    :genome:
+      :url: 'ftp://ftp.ensembl.org/pub/release-78/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.chromosome*'
+    :annotation:
+      :url: 'ftp://ftp.ensembl.org/pub/release-78/gtf/mus_musculus/Mus_musculus.GRCm38.78.gtf.gz'
+      :gtf: 'Mus_musculus.GRCm38.78.gtf'
 :human:
   :assembly:
     :url:
@@ -107,10 +115,14 @@
   :reference:
     :url:
     - 'ftp://ftp.ensembl.org/pub/current_fasta/homo_sapiens/pep/Homo_sapiens.GRCh37.75.pep.all.fa.gz'
-    - 'ftp://ftp.ensembl.org/pub/release-64/fasta/mus_musculus/pep/Mus_musculus.NCBIM37.64.pep.all.fa.gz'
     :fa:
     - 'Homo_sapiens.GRCh37.75.pep.all.fa'
-    - 'Mus_musculus.NCBIM37.64.pep.all.fa'
+  :sim_inputs:
+    :genome:
+      :url: 'ftp://ftp.ensembl.org/pub/release-78/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz'
+    :annotation:
+      :url: 'ftp://ftp.ensembl.org/pub/release-78/gtf/homo_sapiens/Homo_sapiens.GRCh38.78.gtf.gz'
+      :gtf: 'Homo_sapiens.GRCh38.78.gtf'
 :yeast:
   :assembly:
     :url:
@@ -142,8 +154,13 @@
      - 'SRR453571_2.fastq'
   :reference:
     :url:
-    - 'ftp://ftp.ensembl.org/pub/current_fasta/saccharomyces_cerevisiae/pep/Saccharomyces_cerevisiae.R64-1-1.75.pep.all.fa.gz'
-    - 'ftp://ftp.ensemblgenomes.org/pub/fungi/current/fasta/schizosaccharomyces_pombe/pep/Schizosaccharomyces_pombe.ASM294v2.22.pep.all.fa.gz'
+      - 'ftp://ftp.ensembl.org/pub/current_fasta/saccharomyces_cerevisiae/pep/Saccharomyces_cerevisiae.R64-1-1.75.pep.all.fa.gz'
     :fa:
-    - 'Saccharomyces_cerevisiae.R64-1-1.75.pep.all.fa'
-    - 'Schizosaccharomyces_pombe.ASM294v2.22.pep.all.fa'
+      - 'Saccharomyces_cerevisiae.R64-1-1.75.pep.all.fa'
+      - 'Schizosaccharomyces_pombe.ASM294v2.22.pep.all.fa'
+  :sim_inputs:
+    :genome:
+      :url: 'ftp://ftp.ensembl.org/pub/release-78/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna.chromosome.*.fa.gz'
+    :annotations:
+      :url: 'ftp://ftp.ensembl.org/pub/release-78/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.78.gtf.gz'
+      :gtf: 'Saccharomyces_cerevisiae.R64-1-1.78.gtf'
