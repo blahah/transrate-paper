@@ -19,6 +19,7 @@ module TransratePaper
 
     # run flux capacitor simulation for each species
     def run
+      all_simdata = {}
       @data.each do |name, data|
         if data.has_key? :sim_inputs
           puts "Preparing to simulate reads for #{name.to_s}"
@@ -64,9 +65,10 @@ module TransratePaper
             make_tiny_inputs inputs[:full]
             run_flux(inputs[:tiny], 2_000_000, 500_000)
           end
+          all_simdata[name] = inputs
         end
       end
-      inputs
+      all_simdata
     end # simulate
 
     # given a hash of data describing the inputs for a full simulation,
@@ -74,14 +76,16 @@ module TransratePaper
     # for that
     def make_tiny_inputs inputs
       base = File.dirname(inputs[:annotation])
-      chr1 =  File.join(base, 'chr1.gtf')
+      chr1 =  File.join(  base, 'chr1.gtf')
       if File.exist? chr1
         puts "chr1.gtf exists, skipping GTF chromosome subsetting"
       else
         puts "Subsetting GTF to get a single chromosome"
         cmd = "cut -f1 #{inputs[:annotation]} | sort | uniq"
         chromosomes = `#{cmd}`
-        first = chromosomes.split("\n").first.chomp
+        first = chromosomes.split("\n").delete_if{ |x|
+          x.start_with? '#'
+        }.first.chomp
         puts "Single chromosome selected: #{first}"
         `grep "^#{first}\\s" #{inputs[:annotation]} > #{chr1}`
         raise "GTF subsetting failed :(" unless File.exist? chr1
@@ -114,6 +118,8 @@ module TransratePaper
         puts "Deinterleaving and randomising simulated reads..."
         # here we add to the PATH temporarily to get raw coreutils commands
         # on OSX
+        # the coreutils command pipeline simulateously deinterleaves and
+        # randomly shuffles the read pairs
         cmd = "#! /usr/bin/env bash\n" \
               "PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH &&"\
               "paste - - - - - - - - < sim.fastq | "\
@@ -162,6 +168,32 @@ module TransratePaper
         rename_chromosome_fastas
         puts "Final list of chromosome files: #{Dir['*fa'].join(', ')}"
       end
+      cleanup_gtf gtf
+    end
+
+    # remove any chromosomes from the GTF that do not have a FASTA file
+    # in the genome directory, as these will crash flux-simulator
+    def cleanup_gtf gtf
+      puts "Stripping extraneous chromosomes from GTF"
+      gtfchroms = `cut -f1 #{gtf} | sort | uniq`.split("\n")
+      fachroms = Dir['genome/*fa'].map{ |f| File.basename(f, '.fa') }
+      extrachroms = gtfchroms - fachroms
+      extrachroms = extrachroms.delete_if{ |x| x.start_with? '#' }
+      unless extrachroms.empty?
+        puts "These chromosomes are in the GTF but have no FASTA:"
+        puts extrachroms.join(', ')
+        puts "Removing them from GTF to avoid crashing flux-simulator"
+      end
+      extrachroms.each do |chrom|
+        gtf_strip_chrom(gtf, chrom)
+      end
+    end
+
+    # remove all entries for a given chromosome from a GTF
+    def gtf_strip_chrom gtf, chrom
+      tmpgtf = chrom + '.tmp'
+      `grep -v "^#{chrom}\\s" #{gtf} > #{tmpgtf}`
+      File.rename(tmpgtf, gtf)
     end
 
     # rename genome fasta files to have just the chromosome name/number
