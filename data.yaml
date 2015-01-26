@@ -157,7 +157,6 @@
       - 'ftp://ftp.ensembl.org/pub/current_fasta/saccharomyces_cerevisiae/pep/Saccharomyces_cerevisiae.R64-1-1.75.pep.all.fa.gz'
     :fa:
       - 'Saccharomyces_cerevisiae.R64-1-1.75.pep.all.fa'
-      - 'Schizosaccharomyces_pombe.ASM294v2.22.pep.all.fa'
   :sim_inputs:
     :genome:
       :url: 'ftp://ftp.ensembl.org/pub/release-78/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna.chromosome.*.fa.gz'
