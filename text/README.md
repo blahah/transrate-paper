@@ -21,6 +21,5 @@ When there are changes to the manuscript that are ready for comments, a new vers
 Make sure you've got [pandoc](http://johnmacfarlane.net/pandoc/README.html) installed, then simply run from this directory:
 
 ```
-make pdf
-make docx
+make
 ```

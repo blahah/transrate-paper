@@ -20,11 +20,11 @@ It is therefore desirable to be able to select out the well-assembled contigs, l
 
 Compared to transcriptome assemblies, evaluation of the quality of genome and metagenome assemblies is a relatively mature field. Approaches include providing a range of basic metrics about assemblies [@gurevich_quast:_2013], or explicitly modelling the sequencing and assembly process to provide a likelihood-based measure of quality [@clark_ale:_2013, @rahman_cgal:_2013].
 
-Some authors have used reference-based measures for evaluation of de-novo transcriptome assemblies [@elijah_k_lowe_evaluating_2014; @oneil_assessing_2013, @oneil_population-level_2010]. However, in most cases, a high-quality, closely related reference transcriptome is not available, limiting the usefulness of these metrics in practice [@li_evaluation_2014].
+Some authors have used reference-based measures for evaluation of de-novo transcriptome assemblies [@elijah_k_lowe_evaluating_2014; @oneil_assessing_2013; @oneil_population-level_2010]. However, in most cases, a high-quality, closely related reference transcriptome is not available, limiting the usefulness of these metrics in practice [@li_evaluation_2014].
 
 To date, only a single published reference-free transcriptome assembly evaluation tool, RSEM-EVAL [@li_evaluation_2014], takes a statistically principled approach to transcriptome assembly quality evaluation.
 
-In this work we describe transrate, our software for deep quality analysis of transcriptome assemblies. transrate implements two novel reference-free statistics, the transrate contig score and the transrate assembly score, which allow for optimisation within and between assemblers respectively, using only the assembly and the paired-end reads used to generate it.
+In this work we describe transrate, our software for deep quality analysis of transcriptome assemblies. As well as reporting many existing statistics about an assembly, transrate implements two novel reference-free statistics: the transrate contig score and the transrate assembly score. These allow for optimisation within and between assemblers respectively, using only the assembly and the paired-end reads used to generate it.
 
 Unlike existing reference-free statistical approaches to assembly evaluation, the transrate scores are made up of components that are independently useful in identifying specific problems with contigs, namely gene family collapse, fragmentation or chimerism.
 
@@ -32,4 +32,4 @@ transrate uses these components to classify the contigs in an assembly, outputti
 
 Furthermore, the transrate model is descriptive rather than generative, making it considerably easier for users to understand and interpret than existing methods.
 
-We show that transrate improves upon the state of the art in several key ways: Firstly, we show that transrate is more accurate than existing reference-free measures when tested using real and simulated data, with a better ability to identify common types of misassembly, as well as being significantly faster. Secondly, we demonstrate that the reference-free transrate contig score outperforms existing reference-based metrics even when a same-species reference is used. Finally, we demonstrate that using the transrate contig score to select the optimal subset of contigs from an assembly improves the biological utility of assemblies.
+We show that transrate improves upon the state of the art in several key ways: Firstly, we show that transrate is more accurate than existing reference-free measures when tested using real and simulated data, as well as being significantly faster. Secondly, we demonstrate that transrate accurately identified several types of recoverable misassembly. Finally, we demonstrate that using the transrate contig score to select the optimal subset of contigs from an assembly improves the biological utility of assemblies.
