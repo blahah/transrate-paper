@@ -8,11 +8,11 @@ Such transcriptome assemblies are relied upon for gene expression studies, phylo
 
 It is therefore important to ensure that assemblies are as accurate as possible, but to date there are few published tools for deep quality assessment of de-novo transcriptome assemblies, and none that allow the identification of useful parts of an assembly.
 
-We present **transrate**, an open source command-line program and library implemented in the Ruby and C languages that automates deep analysis of transcriptome assembly quality.
+We present **transrate**, an open source command-line program that automates deep analysis of transcriptome assembly quality.
 
 Transrate evaluates assemblies based on inspecting contigs, paired-read mapping, and optionally comparison to reference sequences with an extensive suite of established and novel metrics.
 
-We introduce the **transrate score**: a novel summary statistic based on an explicit, intuitive statistical model of transcriptome assembly that captures many aspects of assembly quality.
+We introduce the **transrate scores**: novel summary statistics based on an explicit, intuitive statistical model of transcriptome assembly that captures many aspects of assembly quality.
 
 Individual contigs and entire assemblies can be scored, enabling quality filtering of contigs and comparison and optimisation of assemblies.
 
