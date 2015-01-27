@@ -66,7 +66,7 @@ As expected, we found that the higher Transrate score deciles tend to contain hi
 
 Across all assemblies the maximum proportion of contigs that were 'true' in any decile was 0.7. We hypothesise that this discrepency reflects the incompleteness of the reference annotations.
 
-**note to coauthors: there's a possibility we could compare to RSEM-eval here:**
+*note to coauthors: we should compare to RSEM-eval here:*
 
 - in the RSEM-eval paper they focus almost exclusively on the assembly score, not on scoring contigs
 - however there is a comment that they calculate a contig_impact_score which measures the contribution each contig made to the assembly score
@@ -85,13 +85,13 @@ Score binning analysis on these data (figure 5b) showed that the highest Transra
 
 Because the exact set of possible true assembled sequences was known for the simulated datasets, we extended our analysis to perform a full binary classification accuracy test. Using the 'true'/'false' classification as in the previous analysis, but this time using a naive reference score cutoff as 0.5, we varied the cutoff for classifying contigs using the Transrate contig score from 0.1 to 0.9 and generated receiver operator characteristic curves for each assembly (figure 5c). We also calculated the Matthews correlation coefficient (MCC) for each contig score cutoff. The Transrate score allowed extremely accurate classification of contigs, with an optimal MCC of 0.84, corresponding to a sensitivity of 0.89721695 and specificity of 0.9665546.
 
-**note to coauthors: (this should be extended for the other species - currently just rice for demonstration purposes).**
+*note to coauthors: (this should be extended for the other species - currently just rice for demonstration purposes).*
 
-**note to coauthors: after much thought, I realised it's not valid to compare to RSEM-eval in the ROC analysis, because their contig_impact_score is a relative ranking or impact, not an objective quality score, and has no maximum (that I can discern from their paper or outputs), and so cannot be used for classification.
+*note to coauthors: after much thought, I realised it's not valid to compare to RSEM-eval in the ROC analysis, because their contig_impact_score is a relative ranking or impact, not an objective quality score, and has no maximum (that I can discern from their paper or outputs), and so cannot be used for classification.*
 
 ### The assembly score allows comparison between assemblies
 
-**note to coauthors: I think we should have this section. here's what I think it should contain:**
+*note to coauthors: I think we should have this section. here's what I think it should contain:*
 
 - from each test species, we take one chromosome and simulate a small set of rnaseq reads from it, say 250,000 pairs
 
@@ -108,7 +108,7 @@ then:
 
 ### Contig classification leads to assembly improvement
 
-**note to coauthors: I think we should do this analysis**
+*note to coauthors: I think we should do this analysis*
 
 very simple procedure:
 
@@ -139,3 +139,7 @@ Novel assembly tools tend to claim superiority over other assemblers when tested
 Because contiguity in assembly is related to overlap of the information content in reads, it might be expected that longer reads would reduce the difficult of the assembly process and lead to higher quality assemblies. We segmented the TSA dataset by read length (figure 6d), and found no evidence that increased read length was correlated with higher assembly scores. However, the power of the analysis was limitd by the overrepresentation of reads of length 100 or 101 in the dataset.
 
 ### Future work
+
+- automate fixing of the problems identified by transrate
+- automate optimisation of assemblies
+- automate writing of papers?
