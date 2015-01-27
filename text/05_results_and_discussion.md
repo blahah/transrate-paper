@@ -4,7 +4,7 @@
 
 We have developed Transrate, a method for detailed quality analysis of *de-novo* transcriptome assemblies and their constituent contigs without relying on a reference dataset of any kind. Transrate uses only the contigs themselves and the paired-end reads used to generate them as evidence. In the following sections we present the Transrate method. First we describe the Transrate contig and assembly scores, with a focus on how they can be used to identify misassemblies, select the most useful information from the assembly, and to improve and compare assemblies. Next, we perform experiments using real and simulated data across a range of species to evaluate the accuracy and usefulness of the method, and demonstrate its improvement over existing methods.
 
-![The Transrate workflow. (1.) Transrate takes as input one or more *de-novo* transcriptome assemblies and the paired-end reads used to generate them. (2.) The reads are aligned to the contigs with SNAP, and multi-mapping reads are assigned to their most likely contig of origin with Salmon. (3.) The assigned alignments are examined to measure per-base coverage, per-base edit distance, and the proportion of reads mapping to each contig that agree with the contig structure for each contig. Per-base coverage is analysed to determine segmentation. (4.) Score components are combined to score each contig. (5.) Contig scores are combined with the full set of reads and alignments to score the entire assembly. (6.) Contigs are classified according to whether they are well-assembled, poorly assebled and unfixable, or poorly assembled and potentially fixable by either reassembly, chimera splitting, or targeted scaffolding. ](../figures/figure_1/transrate_pipeline_figure_long.png)
+![The Transrate workflow. (1.) Transrate takes as input one or more *de-novo* transcriptome assemblies and the paired-end reads used to generate them. (2.) The reads are aligned to the contigs with SNAP, and multi-mapping reads are assigned to their most likely contig of origin with Salmon. (3.) The assigned alignments are examined to measure per-base coverage, per-base edit distance, and the proportion of reads mapping to each contig that agree with the contig structure for each contig. Per-base coverage is analysed to determine segmentation. (4.) Score components are combined to score each contig. (5.) Contig scores are combined with the full set of reads and alignments to score the entire assembly. (6.) Contigs are classified according to whether they are well-assembled, poorly assebled and unfixable, or poorly assembled and potentially fixable by either reassembly, chimera splitting, or targeted scaffolding. ](../figures/figure_1/Transrate_pipeline_figure_long.png)
 
 In transcriptome assembly experiments, the aim is to reconstruct as accurate a representation as possible of the true set of mRNAs present in biological sample. However, due to errors and noise in the sequencing process; incomplete coverage of all transcripts due to low expression or insufficient sequencing depth; and the computational complexity of assembly, an assembly is an imperfect reconstruction. The aim of Transrate is to enable iterative improvements towards a perfect assembly, regardless of the assembly pipeline used, and to quantify confidence in any given assembly or contig. Because the vast majority of transcriptomics experiments currently use Illumina paired-end sequencing, Transrate is focused on data of this type, although the method could be expanded to other types of sequencing.
 
@@ -12,7 +12,7 @@ In transcriptome assembly experiments, the aim is to reconstruct as accurate a r
 
 Transcriptome assemblies tend to contain characteristic errors that result from methodological constraints. Transrate evaluates each contig in an assembly to determine whether it shows any evidence of these errors when compared to the evidence of the aligned reads. A score between 0 and 1 is produced for each contig, estimating confidence that the contig is a perfect assembly of a transcript that was sequenced. The contig score is derived from a descriptive model that captures our definition of a "perfect" contig. This model is fully described in the *methods* section, but we summarise it briefly here: A contig is considered perfect if it represents all the bases in a single source transcript, with the identity and ordering of bases exactly matching the transcript of origin.
 
-One aim of transrate is to enable researchers to maximise the biological utility of their transcriptome assemblies by selecting out the high-confidence contigs. To this end, transrate outputs a FASTA file containing the contigs whose score was > 0.5, that is, those contigs that are more likely than not to be well-assembled.
+One aim of Transrate is to enable researchers to maximise the biological utility of their transcriptome assemblies by selecting out the high-confidence contigs. To this end, Transrate outputs a FASTA file containing the contigs whose score was > 0.5, that is, those contigs that are more likely than not to be well-assembled.
 
 ![Three types of common transcriptome assembly errors captured by Transrate. (1) Gene family collapse: multiple similar transcripts are collapsed into a single contig. (2) Chimeras: multiple transcripts are concatenated together into a single contig. (3) Fragmentation: a single transcript is represented by multiple contigs each representing different parts of the transcript.](../figures/figure_2/figure.png)
 
@@ -32,9 +32,9 @@ When comparing two assemblies from the same reads, there are some situations in 
 
 The assembly score captures this intuition. The score is the product of two components: (1) the geometric mean of all the contig scores, representing the quality of the contigs that were present, and (2) the proportion of input read pairs that supported the assembly, representing the completeness of the assembly.
 
-### The transrate score components are independent and classifiable
+### The Transrate score components are independent and classifiable
 
-Key to the contig score, and the classification of contigs, is to capture different types of misassembly. To ensure that the score and its components captured phenomena present in real assemblies, we used transrate to analyse 10 previously published assemblies from four species as described in *Methods*.
+Key to the contig score, and the classification of contigs, is to capture different types of misassembly. To ensure that the score and its components captured phenomena present in real assemblies, we used Transrate to analyse 10 previously published assemblies from four species as described in *Methods*.
 
 ![Detailed examination of the contig score components. (a) Distribution of each contig score component in ten assemblies across four species and three assemblers. (b) All-vs-all pairwise Spearman correlation of contig score components using 5,000 contigs samples from each of ten assemblies.](../figures/figure_3/figure.png)
 
@@ -60,9 +60,9 @@ $$refscore = qcov * tcov * id$$
 
 We calculated this score for every contig that mapped to a reference transcript in each assembly. We then classified contigs as 'true' or 'false' according to the reference, with refscore >= 0.9 corresponding to 'true', and refscore < 0.9 corresponding to 'false'.
 
-![Accuracy of the reference-free Transrate contig score as compared to a reference-based evaluation. (a) Proportion of contigs in each transrate score bin that are 'true' according to the reference, for contigs in assemblies generated from real sequencing data. Note that differences between the reference and the truth limit the maximum proportion of 'true' contigs in any bin. (b) As a, but using simulated reads where the ground truth is known. (c) Receiver Operator Characteristic (ROC) curves for assemblies of each species using simulated reads, where the ground truth is known.](../figures/figure_5/figure.png)
+![Accuracy of the reference-free Transrate contig score as compared to a reference-based evaluation. (a) Proportion of contigs in each Transrate score bin that are 'true' according to the reference, for contigs in assemblies generated from real sequencing data. Note that differences between the reference and the truth limit the maximum proportion of 'true' contigs in any bin. (b) As a, but using simulated reads where the ground truth is known. (c) Receiver Operator Characteristic (ROC) curves for assemblies of each species using simulated reads, where the ground truth is known.](../figures/figure_5/figure.png)
 
-As expected, we found that the higher transrate score deciles tend to contain higher proportions of 'true' contigs when compared to the reference (figure 5a). Across rice, mouse and human there was a very clear positive trend with increasing proportions of true contigs in increasing score deciles. The trend was present but less clear in yeast.
+As expected, we found that the higher Transrate score deciles tend to contain higher proportions of 'true' contigs when compared to the reference (figure 5a). Across rice, mouse and human there was a very clear positive trend with increasing proportions of true contigs in increasing score deciles. The trend was present but less clear in yeast.
 
 Across all assemblies the maximum proportion of contigs that were 'true' in any decile was 0.7. We hypothesise that this discrepency reflects the incompleteness of the reference annotations.
 
@@ -79,11 +79,11 @@ Across all assemblies the maximum proportion of contigs that were 'true' in any 
 
 To examine the hypothesis that the ~30% of 'false' contigs in the highest score bins in the analysis based on real data were caused by incomplete reference annotation, we conducted an experiment using simulated reads where we knew the exact set of possible true transcripts that the assembly might reconstruct.
 
-We simulated 4 million read pairs from each species (rice, mouse, human, and yeast) as described in *Methods*, and assembled them using Velvet-Oases with default settings. We then analysed the assemblies using transrate, and generated reference-based scores for each contig as in the real data analysis.
+We simulated 4 million read pairs from each species (rice, mouse, human, and yeast) as described in *Methods*, and assembled them using Velvet-Oases with default settings. We then analysed the assemblies using Transrate, and generated reference-based scores for each contig as in the real data analysis.
 
-Score binning analysis on these data (figure 5b) showed that the highest transrate contig score bins contained close to 100% 'true' contigs when compared to the reference, supporting our hypothesis that incomplete reference caused imperfect correlation in the analysis based on real data.
+Score binning analysis on these data (figure 5b) showed that the highest Transrate contig score bins contained close to 100% 'true' contigs when compared to the reference, supporting our hypothesis that incomplete reference caused imperfect correlation in the analysis based on real data.
 
-Because the exact set of possible true assembled sequences was known for the simulated datasets, we extended our analysis to perform a full binary classification accuracy test. Using the 'true'/'false' classification as in the previous analysis, but this time using a naive reference score cutoff as 0.5, we varied the cutoff for classifying contigs using the transrate contig score from 0.1 to 0.9 and generated receiver operator characteristic curves for each assembly (figure 5c). We also calculated the Matthews correlation coefficient (MCC) for each contig score cutoff. The transrate score allowed extremely accurate classification of contigs, with an optimal MCC of 0.84, corresponding to a sensitivity of 0.89721695 and specificity of 0.9665546.
+Because the exact set of possible true assembled sequences was known for the simulated datasets, we extended our analysis to perform a full binary classification accuracy test. Using the 'true'/'false' classification as in the previous analysis, but this time using a naive reference score cutoff as 0.5, we varied the cutoff for classifying contigs using the Transrate contig score from 0.1 to 0.9 and generated receiver operator characteristic curves for each assembly (figure 5c). We also calculated the Matthews correlation coefficient (MCC) for each contig score cutoff. The Transrate score allowed extremely accurate classification of contigs, with an optimal MCC of 0.84, corresponding to a sensitivity of 0.89721695 and specificity of 0.9665546.
 
 **note to coauthors: (this should be extended for the other species - currently just rice for demonstration purposes).**
 
@@ -98,11 +98,11 @@ Because the exact set of possible true assembled sequences was known for the sim
 then:
 
 1. we take those reads and do a parameter sweep with 3 different assemblers, say 40 assemblies from each
-  - transrate them all, and also generate reference-based score (geometric mean of the refscores for all contigs as above)
-  - show the correlation between change in transrate assembly score and change in reference-based score
+  - Transrate them all, and also generate reference-based score (geometric mean of the refscores for all contigs as above)
+  - show the correlation between change in Transrate assembly score and change in reference-based score
   - at this stage we could include RSEM-eval for comparison
 2. take the reference contigs and introduce three kinds of errors at known rates: gene family collapse, chimerism, and fragmentation
-  - then transrate them all and show correlation between transrate assembly score and the error rate for the different kinds of errors
+  - then Transrate them all and show correlation between Transrate assembly score and the error rate for the different kinds of errors
   - could
 
 
@@ -115,9 +115,9 @@ very simple procedure:
 - take the assemblies and throw out the contigs with bad scores, show that the assembly score gets better
 - show that there's an optimal cutoff? We've talked about this idea before. We could save this for the transfix paper, but the RSEM-eval paper does show a small amount of data where they throw away contigs that don't contribute much - if we want to do better it might be worth including this idea (simple for us to do)
 
-### Broad analysis of assemblies provides guidance for using the transrate assembly score
+### Broad analysis of assemblies provides guidance for using the Transrate assembly score
 
-As we have shown, the transrate contig score is highly accurate at identifying poor quality contigs, and the assembly score incorporates contig quality and assembly completeness. Assemblies with a very low transrate score must therefore either contain mostly very poor quality contigs (increasing the difficulty and likeihood of error for downstream analysis), or incorporate very little of the read data (reducing the power of downstream analysis), or both.
+As we have shown, the Transrate contig score is highly accurate at identifying poor quality contigs, and the assembly score incorporates contig quality and assembly completeness. Assemblies with a very low Transrate score must therefore either contain mostly very poor quality contigs (increasing the difficulty and likeihood of error for downstream analysis), or incorporate very little of the read data (reducing the power of downstream analysis), or both.
 
 Noting that, to date, no study has surveyed assembly quality across the literaure, we downloaded and analysed transcriptomes available on the NCBI Transcriptome Shotgun Assembly database (TSA). Assemblies from this database were selected for further analysis only if the following criteria were met:
 
@@ -128,7 +128,7 @@ Noting that, to date, no study has surveyed assembly quality across the literaur
 
 ![Distribution of assembly scores across 177 assemblies from the NCBI Transcriptome Shotgun Archive. (a) Transrate assembly score distribution across the whole dataset. (b) Assembly score distribution segmented by clade. (c) Segmented by assembler and (d) assembly score plotted against read length.](../figures/figure_7/figure.png)
 
-We ran transrate on the 177 assemblies that met these criteria, and found that the resulting assembly scores ranged from 0.001 to 0.56 (figure 6a). This suggests that there are many assemblies of very poor quality in the wild. The data also suggest that a score of > 0.5 is excellent compared to the quality of assemblies currently being used in the literature. This survey demonstrates the need for accurate quality assessment, and informed assembly improvement strategies.
+We ran Transrate on the 177 assemblies that met these criteria, and found that the resulting assembly scores ranged from 0.001 to 0.56 (figure 6a). This suggests that there are many assemblies of very poor quality in the wild. The data also suggest that a score of > 0.5 is excellent compared to the quality of assemblies currently being used in the literature. This survey demonstrates the need for accurate quality assessment, and informed assembly improvement strategies.
 
 Some authors (e.g. @martin_next-generation_2011) have suggested that particular clades of organism may present more of a challenge in transcriptome assembly than others. We examined the TSA analysis data segmented by clade at a depth that separated athropods, vertebrates, and vascular plants, to see if there was evidence of worse assembly quality in particular clades. Taking only the clades with >10 assemblies (figure 6b), we found no enrichment of poor-quality assemblies in any clade. Rather, we found that in every clade, a range of assembly qualities was present spanning from extremely poor (~0.001) to relatively good (>0.5).
 
