@@ -50,7 +50,6 @@ get_p_true <- function(y) {
   tot <- t + f
   p_true <- t / tot
   names(p_true) <- NULL
-  print(summary(y))
   return(p_true)
 }
 
@@ -71,7 +70,6 @@ bin_data <- function(data, species, assembler) {
 plot_binned <- function(data) {
   p <- ggplot(data, aes(x=bin, y=prop_true)) +
     geom_bar(stat="identity", width=0.9, position="dodge") +
-    ylim(0, 1) +
     facet_grid(species~assembler) +
     scale_x_discrete(breaks=1:10) +
     xlab("contig score decile") +
@@ -373,7 +371,7 @@ mousesim <- load_data('/mouse/simulation/k23_into_Mus_musculus.GRCm38.cdna.all.1
 mousesim_binned <- bin_data(mousesim, 'mouse', 'transrate')
 mousesim_acc <- acc_sweep(mousesim, 'mouse', 'transrate')
 mousesim_acc$method <- 'transrate'
-ggplot(subset(rbind(mousesim_acc, mouse_k23_rs_acc, ath_k23_tr_acc, ath_k23_rs_acc, yeastsim_acc, yeast_k23_rs_acc, ricesim_acc, rice_k23_rs_acc), tn > 0 & refcutoff==0.9),
+ggplot(subset(rbind(ricesim_acc), tn > 0 & refcutoff==0.5),
        aes(x=fpr, y=sensitivity, colour=species, linetype=factor(method, levels=c('transrate', 'rsem-eval')))) +
   geom_line() +
   scale_linetype(guide=guide_legend(title="method")) +
@@ -397,7 +395,7 @@ ricesim <- load_data('/rice/simulation4/assembly/k23/transcripts_into_reftranscr
                      'rice', 'oases_k23', keepall=T)
 ricesim[, true := ricesim$refscore >= 0.5]
 ricesim_binned <- bin_data(ricesim, 'rice', 'transrate')
-plot_binned(ricesim_binned)
+fig7b <- plot_binned(ricesim_binned)
 ricesim_acc <- acc_sweep(ricesim, 'rice', 'transrate')
 ricesim_acc$method <- 'transrate'
 
@@ -418,7 +416,7 @@ rice_k23_rs <- data.table(rice_k23_rs)
 setkey(ricesim, contig_name)
 setkey(rice_k23_rs, contig_name)
 ricesim$rsem_score <- rice_k23_rs$score
-ggplot(subset(rbind(ricesim_acc, rice_k23_rs_acc), tn > 0 & refcutoff==0.9),
+fig7c <- ggplot(subset(rbind(ricesim_acc), tn > 0 & refcutoff==0.5),
        aes(x=fpr, y=sensitivity, linetype=method, colour=species)) +
   geom_line() +
   scale_x_continuous(expand=c(0, 0), limits=c(0, 1)) +
