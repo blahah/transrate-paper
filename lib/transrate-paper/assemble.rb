@@ -45,7 +45,8 @@ module TransratePaper
 
       # construct command
       outname = "k#{k}_d#{d}_D#{bigd}_e#{e}"
-      cmd = "SOAPdenovo-Trans-31mer all"
+      soapbin = choose_soapbin k
+      cmd = "#{soapbin} all"
       cmd += " -s soapdt.config" # config file
       cmd += " -a 20" # memory assumption
       cmd += " -o #{outname}" # output directory
@@ -67,6 +68,10 @@ module TransratePaper
       # cleanup unneeded files
       `mv #{outname}.scafSeq #{outname}contigs.fa`
       `rm #{outname}.*`
+    end
+
+    def choose_soapbin k
+      k > 31 ? 'SOAPdenovo-Trans-127mer' : 'SOAPdenovo-Trans-31mer'
     end
 
   end # Assembly
