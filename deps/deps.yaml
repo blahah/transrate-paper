@@ -41,3 +41,14 @@ flux-simulator:
     64bit:
       macosx: http://artifactory.sammeth.net/artifactory/barna/barna/barna.simulator/1.2.1/flux-simulator-1.2.1.tgz
       linux: http://artifactory.sammeth.net/artifactory/barna/barna/barna.simulator/1.2.1/flux-simulator-1.2.1.tgz
+gffread:
+  binaries:
+    - gffread
+    - cufflinks
+  version:
+    number: '2.2.1'
+    command: 'cufflinks'
+  url:
+    64bit:
+      macosx: http://cole-trapnell-lab.github.io/cufflinks/assets/downloads/cufflinks-2.2.1.OSX_x86_64.tar.gz
+      linux: http://cole-trapnell-lab.github.io/cufflinks/assets/downloads/cufflinks-2.2.1.Linux_x86_64.tar.gz

@@ -10,10 +10,19 @@ module TransratePaper
     def initialize
       @gem_dir = Gem.loaded_specs['transrate-paper'].full_gem_path
       @data = YAML.load_file File.join(@gem_dir, 'data.yaml')
-      @wget = which('wget').first
-      if !@wget
+      @wget = which('wget')
+      if @wget.empty?
         msg = "Don't know how to download files without wget installed"
         raise RuntimeError.new(msg)
+      else
+        @wget = @wget.first
+      end
+      @gffread = which('gffread')
+      if @gffread.empty?
+        msg = "Don't know how to extract transcripts without gffread installed"
+        raise RuntimeError.new(msg)
+      else
+        @gffread = @gffread.first
       end
     end
 
@@ -135,10 +144,20 @@ module TransratePaper
         end
         puts "...done! Reads ready for assembly"
       end
+      extract_ref_transcripts(inputs[:annotation], inputs[:genome])
       {
         :left => File.expand_path('left.fq'),
         :right => File.expand_path('right.fq')
       }
+    end
+
+    # extract the full set of reference transcripts for a simualtion
+    def extract_ref_transcripts(gtf, genome)
+      if File.exist? 'reftranscripts.fa'
+        puts "reftransripts.fa exists, skipping reference transcript extraction"
+      else
+        `#{@gffread} #{gtf} -g #{genome} -w reftranscripts.fa`
+      end
     end
 
     # download Ensembl genome and annotation
