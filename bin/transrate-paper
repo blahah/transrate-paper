@@ -21,7 +21,8 @@ end
 
 if (opts.all || opts.simulation)
   sim = TransratePaper::Simulation.new
-  sim.run
+  simdata = sim.run
+  puts simdata
 end
 
 if (opts.all || opts.tsa)
