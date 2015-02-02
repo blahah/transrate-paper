@@ -43,7 +43,8 @@ load_data <- function(blast, transrate, species, assem, keepall=FALSE) {
   return(dt)
 }
 
-get_p_true <- function(x) {
+get_p_true <- function(y) {
+  x <- y$true
   t <- length(which(x == TRUE))
   f <- length(which(x == FALSE))
   tot <- t + f
@@ -54,15 +55,13 @@ get_p_true <- function(x) {
 
 bin_data <- function(data, species, assembler) {
   ## bin the scores by decile, count number of trues
+  library(dplyr)
   n_bins <- 10
+  data[,true:=refscore >= 0.5]
   setkey(data, score)
-  binned <- data[!is.na(score),]
-  bin <- sapply(1:n_bins, function(x) rep(x, nrow(binned)/n_bins))
-  dim(bin) <- NULL
-  bin <- c(bin, rep(n_bins, nrow(binned) - length(bin)))
-  binned$bin <- bin
-  binned <- group_by(binned, bin)
-  binned_true <- summarise(binned, prop_true=get_p_true(true))
+  bins <- split(data, cut(data$score, n_bins))
+  binned_true <- data.table(prop_true=unlist(lapply(bins, get_p_true)),
+                            bin=factor(1:n_bins))
   binned_true[, species:=species]
   binned_true[, assembler:=assembler]
   return(binned_true)
@@ -70,10 +69,9 @@ bin_data <- function(data, species, assembler) {
 
 plot_binned <- function(data) {
   p <- ggplot(data, aes(x=bin, y=prop_true)) +
-    geom_bar(stat="identity", width=0.9) +
-#     ylim(0, 1) +
+    geom_bar(stat="identity", width=0.9, position="dodge") +
     facet_grid(species~assembler) +
-    scale_x_continuous(breaks=1:10) +
+    scale_x_discrete(breaks=1:10) +
     xlab("contig score decile") +
     ylab("proportion matching reference transriptome") +
     theme_bw()
@@ -122,7 +120,7 @@ accuracy <- function(dt, cutoff=0.5, refcutoff=0.5) {
 
 acc_sweep <- function(dt, species, assembler) {
   df <- NULL
-  for (cutoff in seq(0.1, 0.9, 0.1)) {
+  for (cutoff in seq(0.1, 0.9, 0.02)) {
     for (refcutoff in seq(0.1, 0.9, 0.1)) {
         acc <- accuracy(dt, cutoff, refcutoff)
       if (is.null(df)) {
@@ -303,6 +301,34 @@ for(k in c(23, 33, 43, 53)) {
   }
 }
 
+## COMPARE transrate and rsem-eval
+rsem_eval_ath_k23 <- fread('/data/fluxsim/ath/soap/k23_rsem.score.isoforms.results')
+ath_k23_tr <- subset(sim, assembler=="soap_k23")
+ath_k23_tr_acc <- acc_sweep(ath_k23_tr, 'arabidopsis', 'soapk23')
+ath_k23_tr_acc$method <- 'transrate'
+ath_k23_tr_bin <- bin_data(ath_k23_tr, 'arabidopsis', 'transrate')
+ath_k23_tr_bin$assembler <- 'transrate'
+
+
+ath_k23_rs <- merge(as.data.frame(subset(sim, assembler=="soap_k23")),
+                    as.data.frame(rsem_eval_ath_k23)[,c('transcript_id', 'contig_impact_score')],
+                    by.x="contig_name", by.y="transcript_id")
+ath_k23_rs$score <- log10(abs(ath_k23_rs$contig_impact_score))
+ath_k23_rs$score <- ath_k23_rs$score / max(ath_k23_rs$score)
+ath_k23_rs_acc <- acc_sweep(ath_k23_rs, 'arabidopsis', 'soapk23')
+ath_k23_rs_acc$method <- 'rsem-eval'
+ath_k23_rs_bin <- bin_data(as.data.table(ath_k23_rs), 'arabidopsis', 'rsem-eval')
+ath_k23_rs_bin$assembler <- 'rsem-eval'
+
+  ggplot(subset(rbind(ath_k23_tr_acc, ath_k23_rs_acc), tn > 0 & refcutoff==0.9),
+         aes(x=fpr, y=sensitivity, linetype=method)) +
+    geom_line() +
+    xlim(0, 1) +
+    ylim(0, 1) +
+    theme_bw()
+
+plot_binned(rbind(ath_k23_tr_bin, ath_k23_rs_bin))
+
 plot_binned(sim_binned)
 ggplot(subset(sim_acc, tn > 0),
        aes(x=fpr, y=sensitivity, linetype=assembler, colour=factor(refcutoff))) +
@@ -310,3 +336,106 @@ ggplot(subset(sim_acc, tn > 0),
   xlim(0, 1) +
   ylim(0, 1) +
   theme_bw()
+
+# Simualtion for realsies
+data_dir <- '../data'
+# YEAST
+yeastsim <- load_data('/yeast/simulation2/k23_into_Saccharomyces_cerevisiae.R64-1-1.cdna.all.1.blast',
+                     '/yeast/simulation/assembly/transrate_k23.fa_contigs.csv',
+                     'yeast', 'oases_k23', keepall=T)
+yeastsim_binned <- bin_data(yeastsim, 'yeast', 'oases_k23')
+yyeastsim_acc <- acc_sweep(yeastsim, 'yeast', 'transrate')
+yeastsim_acc$method <- 'transrate'
+ggplot(subset(rbind(yeastsim_acc), tn > 0 & refcutoff==0.9),
+       aes(x=fpr, y=sensitivity, colour=species)) +
+  geom_line() +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+  theme_bw()
+
+rsem_eval_yeast_k23 <- fread('~/code/transrate-paper/data/yeast/simulation/k23_rsem.score.isoforms.results')
+yeast_k23_rs <- merge(as.data.frame(yeastsim),
+                    as.data.frame(rsem_eval_yeast_k23)[,c('transcript_id', 'contig_impact_score')],
+                    by.x="contig_name", by.y="transcript_id")
+yeast_k23_rs$score <- log10(abs(yeast_k23_rs$contig_impact_score))
+yeast_k23_rs$score <- yeast_k23_rs$score / max(yeast_k23_rs$score)
+yeast_k23_rs_acc <- acc_sweep(yeast_k23_rs, 'yeast', 'soapk23')
+yeast_k23_rs_acc$method <- 'rsem-eval'
+yeast_k23_rs_bin <- bin_data(as.data.table(yeast_k23_rs), 'yeast', 'rsem-eval')
+
+# MOUSE
+
+mousesim <- load_data('/mouse/simulation/k23_into_Mus_musculus.GRCm38.cdna.all.1.blast',
+                      '/mouse/simulation/transrate_k23.fa_contigs.csv',
+                      'mouse', 'oases_k23', keepall=T)
+mousesim_binned <- bin_data(mousesim, 'mouse', 'transrate')
+mousesim_acc <- acc_sweep(mousesim, 'mouse', 'transrate')
+mousesim_acc$method <- 'transrate'
+ggplot(subset(rbind(ricesim_acc), tn > 0 & refcutoff==0.5),
+       aes(x=fpr, y=sensitivity, colour=species, linetype=factor(method, levels=c('transrate', 'rsem-eval')))) +
+  geom_line() +
+  scale_linetype(guide=guide_legend(title="method")) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 1)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+  theme_bw()
+
+rsem_eval_mouse_k23 <- fread('~/code/transrate-paper/data/mouse/simulation/k23_rsem.score.isoforms.results')
+mouse_k23_rs <- merge(as.data.frame(mousesim),
+                      as.data.frame(rsem_eval_mouse_k23)[,c('transcript_id', 'contig_impact_score')],
+                      by.x="contig_name", by.y="transcript_id")
+mouse_k23_rs$score <- log10(abs(mouse_k23_rs$contig_impact_score))
+mouse_k23_rs$score <- mouse_k23_rs$score / max(mouse_k23_rs$score)
+mouse_k23_rs_acc <- acc_sweep(mouse_k23_rs, 'mouse', 'soapk23')
+mouse_k23_rs_acc$method <- 'rsem-eval'
+mouse_k23_rs_bin <- bin_data(as.data.table(mouse_k23_rs), 'mouse', 'rsem-eval')
+
+# RICE
+ricesim <- load_data('/rice/simulation4/assembly/k23/transcripts_into_reftranscripts.1.blast',
+                     '/rice/simulation4/assembly/k23/transrate_transcripts.fa_contigs.csv',
+                     'rice', 'oases_k23', keepall=T)
+ricesim[, true := ricesim$refscore >= 0.5]
+ricesim_binned <- bin_data(ricesim, 'rice', 'transrate')
+fig7b <- plot_binned(ricesim_binned)
+ricesim_acc <- acc_sweep(ricesim, 'rice', 'transrate')
+ricesim_acc$method <- 'transrate'
+
+rsem_eval_rice_k23 <- fread('~/code/transrate-paper/data/rice/simulation4/assembly/k23/k23_rsem.score.isoforms.results')
+rice_k23_rs <- merge(as.data.frame(load_data('/rice/simulation4/assembly/k23/transcripts_into_reftranscripts.1.blast',
+                                             '/rice/simulation4/assembly/k23/transrate_transcripts.fa_contigs.csv',
+                                             'rice', 'oases_k23', keepall=T)),
+                      as.data.frame(rsem_eval_rice_k23)[,c('transcript_id', 'contig_impact_score')],
+                      by.x="contig_name", by.y="transcript_id")
+rice_k23_rs$score <- log(abs(rice_k23_rs$contig_impact_score))
+rice_k23_rs$score <- rice_k23_rs$score / max(rice_k23_rs$score)
+rice_k23_rs$true <- rice_k23_rs$refscore >= 0.5
+rice_k23_rs_acc <- acc_sweep(rice_k23_rs, 'rice', 'rsem-eval')
+rice_k23_rs_acc$method <- 'rsem-eval'
+rice_k23_rs_bin <- bin_data(as.data.table(rice_k23_rs), 'rice', 'rsem-eval')
+plot_binned(rbind(ricesim_binned, rice_k23_rs_bin))
+rice_k23_rs <- data.table(rice_k23_rs)
+setkey(ricesim, contig_name)
+setkey(rice_k23_rs, contig_name)
+ricesim$rsem_score <- rice_k23_rs$score
+fig7c <- ggplot(subset(rbind(ricesim_acc), tn > 0 & refcutoff==0.5),
+       aes(x=fpr, y=sensitivity, linetype=method, colour=species)) +
+  geom_line() +
+  scale_x_continuous(expand=c(0, 0), limits=c(0, 1)) +
+  scale_y_continuous(expand=c(0, 0), limits=c(0, 1)) +
+  geom_abline(intercept=0, slope=1, linetype=5) +
+  theme_bw()
+
+# find cases where there are multiple contigs that are equally good, but transrate has chosen only 1
+dedupe <- function(x) {
+  return(x[which.max(x[['refscore']]),])
+}
+ricesim$row <- 1:nrow(ricesim)
+ricesim_dd <- ddply(ricesim, .(contig_name), dedupe)
+ricesim_dd_acc <-  acc_sweep(ricesim_dd, 'rice', 'transrate')
+ricesim_dd_acc$method <- 'transrate'
+ricesim_rs_dd <- rice_k23_rs[ricesim_dd$row,]
+ricesim_rs_acc <- acc_sweep(ricesim_rs_dd, 'rice', 'rsem-eval')
+ricesim_rs_acc$method <- 'rsem-eval'
+
+get_false_positives <- function(dt, refcutoff=0.9, cutoff=0.5, rsemcutoff=cutoff) {
+  return(subset(dt, refscore < refcutoff & score > cutoff & rsem_score < cutoff))
+}

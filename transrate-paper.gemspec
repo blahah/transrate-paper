@@ -12,10 +12,11 @@ Gem::Specification.new do |gem|
   gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.require_paths = %w( lib )
 
-  gem.add_dependency 'bindeps', '~> 1.0', '>= 1.0.1'
+  gem.add_dependency 'bindeps', '~> 1.1', '>= 1.1.0'
   gem.add_dependency 'which', '~> 0.0', '>= 0.0.2'
   gem.add_dependency 'transrate', '1.0.0.beta2'
   gem.add_dependency 'crb-blast', '~> 0.5', '>= 0.5.0'
+  gem.add_dependency 'trollop', '~> 2.1', '>= 2.1.1'
 
   gem.add_development_dependency 'rake', '~> 10.3', '>= 10.3.2'
   gem.add_development_dependency 'turn', '~> 0.9', '>= 0.9.7'

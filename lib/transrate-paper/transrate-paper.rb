@@ -123,68 +123,6 @@ module TransratePaper
       end
     end
 
-    def transonerate threads
-      @data.each do |experiment_name, experiment_data|
-        if !Dir.exist?(File.join(@gem_dir, "data", experiment_name.to_s,
-                                 "transonerate"))
-          Dir.mkdir(File.join(@gem_dir, "data", experiment_name.to_s,
-                              "transonerate"))
-        end
-        genome = experiment_data[:genome][:fa].first
-        genome_path = File.expand_path(File.join(@gem_dir, "data",
-                                      experiment_name.to_s, "genome", genome))
-        gtf = experiment_data[:annotation][:gtf].first
-        gtf_path = File.expand_path(File.join(@gem_dir, "data",
-                                     experiment_name.to_s, "annotation", gtf))
-        output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
-                                 "transonerate")
-        assemblers = []
-        experiment_data[:assembly][:fa].each do |assembler, path|
-          assembly_path = File.expand_path(File.join(@gem_dir, "data",
-                                      experiment_name.to_s, "assembly", path))
-          assemblers << assembly_path
-        end
-
-        if !Dir.exist?(output_dir)
-          Dir.mkdir(output_dir)
-        end
-        puts "changing to #{output_dir}"
-        Dir.chdir(output_dir) do
-          cmd = "transonerate "
-          cmd << " --assembly #{assemblers.join(",")}"
-          cmd << " --genome #{genome_path}"
-          cmd << " --gtf #{gtf_path}"
-
-          left = []
-          experiment_data[:reads][:left].each do |fastq|
-            left << File.expand_path(File.join(@gem_dir, "data",
-                                   experiment_name.to_s, "reads", fastq))
-          end
-          cmd << " --left "
-          cmd << left.join(",")
-
-          right = []
-          experiment_data[:reads][:right].each do |fastq|
-            right << File.expand_path(File.join(@gem_dir, "data",
-                                   experiment_name.to_s, "reads", fastq))
-          end
-          cmd << " --right "
-          cmd << right.join(",")
-
-          cmd << " --output transonerate.out" # output is a suffix
-          cmd << " --threads #{threads}"
-
-          puts cmd
-          stdout, stderr, status = Open3.capture3 cmd
-          if !status.success?
-            puts stdout
-            puts stderr
-            abort "something went wrong with transonerate"
-          end
-        end
-      end
-    end
-
     def extracted_name name
       if name =~ /\.sra$/
         return File.join(File.dirname(name),
