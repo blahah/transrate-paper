@@ -160,6 +160,6 @@
   :sim_inputs:
     :genome:
       :url: 'ftp://ftp.ensembl.org/pub/release-78/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna.chromosome.*.fa.gz'
-    :annotations:
+    :annotation:
       :url: 'ftp://ftp.ensembl.org/pub/release-78/gtf/saccharomyces_cerevisiae/Saccharomyces_cerevisiae.R64-1-1.78.gtf.gz'
       :gtf: 'Saccharomyces_cerevisiae.R64-1-1.78.gtf'

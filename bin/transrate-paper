@@ -22,7 +22,8 @@ end
 if (opts.all || opts.simulation)
   sim = TransratePaper::Simulation.new
   simdata = sim.run
-  puts simdata
+  assem = TransratePaper::Assembler.new simdata
+  assem.run
 end
 
 if (opts.all || opts.tsa)
