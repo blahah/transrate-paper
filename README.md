@@ -10,6 +10,8 @@ By:
 
 ### Description
 
+[NOTE: the paper app will not be released until the paper is submitted - so don't expect the instructions below to work until then!]
+
 This is the paper describing transrate (v1). The entire paper is written as a reproducible analysis software package that can be run on a unix system with a single command.
 
 The paper app will do the following:
