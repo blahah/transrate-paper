@@ -8,6 +8,7 @@ opts = Trollop::options do
   opt :simulation, "Run the score evaluation on simulated data"
   opt :existing, "Run the score evaluation on real data"
   opt :tsa, "Run the TSA analysis"
+  opt :threads, "Number of threads to use", :default => 8, :type => :int
 end
 
 paper = TransratePaper::TransratePaper.new
@@ -15,7 +16,8 @@ paper.install_dependencies
 
 if (opts.all || opts.existing)
   paper.download_data "data.yaml"
-  paper.run_transrate 8
+  paper.run_transrate opts.threads
+  paper.run_rsem_eval opts.threads
 end
 
 if (opts.all || opts.simulation)
@@ -27,5 +29,5 @@ end
 
 if (opts.all || opts.tsa)
   tsa = TransratePaper::Tsa.new
-  tsa.run_transrate 8
+  tsa.run_transrate opts.threads
 end

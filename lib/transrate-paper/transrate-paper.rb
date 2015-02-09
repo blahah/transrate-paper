@@ -35,7 +35,7 @@ module TransratePaper
         experiment_data.each do |key, value|
           output_dir = File.join(@gem_dir, "data",
                                  experiment_name.to_s, key.to_s)
-          if [:reads, :assembly, :reference].include? key
+          if [:reads, :assembly].include? key
             value.each do |description, paths|
               if description == :url
                 paths.each do |url|
@@ -95,6 +95,35 @@ module TransratePaper
               File.open("log-#{experiment_name.to_s}-#{assembler.to_s}.txt","wb") do |out|
                 out.write(stdout)
                 out.write(stderr)
+              end
+            end
+          end
+        end
+      end
+    end
+
+    def run_rsem_eval threads
+      @data.each do |experiment_name, experiment_data|
+        experiment_data[:assembly][:fa].each do |assembler, path|
+          output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
+                                 "transrate", assembler.to_s)
+          assembly_path = File.expand_path(File.join(@gem_dir, "data",
+                                      experiment_name.to_s, "assembly", path))
+          make_dir output_dir
+          Dir.chdir(output_dir) do |dir|
+            puts "changed to #{dir}"
+
+            cmd = "rsem-eval-calculate-score"
+            cmd << " -p #{threads}"
+            cmd << " --paired-end #{left} #{right}"
+            cmd << " #{assembly} rsem_eval 200"
+
+            log = "rsem-eval.log"
+            if !File.exist?(log)
+              eval = Cmd.new(cmd)
+              eval.run
+              File.open(log, "wb") do |io|
+                io.write(eval.stdout)
               end
             end
           end

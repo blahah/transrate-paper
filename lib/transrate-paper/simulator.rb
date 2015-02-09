@@ -33,9 +33,7 @@ module TransratePaper
           # change to experiment dir
           expdir = File.join(@gem_dir, "data", name.to_s)
           datadir = File.join(expdir, 'sim_inputs')
-          unless File.exists? datadir
-            FileUtils.mkdir_p datadir
-          end
+          FileUtils.mkdir_p datadir unless File.exists? datadir
           inputs = {}
           # get data
           Dir.chdir datadir do
