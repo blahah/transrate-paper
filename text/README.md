@@ -14,11 +14,12 @@ Please name the file containing your comments with the following scheme: "INITIA
 
 The manuscript is written in text files (with Markdown, hence the `.md` extension). These files are version controlled using git and are stored on github with the rest of the manuscript's files.
 
-When there are changes to the manuscript that are ready for comments, a new version of the .docx file will be generated, prefixed with the date. Older versions of the .docx file will be moved to the `archive` directory.
+When there are changes to the manuscript that are ready for comments, a new version of the .docx and .pdf files will be generated, prefixed with the date. Older versions of the .docx file, including comments, will be moved to the `archive` directory.
 
-## Generating a .docx of the manuscript
+## Generating PDF and docx of the manuscript
 
-To generate a .docx file from the markdown files:
+Make sure you've got [pandoc](http://johnmacfarlane.net/pandoc/README.html) installed, then simply run from this directory:
 
-1. make sure `pandoc` is installed (e.g. `sudo apt-get install pandoc`)
-2. use pandoc to convert the files: `pandoc --from=markdown --to=docx *.md --output draft.docx`
+```
+make
+```

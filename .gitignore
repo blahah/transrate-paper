@@ -2,3 +2,5 @@ coverage
 data
 .DS_Store
 *lock
+.RData
+.Rhistory

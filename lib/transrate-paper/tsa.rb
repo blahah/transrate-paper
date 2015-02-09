@@ -1,5 +1,7 @@
 module TransratePaper
 
+  require 'fileutils'
+
   class Tsa
 
     # tsa.XXXX.##.gbff.gz     RNA GenBank flatfiles
@@ -31,7 +33,7 @@ module TransratePaper
     end
 
     def run_transrate threads
-      make_dir("#{@gem_dir}/data/genbank")
+      FileUtils.mkdir_p("#{@gem_dir}/data/genbank")
       Dir.chdir("#{@gem_dir}/data/genbank") do
         File.open(@list).each_line do |line|
           cols = line.chomp.split("\t")
@@ -83,7 +85,7 @@ module TransratePaper
     end
 
     def download_tsa_assembly code # ie GAAA
-      make_dir("#{@gem_dir}/data/genbank/#{code}")
+      FileUtils.mkdir_p("#{@gem_dir}/data/genbank/#{code}")
       Dir.chdir("#{@gem_dir}/data/genbank/#{code}") do
         if !File.exist?("#{code}.fa")
           dest = "#{code}.fa.gz"
@@ -112,7 +114,7 @@ module TransratePaper
     end
 
     def download_tsa_sra code, sra
-      make_dir("#{@gem_dir}/data/genbank/#{code}")
+      FileUtils.mkdir_p("#{@gem_dir}/data/genbank/#{code}")
       Dir.chdir("#{@gem_dir}/data/genbank/#{code}") do
         dest = "#{code}.sra"
         if File.exist?("#{code}_1.fastq")
@@ -161,7 +163,7 @@ module TransratePaper
       File.open(list).each_line do |line|
         @genbank << line.chomp
       end
-      make_dir("#{@gem_dir}/data/genbank")
+      FileUtils.mkdir_p("#{@gem_dir}/data/genbank")
       @genbank.each do |link|
         dl = "#{@ftp}#{link}.gz"
         # puts "downloading this file: #{dl}"
@@ -352,15 +354,6 @@ module TransratePaper
         count+=1
       end
       read_length
-    end
-
-    def make_dir dir
-      if Dir.exist?(dir) or dir==""
-      else
-        dirname = File.dirname(dir)
-        make_dir dirname
-        Dir.mkdir(dir)
-      end
     end
 
   end

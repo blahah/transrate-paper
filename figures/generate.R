@@ -1,196 +1,44 @@
-## Transrate paper, Figure 3
+## Transrate paper, figure generation script
 
 setwd('~/code/transrate-paper/figures/')
 
-# The first panel of this figure shows
-# the distribution of each contig-score component
-# for each of the test assemblies.
-# Distributions are line-histograms, one plot per combination
-# of species and score component. Columns are species, rows
-# are metrics. Plots contain one line per assembly.
+# load data for the figures
+source('load_data.R')
 
-## 1. Load data
+# load helper functions
+source('helper_functions.R')
 
-species_list <- c('mouse', 'rice', 'human', 'yeast')
-assemblers <- c('trinity', 'oases', 'soapdenovotrans')
-datasets <- expand.grid(species_list, assemblers)
-datasets <- apply(datasets, MARGIN = 2, FUN = as.character)
+# Figure 1 is a diagram of the transrate algorithm and was created by hand.
+# All subsequent figures are generated from data using the code below
 
-score_cols <- c('p_good', 'p_not_segmented', 'p_bases_covered',
-                'p_seq_true', 'p_unique', 'score',
-                'length', 'coverage')
-data <-  data.frame()
-wide_data <- data.frame()
-library(reshape2)
+# Figure 2 breaks down the transrate score components, showing how they are
+# distributed in each assembly and how they correlate with one another across
+# assemblies.
+source('figure_2/generate.R')
 
-for (rowno in 1:nrow(datasets)) {
-  # generate path to the contig files
-  species <- datasets[rowno, 1]
-  assembler <- datasets[rowno, 2]
-  dirs <- c('..', 'data', species, 'transrate', assembler)
-  path <- paste(dirs, collapse="/")
-  if (!file.exists(path)) {
-    next
-  }
+# Figure 3 shows the distribution of contig scores for each species and
+# assembler, as well as the number of contigs in each assembly with
+# a score > 0.5
+source('figure_3/generate.R')
 
-  # list all contig files and select the most recent one
-  filelist <- list.files(path, pattern = "*contigs*")
-  if (length(filelist) == 0) {
-    next
-  }
-  files <- data.frame(file = paste(path,
-                                   filelist,
-                                   sep="/"),
-                      stringsAsFactors = FALSE)
-  files$mtime <- unlist(lapply(files$file, function(x){ file.info(x)$mtime}))
-  mostrecent <- subset(files, mtime == max(files$mtime))$file
-  print(mostrecent)
+# Figure 4 demonstrates that the transrate score accurately predicts whether
+# a contig is well-assembled. This figure is a single-panel with a facet grid
+# of histograms showing, for each assembly, the proportion of contigs in each
+# score decile that accurately reconsruct a reference transcript.
+source('figure_4/generate.R')
 
-  # load the most recent file and save the relevant columns
-  csv <- read.csv(mostrecent, as.is=T)[,score_cols]
-  csv$species <- species
-  csv$assembler <- assembler
-  wide_data <- rbind(wide_data, csv[complete.cases(csv),])
-  csv <- melt(csv, id.vars = c('species', 'assembler', 'score', 'length', 'coverage'),
-              variable.name = 'score_component')
-  data <- rbind(data, csv[complete.cases(csv),])
-}
-data$assembler[data$assembler == 'soapdenovotrans'] <- 'soapdt'
+# Figure 5 demonstrates that the transrate contig score is independent of
+# contig length and expression. This figure is composed of two panels, showing
+# the distribution of contig score with (a) contig length and (b) expression
+# level.
+source('figure_5/generate.R')
 
-# # fixing the score
-# # TODO: remove this once implemented
-# comp <- c('p_good', 'p_bases_covered',
-#           'p_seq_true', 'p_unique_bases')
-# wide_data$score <- apply(wide_data[,comp], 1, function(x){
-#   return(prod(x))
-# })
-data <- melt(wide_data, id.vars = c('species', 'assembler', 'score',
-                                    'length', 'coverage'),
-             variable.name = 'score_component')
-data$species <- factor(data$species, levels=species_list)
+# Figure 6 shows the distribution of assembly scores for real assemblies
+# retrieved from the NCBI Transcriptome Shotgun Archive. This figure is
+# composed of 4 panels:
+# a. the full distribution of assembly scores
+# b. distribution per clade for clades with >= 10 assemblies
+# c. distribution per assembler for assemblers with >= 10 assemblies
+# d. assembly score plotted against read length with a linear model + 95% CI
+source('figure_6/generate.R')
 
-## 2. Plot
-
-library(ggplot2)
-left_panel <- ggplot(data[c('score_component', 'species', 'assembler', 'value')],
-            aes(x=value, colour=assembler)) +
-  geom_step(stat = "bin", binwidth=0.02) +
-  scale_y_log10() +
-  scale_x_continuous(breaks=c(0.0, 0.5, 1.0), limits=c(-0.02, 1.02)) +
-  facet_grid(species~score_component, scales="free_y") +
-  theme_bw() +
-  xlab("Score") +
-  ylab("Count")
-
-ggsave(left_panel, filename = "figure_3/figure_3a.pdf", width = 10, height = 5)
-
-
-# The second panel of this figure shows
-# each contig score component plotted against each other one
-# first downsample the data
-library(plyr)
-downsampled <- ddply(wide_data, .(assembler, species), function(x) {
-  x[sample(1:nrow(x), 5000),]
-})
-cor_data <- melt(cor(downsampled[,1:5]))
-right_panel <- ggplot(cor_data,
-       aes(x=Var1, y=Var2, fill=value)) +
-  geom_tile() +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  scale_fill_gradientn(colours = rainbow(3), limits=c(-1, 1)) +
-  scale_x_discrete(expand = c(0, 0)) +
-  scale_y_discrete(expand = c(0, 0)) +
-  labs(x=NULL, y=NULL)
-ggsave(right_panel, filename = "figure_3/figure_3b.pdf", width = 3, height = 3)
-
-
-## Layout the two figures side-by-side
-library(gridExtra)
-fig <- arrangeGrob(left_panel, right_panel, ncol=2, widths=c(3, 2))
-ggsave(fig, filename = "figure_3/figure.pdf", width = 10, height = 3)
-
-
-## Figure 4.
-
-# This figure shows the distribution of contig scores for each species and assembler,
-# as well as the number of contigs in each assembly with a score > 0.5
-
-# first panel: distribution of contig scores
-fig4top <- ggplot(data[,c('species', 'assembler', 'score')],
-               aes(x=score, colour=assembler)) +
-  geom_step(stat = "density", na.rm=T, kernel = "rectangular", adjust=1/2) +
-  scale_x_continuous(breaks=c(0.0, 0.5, 1.0), limits=c(-0.02, 1.02)) +
-  facet_grid(species~., scales="free_y") +
-  theme_bw() +
-  xlab("Contig score") +
-  ylab("Density")
-
-# second panel: number of contigs in each assembly with a score > 0.5
-fig4bottom <-
-  ggplot(subset(data[,c('species', 'assembler', 'score')], score > 0.5),
-         aes(x=assembler, fill=assembler, colour=assembler)) +
-  facet_grid(species~., scales="free_y") +
-  geom_bar() +
-  theme_bw() +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.title.x = element_blank())
-
-fig4 <- arrangeGrob(fig4top, fig4bottom, ncol=2)
-ggsave(fig4, filename = "figure_4/figure.pdf", width = 10, height = 3)
-
-
-## Figure 5
-
-# This figure is composed of two panels, showing the distribution of contig
-# score with (a) contig length and (b) expression level
-
-# The first panel shows contig score plotted against contig length,
-# coloured by assembler and with point style mapped to species
-fig5_a <- ggplot(data[sample(nrow(data), 100000), c('species', 'assembler', 'score', 'length')],
-                 aes(x=length, y=score, pch=species)) +
-  stat_density2d(aes(alpha=..level.., fill=..level..),
-                 bins=5, geom="polygon") +
-  scale_fill_gradient(low = "yellow", high = "red") +
-  scale_alpha(range = c(0.1, 0.7), guide = FALSE) +
-  geom_density2d(colour="black", bins=5) +
-  scale_x_log10() +
-  scale_y_continuous(breaks=seq(from=0.0, to=1.0, by=0.2),
-                     limits=c(-0.02, 1.02)) +
-  theme_bw() +
-  facet_grid(assembler~species) +
-  xlab("contig length (log10)") +
-  ylab("contig score") +
-  guides(alpha=FALSE, fill=FALSE)
-
-# The second panel shows contig score plotted against effective coverage,
-# coloured by assembler and with point style mapped to species
-fig5_b <- ggplot(data[sample(nrow(data), 100000),c('species', 'assembler', 'score', 'coverage')],
-                 aes(x=coverage, y=score, pch=species)) +
-  stat_density2d(aes(alpha=..level.., fill=..level..),
-                 bins=5, geom="polygon") +
-  scale_fill_gradient(low = "yellow", high = "red", guide = guide_legend(title="Density")) +
-  scale_alpha(range = c(0.1, 0.7), guide = FALSE) +
-  geom_density2d(colour="black", bins=5) +
-  scale_x_log10() +
-  scale_y_continuous(breaks=seq(from=0.0, to=1.0, by=0.2),
-                     limits=c(-0.02, 1.02)) +
-  theme_bw() +
-  facet_grid(assembler~species, scales="free") +
-  xlab("contig effective coverage (log10)") +
-  ylab("contig score")
-
-# We want to have one legend shared between the two plots,
-# and each plot the same size
-g_legend<-function(a.gplot){
-  tmp <- ggplot_gtable(ggplot_build(a.gplot))
-  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-  legend <- tmp$grobs[[leg]]
-  return(legend)}
-legend <- g_legend(fig5_b)
-fig5_b <- fig5_b + guides(fill=FALSE, alpha=FALSE)
-
-# Layout the two panels one above the other
-fig5 <- arrangeGrob(fig5_a, fig5_b, legend, ncol=3, widths=c(5, 5, 1))
-ggsave(fig5, filename = "figure_5/figure.pdf", width = 10, height = 5)

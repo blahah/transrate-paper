@@ -1,19 +1,31 @@
 #!/usr/bin/env ruby
 
 require 'transrate-paper'
+require 'trollop'
+
+opts = Trollop::options do
+  opt :all, "Run the entire paper analysis"
+  opt :simulation, "Run the score evaluation on simulated data"
+  opt :existing, "Run the score evaluation on real data"
+  opt :tsa, "Run the TSA analysis"
+end
 
 paper = TransratePaper::TransratePaper.new
-
 paper.install_dependencies
 
-paper.download_data "data.yaml"
+if (opts.all || opts.existing)
+  paper.download_data "data.yaml"
+  paper.run_transrate 8
+end
 
-paper.run_transrate 8
+if (opts.all || opts.simulation)
+  sim = TransratePaper::Simulation.new
+  simdata = sim.run
+  assem = TransratePaper::Assembler.new simdata
+  assem.run
+end
 
-tsa = TransratePaper::Tsa.new
-
-tsa.run_transrate 8
-
-evaluation = TransratePaper::ScoreEvaluation.new "data.yaml"
-
-evaluation.run 8
+if (opts.all || opts.tsa)
+  tsa = TransratePaper::Tsa.new
+  tsa.run_transrate 8
+end
