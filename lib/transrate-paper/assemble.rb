@@ -13,24 +13,24 @@ module TransratePaper
       @data.each_pair do |sp, spdata|
         expdir = File.join(@gem_dir, "data", sp.to_s)
         # full simulation
-        # puts "Running full assembly for #{sp}"
-        # fulldir = File.join(expdir, 'full_assembly')
-        # FileUtils.mkdir_p fulldir
-        # Dir.chdir(fulldir) do
-        #   full = spdata[:full]
-        #   full_assembly(full[:left], full[:right])
-        # end
-        # tiny simulation
-        puts "Running tiny assembly sweep for #{sp}"
-        tinydir = File.join(expdir, 'assembly_sweep')
-        FileUtils.mkdir_p tinydir
-        Dir.chdir(tinydir) do
-          tiny = spdata[:tiny]
-          left = tiny[:left]
-          right = tiny[:right]
-          puts "reads: #{left} & #{right}"
-          tiny_assembly_sweep(tiny[:left], tiny[:right])
+        puts "Running full assembly for #{sp}"
+        fulldir = File.join(expdir, 'full_assembly')
+        FileUtils.mkdir_p fulldir
+        Dir.chdir(fulldir) do
+          full = spdata[:full]
+          full_assembly(full[:left], full[:right])
         end
+        # tiny simulation
+        #puts "Running tiny assembly sweep for #{sp}"
+        #tinydir = File.join(expdir, 'assembly_sweep')
+        #FileUtils.mkdir_p tinydir
+        #Dir.chdir(tinydir) do
+        #  tiny = spdata[:tiny]
+        #  left = tiny[:left]
+        #  right = tiny[:right]
+        #  puts "reads: #{left} & #{right}"
+        #  tiny_assembly_sweep(tiny[:left], tiny[:right])
+        #end
       end
     end
 
@@ -59,13 +59,15 @@ module TransratePaper
       # cmd << " --insertsize 400"
       # cmd << " --insertsd 50"
       cmd << " --reference #{reference}"
-      cmd << " --threads 6"
+      cmd << " --threads 40"
       puts cmd
       `#{cmd} > transrate.log`
     end
 
     def full_assembly(left, right)
-      soapdt(23, left, right, 3, 3, 3)
+      assembly = soapdt(31, left, right, 3, 3, 3)
+      reference = "../simulation/reftranscripts.fa"
+      transrate([assembly], left, right, reference)
     end
 
     def soapdt(k, l, r, d, e, bigd)
@@ -89,7 +91,7 @@ module TransratePaper
       cmd += " -a 20" # memory assumption
       cmd += " -o #{outname}" # output directory
       cmd += " -K #{k}" # kmer size
-      cmd += " -p 6" # number of threads
+      cmd += " -p 40" # number of threads
       cmd += " -d #{d}" # minimum kmer frequency
       cmd += " -F" # fill gaps in scaffold
       cmd += " -M 1" # strength of contig flattening
