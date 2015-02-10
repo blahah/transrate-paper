@@ -1,6 +1,7 @@
 module TransratePaper
 
   require 'fileutils'
+  require 'fixwhich'
 
   class Tsa
 
@@ -20,16 +21,7 @@ module TransratePaper
       @list = "#{@gem_dir}/tsa_list.txt"
       @data = {}
       @results = {}
-      ## fastq-dump
-      which = "which fastq-dump.2.3.5.2"
-      stdout, stderr, status = Open3.capture3 which
-      if !status.success?
-        msg = "fastq-dump not installed. please run "
-        msg << "transrate-paper --install-deps"
-        abort msg
-      end
-      @fastq_dump = stdout.split("\n").first
-      ##
+      @fastq_dump = which('fastq-dump').first
     end
 
     def run_transrate threads
