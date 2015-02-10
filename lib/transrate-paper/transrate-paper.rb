@@ -5,6 +5,7 @@ require 'json'
 require 'yaml'
 require 'open3'
 require 'fixwhich'
+require 'fileutils'
 
 module TransratePaper
 
@@ -26,6 +27,8 @@ module TransratePaper
         msg = "Don't know how to download files without curl or wget installed"
         raise RuntimeError.new(msg)
       end
+      #
+      @fastq_dump = which('fastq-dump').first
     end
 
     def download_data yaml
@@ -40,7 +43,7 @@ module TransratePaper
               if description == :url
                 paths.each do |url|
                   # create output directory
-                  make_dir(output_dir)
+                  FileUtils.mkdir_p output_dir
                   name = File.join(output_dir, File.basename(url))
                   # download
                   if !already_downloaded name
@@ -67,7 +70,7 @@ module TransratePaper
                                  "transrate", assembler.to_s)
           assembly_path = File.expand_path(File.join(@gem_dir, "data",
                                       experiment_name.to_s, "assembly", path))
-          make_dir output_dir
+          FileUtils.mkdir_p output_dir
           Dir.chdir(output_dir) do |dir|
             puts "changed to #{dir}"
             cmd = "transrate "
@@ -106,19 +109,25 @@ module TransratePaper
       @data.each do |experiment_name, experiment_data|
         experiment_data[:assembly][:fa].each do |assembler, path|
           output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
-                                 "transrate", assembler.to_s)
+                                 "rsem-eval", assembler.to_s)
           assembly_path = File.expand_path(File.join(@gem_dir, "data",
                                       experiment_name.to_s, "assembly", path))
-          make_dir output_dir
+          FileUtils.mkdir_p output_dir
           Dir.chdir(output_dir) do |dir|
             puts "changed to #{dir}"
-
+            left = experiment_data[:reads][:left].collect { |fastq|
+              File.expand_path(File.join(@gem_dir, "data", experiment_name.to_s, "reads", fastq))
+            }.join(",")
+            right = experiment_data[:reads][:right].collect { |fastq|
+              File.expand_path(File.join(@gem_dir, "data", experiment_name.to_s, "reads", fastq))
+            }.join(",")
             cmd = "rsem-eval-calculate-score"
             cmd << " -p #{threads}"
             cmd << " --paired-end #{left} #{right}"
-            cmd << " #{assembly} rsem_eval 200"
+            cmd << " #{assembly_path} rsem_eval 200"
 
-            log = "rsem-eval.log"
+            log = "rsem-eval-#{experiment_name.to_s}-#{assembler.to_s}.log"
+            puts cmd
             if !File.exist?(log)
               eval = Cmd.new(cmd)
               eval.run
@@ -197,18 +206,9 @@ module TransratePaper
         puts cmd
         stdout, stderr, status = Open3.capture3 cmd
       elsif name =~ /\.sra$/
-        cmd = "fastq-dump.2.3.5.2 --origfmt --split-3 #{name} --outdir #{output_dir}"
+        cmd = "#{@fastq_dump} --origfmt --split-3 #{name} --outdir #{output_dir}"
         puts cmd
         stdout, stderr, status = Open3.capture3 cmd
-      end
-    end
-
-    def make_dir dir
-      if Dir.exist?(dir) or dir==""
-      else
-        dirname = File.dirname(dir)
-        make_dir dirname
-        Dir.mkdir(dir)
       end
     end
 
