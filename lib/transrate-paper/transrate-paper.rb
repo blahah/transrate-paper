@@ -94,10 +94,11 @@ module TransratePaper
 
             puts cmd
             if !File.exist?("#{experiment_name.to_s}-#{assembler}_assemblies.csv")
-              stdout, stderr, status = Open3.capture3 cmd
+              transrate = Cmd.new cmd
+              transrate.run
               File.open("log-#{experiment_name.to_s}-#{assembler.to_s}.txt","wb") do |out|
-                out.write(stdout)
-                out.write(stderr)
+                out.write(transrate.stdout)
+                out.write(transrate.stderr) unless transrate.status.success?
               end
             end
           end
@@ -133,6 +134,7 @@ module TransratePaper
               eval.run
               File.open(log, "wb") do |io|
                 io.write(eval.stdout)
+                io.write(eval.stderr) unless eval.status.success?
               end
             end
           end

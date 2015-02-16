@@ -2,6 +2,7 @@ module TransratePaper
 
   require 'fileutils'
   require 'fixwhich'
+  require 'yaml'
 
   class Tsa
 
@@ -42,26 +43,39 @@ module TransratePaper
             result = download_tsa_sra(code, sra.first)
             if result
               Dir.chdir("#{@gem_dir}/data/genbank/#{code}") do |dir|
+                # run fastqc first
+                files = ["#{code}_1.fastq", "#{code}_2.fastq"]
+                run_fastqc files
+                #
                 cmd = "transrate --assembly #{code}.fa"
-                cmd << " --left #{code}_1.fastq"
-                cmd << " --right #{code}_2.fastq"
+                cmd << " --left #{files.first}"
+                cmd << " --right #{files.last}"
                 cmd << " --threads #{threads}"
                 cmd << " --outfile #{code}"
                 puts cmd
-                stdout, stderr, status = Open3.capture3 cmd
-                if !status.success?
-                  abort "ERROR: transrate : #{code}\n#{stdout}\n#{stderr}"
+                if !File.exist?("#{code}_assemblies.csv")
+                  stdout, stderr, status = Open3.capture3 cmd
+                  if !status.success?
+                    abort "ERROR: transrate : #{code}\n#{stdout}\n#{stderr}"
+                  end
+                  log = "#{code}-transrate.out"
+                  File.open(log, "wb") { |io| io.write stdout }
                 end
-                read_length = get_read_length("#{code}_1.fastq", "#{code}_2.fastq")
-                File.open("#{code}-transrate.out", "wb") do |io|
-                  io.write stdout
-                  if stdout =~ /TRANSRATE ASSEMBLY SCORE:\s([0-9.]+)/
-                    @results[code] = { :score => $1.to_f,
-                                       :tool => tool,
-                                       :phylogeny => phylogeny,
-                                       :read_length => read_length }
+                read_length = get_read_length(files.first)
+                score = optimal = 0
+                File.open(log).each_line do |line|
+                  if line =~ /TRANSRATE ASSEMBLY SCORE:\s+([0-9.]+)/
+                    score = $1.to_f
+                  end
+                  if line =~ /OPTIMAL SCORE:\s+([0-9.]+)/
+                    optimal = $1.to_f
                   end
                 end
+                @results[code] = { :score => score,
+                                   :optimal => optimal,
+                                   :read_length => read_length,
+                                   :tool => tool,
+                                   :phylogeny => phylogeny }
               end
             end
           end
@@ -69,10 +83,18 @@ module TransratePaper
       end
       File.open("tsa-results.txt", "wb") do |io|
         @results.each do |code, hash|
-          out = "#{code}\t#{hash[:score]}\t#{hash[:read_length]}\t"
-          out << "#{hash[:tool]}\t#{hash[:phylogeny]}\n"
-          io.write out
+          hash = {:code => code}.merge(hash)
+          io.write hash.values.join("\t")
         end
+      end
+    end
+
+    def run_fastqc
+      fastqc = Fastqc.new
+      fastqc.run files
+      fastqc.analyse_output
+      File.open("fastqc.yml", "wb") do |file|
+        file.write fastqc.data.to_yaml
       end
     end
 
@@ -112,6 +134,9 @@ module TransratePaper
         if File.exist?("#{code}_1.fastq")
           # fastq already exists
           return true
+        elsif File.exist?("#{code}.fastq")
+          # sra extracted to non paired fastq file
+          return false
         else
           if File.exist?("#{code}.sra")
             # sra already exists
@@ -136,6 +161,7 @@ module TransratePaper
           end
           File.delete(dest)
           if File.exist?("#{code}.fastq")
+            # sra extracted to non paired fastq file
             return false
           end
         end
@@ -329,7 +355,7 @@ module TransratePaper
       return paired
     end
 
-    def get_read_length(left, right)
+    def get_read_length(left)
       count=0
       file = File.open(left.split(",").first)
       name = file.readline.chomp

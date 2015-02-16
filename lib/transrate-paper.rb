@@ -1,4 +1,5 @@
 require 'transrate-paper/cmd'
+require 'transrate-paper/fastqc'
 require 'transrate-paper/transrate-paper'
 require 'transrate-paper/tsa'
 require 'transrate-paper/simulator'
