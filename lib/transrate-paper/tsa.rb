@@ -89,12 +89,14 @@ module TransratePaper
       end
     end
 
-    def run_fastqc
+    def run_fastqc files
       fastqc = Fastqc.new
       fastqc.run files
-      fastqc.analyse_output
-      File.open("fastqc.yml", "wb") do |file|
-        file.write fastqc.data.to_yaml
+      files.each do |file|
+        fastqc.analyse_output
+        File.open("fastqc-#{file}.yml", "wb") do |file|
+          file.write fastqc.data.to_yaml
+        end
       end
     end
 

@@ -8,20 +8,23 @@ module TransratePaper
 
     def initialize
       @fastqc = which('fastqc').first
+      @output = "fastqc_output"
     end
 
     def run files
       qc = Cmd.new construct_command(files)
+      Dir.mkdir(@output) if !Dir.exist?(@output)
       qc.run
     end
 
     def construct_command(files, threads=8)
       cmd = "#{@fastqc} --kmers 5 --threads #{threads} --extract "
-      cmd << "--outdir fastqc_output #{files.join(" ")}"
+      cmd << "--outdir #{@output} #{files.join(" ")}"
       cmd
     end
 
     def analyse_output file
+      file = File.join(@output, "#{file}_fastqc", "fastqc_data.txt")
       section_name = ""
       headings = []
       @data = {}
