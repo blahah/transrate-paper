@@ -13,18 +13,22 @@ module TransratePaper
 
     def run files
       qc = Cmd.new construct_command(files)
-      Dir.mkdir(@output) if !Dir.exist?(@output)
-      qc.run
+      if !Dir.exist?(@output)
+        Dir.mkdir(@output)
+        qc.run
+      end
     end
 
-    def construct_command(files, threads=8)
-      cmd = "#{@fastqc} --kmers 5 --threads #{threads} --extract "
+    def construct_command(files, threads=48)
+      cmd = "#{@fastqc} --kmers 6 --threads #{threads} --extract "
       cmd << "--outdir #{@output} #{files.join(" ")}"
       cmd
     end
 
     def analyse_output file
-      file = File.join(@output, "#{file}_fastqc", "fastqc_data.txt")
+      file = File.join(@output,
+                       "#{File.basename(file, ".fastq")}_fastqc",
+                       "fastqc_data.txt")
       section_name = ""
       headings = []
       @data = {}
@@ -57,7 +61,7 @@ module TransratePaper
           end
         end
       end
-      @data
+      @data.delete("Per tile sequence quality")
     end
 
   end # class

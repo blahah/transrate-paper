@@ -53,38 +53,45 @@ module TransratePaper
                 cmd << " --threads #{threads}"
                 cmd << " --outfile #{code}"
                 puts cmd
+                log = "#{code}-transrate.out"
                 if !File.exist?("#{code}_assemblies.csv")
                   stdout, stderr, status = Open3.capture3 cmd
                   if !status.success?
                     abort "ERROR: transrate : #{code}\n#{stdout}\n#{stderr}"
                   end
-                  log = "#{code}-transrate.out"
                   File.open(log, "wb") { |io| io.write stdout }
                 end
                 read_length = get_read_length(files.first)
-                score = optimal = 0
+                score = optimal = cutoff = 0
                 File.open(log).each_line do |line|
-                  if line =~ /TRANSRATE ASSEMBLY SCORE:\s+([0-9.]+)/
+                  if line =~ /TRANSRATE ASSEMBLY SCORE\s+([0-9.]+)/
                     score = $1.to_f
                   end
-                  if line =~ /OPTIMAL SCORE:\s+([0-9.]+)/
+                  if line =~ /OPTIMAL SCORE\s+([0-9.]+)/
                     optimal = $1.to_f
                   end
+                  if line =~ /OPTIMAL CUTOFF\s+([0-9.]+)/
+                    cutoff = $1.to_f
+                  end
                 end
-                @results[code] = { :score => score,
+                left_results, right_results = open_fastqc files.first, files.last
+                hash = { :score => score,
                                    :optimal => optimal,
+                                   :cutoff => cutoff,
                                    :read_length => read_length,
                                    :tool => tool,
                                    :phylogeny => phylogeny }
+                @results[code] = hash.merge(left_results).merge(right_results)
               end
             end
           end
         end
       end
       File.open("tsa-results.txt", "wb") do |io|
+        io.write "code\t#{@results.first[1].keys.join("\t")}\n"
         @results.each do |code, hash|
           hash = {:code => code}.merge(hash)
-          io.write hash.values.join("\t")
+          io.write "#{hash.values.join("\t")}\n"
         end
       end
     end
@@ -93,11 +100,116 @@ module TransratePaper
       fastqc = Fastqc.new
       fastqc.run files
       files.each do |file|
-        fastqc.analyse_output
-        File.open("fastqc-#{file}.yml", "wb") do |file|
-          file.write fastqc.data.to_yaml
+        log = "fastqc-#{file}.yml"
+        if !File.exist?(log)
+          fastqc.analyse_output file
+          File.open(log, "wb") do |file|
+            file.write fastqc.data.to_yaml
+          end
         end
       end
+    end
+
+    def open_fastqc left, right
+      results_left = fastqc_file_stats left, 1
+      results_right = fastqc_file_stats right, 2
+      return [results_left, results_right]
+    end
+
+    def fastqc_file_stats file, n
+      results = {}
+      fastqc_left = YAML.load_file("fastqc-#{file}.yml")
+      mean_sequence_quality = 0
+      pass_base_sequence_quality = ""
+      pass_sequence_quality = ""
+      pass_kmer_content = ""
+      pass_adapter_content = ""
+      pass_sequence_duplication = ""
+      pass_base_content = ""
+      read_gc_content = 0
+      total_deduplicated = 0
+      bases = 0
+      fastqc_left["Basic Statistics"].each do |n|
+        # puts "#{n}\t#{i}"
+        if n.key?("%GC")
+          read_gc_content = n["%GC"].to_f
+        end
+      end
+      results["read_gc_content_#{n}"] = read_gc_content
+
+      fastqc_left["Per base sequence quality"].each do |i|
+        if i.key?("pass/fail")
+          pass_base_sequence_quality = i["pass/fail"]
+        elsif i.key?("Mean")
+          mean_sequence_quality += i["Mean"].to_f
+          bases += 1
+        end
+      end
+      mean_sequence_quality /= bases
+      results["mean_sequence_quality_#{n}"] = mean_sequence_quality
+      results["pass_base_sequence_quality_#{n}"] = pass_base_sequence_quality
+
+      fastqc_left["Kmer Content"].each do |i|
+        if i.key?("pass/fail")
+          pass_kmer_content = i["pass/fail"]
+        end
+      end
+      results["pass_kmer_content_#{n}"] = pass_kmer_content
+
+      total_quality_bases = 0
+      good_quality_bases = 0
+      bad_quality_bases = 0
+      fastqc_left["Per sequence quality scores"].each do |i|
+        if i.key?("pass/fail")
+          pass_sequence_quality = i["pass/fail"]
+        elsif i.key?("Quality")
+          c = i["Count"].to_f
+          total_quality_bases += c
+          if i["Quality"].to_i < 20
+            bad_quality_bases += c
+          elsif i["Quality"].to_i >= 30
+            good_quality_bases += c
+          end
+        end
+      end
+      results["proportion_quality_gt_30_#{n}"] = (good_quality_bases/total_quality_bases)
+      results["proportion_quality_lt_20_#{n}"] = (bad_quality_bases/total_quality_bases)
+      results["pass_sequence_quality_#{n}"] = pass_sequence_quality
+
+      fastqc_left["Adapter Content"].each do |i|
+        if i.key?("pass/fail")
+          pass_adapter_content = i["pass/fail"]
+        end
+      end
+      results["pass_adapter_content_#{n}"] = pass_adapter_content
+
+      fastqc_left["Sequence Duplication Levels"].each do |i|
+        if i.key?("pass/fail")
+          pass_sequence_duplication = i["pass/fail"]
+        end
+        if i.key?("#Total Deduplicated Percentage")
+          total_deduplicated = i.values.first.to_f
+        end
+      end
+      results["pass_sequence_duplication_#{n}"] = pass_sequence_duplication
+      results["total_deduplicated_#{n}"] = total_deduplicated
+
+      fastqc_left["Per base sequence content"].each do |i|
+        if i.key?("pass/fail")
+          pass_base_content = i["pass/fail"]
+        end
+      end
+      results["pass_base_content_#{n}"] = pass_base_content
+
+      overrepresented = 0
+      fastqc_left["Overrepresented sequences"].each do |i|
+        if i.key?("Percentage")
+          overrepresented += i["Percentage"].to_f
+        end
+      end
+      results["overrepresented_#{n}"] = overrepresented
+
+      return results
     end
 
     def download_tsa_assembly code # ie GAAA
