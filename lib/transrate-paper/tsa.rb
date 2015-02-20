@@ -62,7 +62,7 @@ module TransratePaper
                   File.open(log, "wb") { |io| io.write stdout }
                 end
                 read_length = get_read_length(files.first)
-                score = optimal = cutoff = 0
+                score = optimal = cutoff = n_bases = fragments = 0
                 File.open(log).each_line do |line|
                   if line =~ /TRANSRATE ASSEMBLY SCORE\s+([0-9.]+)/
                     score = $1.to_f
@@ -73,14 +73,22 @@ module TransratePaper
                   if line =~ /OPTIMAL CUTOFF\s+([0-9.]+)/
                     cutoff = $1.to_f
                   end
+                  if line =~ /fragments\s+([0-9]+)/
+                    fragments = $1.to_i
+                  end
+                  if line =~ /n\sbases\s+([0-9]+)/
+                    n_bases = $1.to_i
+                  end
                 end
                 left_results, right_results = open_fastqc files.first, files.last
                 hash = { :score => score,
-                                   :optimal => optimal,
-                                   :cutoff => cutoff,
-                                   :read_length => read_length,
-                                   :tool => tool,
-                                   :phylogeny => phylogeny }
+                         :optimal => optimal,
+                         :cutoff => cutoff,
+                         :read_length => read_length,
+                         :read_pairs => fragments,
+                         :n_bases => n_bases,
+                         :tool => tool,
+                         :phylogeny => phylogeny }
                 @results[code] = hash.merge(left_results).merge(right_results)
               end
             end
