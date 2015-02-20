@@ -17,6 +17,7 @@ paper.install_dependencies
 if (opts.all || opts.existing)
   paper.download_data "data.yaml"
   paper.run_transrate opts.threads
+  paper.run_transrate_merge opts.threads
   paper.run_rsem_eval opts.threads
 end
 

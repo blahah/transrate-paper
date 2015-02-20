@@ -90,16 +90,63 @@ module TransratePaper
             end
             cmd << right.join(",")
             cmd << " --threads #{threads}"
-            cmd << " --outfile #{experiment_name.to_s}-#{assembler}"
+            outfile = "#{experiment_name.to_s}-#{assembler}"
+            cmd << " --outfile #{outfile}"
 
             puts cmd
-            if !File.exist?("#{experiment_name.to_s}-#{assembler}_assemblies.csv")
+            if !File.exist?("#{outfile}_assemblies.csv")
               transrate = Cmd.new cmd
               transrate.run
-              File.open("log-#{experiment_name.to_s}-#{assembler.to_s}.txt","wb") do |out|
+              File.open("log-#{outfile}.txt","wb") do |out|
                 out.write(transrate.stdout)
                 out.write(transrate.stderr) unless transrate.status.success?
               end
+            end
+          end
+        end
+      end
+    end
+
+    def run_transrate_merge threads
+      @data.each do |experiment_name, experiment_data|
+        assemblies = []
+        experiment_data[:assembly][:fa].each do |assembler, path|
+          output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
+                                 "transrate", "merged")
+          FileUtils.mkdir_p output_dir
+          assembly_path = File.expand_path(File.join(@gem_dir, "data",
+                                      experiment_name.to_s, "assembly", path))
+          assemblies << assembly_path
+        end
+        Dir.chdir(output_dir) do |dir|
+          puts "changed to #{dir}"
+          cmd = "transrate "
+          cmd << " --assembly #{assembly_path} "
+          cmd << " --left "
+          left = []
+          experiment_data[:reads][:left].each do |fastq|
+            left << File.expand_path(File.join(@gem_dir, "data",
+                                   experiment_name.to_s, "reads", fastq))
+          end
+          cmd << left.join(",")
+          cmd << " --right "
+          right = []
+          experiment_data[:reads][:right].each do |fastq|
+            right << File.expand_path(File.join(@gem_dir, "data",
+                                   experiment_name.to_s, "reads", fastq))
+          end
+          cmd << right.join(",")
+          cmd << " --threads #{threads}"
+          outfile = "#{experiment_name.to_s}"
+          cmd << " --outfile #{outfile}"
+          cmd << " --merge-assemblies #{experiment_name.to_s}.fasta"
+          puts cmd
+          if !File.exist?("#{outfile}_assemblies.csv")
+            transrate = Cmd.new cmd
+            transrate.run
+            File.open("log-#{outfile}.txt", "wb") do |out|
+              out.write(transrate.stdout)
+              out.write(transrate.stderr) unless transrate.status.success?
             end
           end
         end
