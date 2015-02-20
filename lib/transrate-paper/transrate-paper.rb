@@ -110,10 +110,10 @@ module TransratePaper
     def run_transrate_merge threads
       @data.each do |experiment_name, experiment_data|
         assemblies = []
+        output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
+                               "transrate", "merged")
+        FileUtils.mkdir_p output_dir
         experiment_data[:assembly][:fa].each do |assembler, path|
-          output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
-                                 "transrate", "merged")
-          FileUtils.mkdir_p output_dir
           assembly_path = File.expand_path(File.join(@gem_dir, "data",
                                       experiment_name.to_s, "assembly", path))
           assemblies << assembly_path
@@ -121,7 +121,7 @@ module TransratePaper
         Dir.chdir(output_dir) do |dir|
           puts "changed to #{dir}"
           cmd = "transrate "
-          cmd << " --assembly #{assembly_path} "
+          cmd << " --assembly #{assemblies.join(",")} "
           cmd << " --left "
           left = []
           experiment_data[:reads][:left].each do |fastq|
