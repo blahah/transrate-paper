@@ -38,7 +38,7 @@ module TransratePaper
         experiment_data.each do |key, value|
           output_dir = File.join(@gem_dir, "data",
                                  experiment_name.to_s, key.to_s)
-          if [:reads, :assembly].include? key
+          if [:reads, :assembly, :reference].include? key
             value.each do |description, paths|
               if description == :url
                 paths.each do |url|
@@ -65,6 +65,8 @@ module TransratePaper
 
     def run_transrate threads
       @data.each do |experiment_name, experiment_data|
+        reference_path = File.join(@gem_dir, "data", experiment_name.to_s,
+                                 "reference", experiment_data[:reference][:fa])
         experiment_data[:assembly][:fa].each do |assembler, path|
           output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
                                  "transrate", assembler.to_s)
@@ -89,6 +91,7 @@ module TransratePaper
                                      experiment_name.to_s, "reads", fastq))
             end
             cmd << right.join(",")
+            cmd << " --reference #{reference_path}"
             cmd << " --threads #{threads}"
             outfile = "#{experiment_name.to_s}-#{assembler}"
             cmd << " --outfile #{outfile}"
@@ -112,6 +115,8 @@ module TransratePaper
         assemblies = []
         output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
                                "transrate", "merged")
+        reference_path = File.join(@gem_dir, "data", experiment_name.to_s,
+                                 "reference", experiment_data[:reference][:fa])
         FileUtils.mkdir_p output_dir
         experiment_data[:assembly][:fa].each do |assembler, path|
           assembly_path = File.expand_path(File.join(@gem_dir, "data",
@@ -136,10 +141,12 @@ module TransratePaper
                                    experiment_name.to_s, "reads", fastq))
           end
           cmd << right.join(",")
+          cmd << " --reference #{reference_path}"
           cmd << " --threads #{threads}"
           outfile = "#{experiment_name.to_s}"
           cmd << " --outfile #{outfile}"
           cmd << " --merge-assemblies #{experiment_name.to_s}.fasta"
+
           puts cmd
           if !File.exist?("#{outfile}_assemblies.csv")
             transrate = Cmd.new cmd
