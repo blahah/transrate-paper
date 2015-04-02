@@ -2,12 +2,12 @@ fastqdump:
   binaries:
     - fastq-dump
   version:
-    number: '2.3'
+    number: '2.4.4'
     command: 'fastq-dump --version'
   url:
     64bit:
-      macosx: http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.3.5-2/sratoolkit.2.3.5-2-mac64.tar.gz
-      linux: http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.3.5-2/sratoolkit.2.3.5-2-ubuntu64.tar.gz
+      macosx: http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.4.4/sratoolkit.2.4.4-mac64.tar.gz
+      linux: http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.4.4/sratoolkit.2.4.4-centos_linux64.tar.gz
 flux-simulator:
   binaries:
     - flux-simulator

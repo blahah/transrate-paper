@@ -1,6 +1,6 @@
 require 'open3'
 
-module Transrate_Paper
+module TransratePaper
 
   class Cmd
 

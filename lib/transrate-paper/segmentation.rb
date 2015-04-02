@@ -4,8 +4,7 @@ require 'bindeps'
 require 'json'
 require 'yaml'
 require 'open3'
-require 'which'
-include Which
+require 'fixwhich'
 
 module TransratePaper
 
