@@ -5,6 +5,7 @@ By:
 
 - Richard Smith-Unna (@blahah404)
 - Chris Boursnell (@chrisboursnell)
+- Rob Patro
 - Julian Hibberd
 - Steven Kelly
 
