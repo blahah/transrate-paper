@@ -1,0 +1,62 @@
+---
+title: "Score component evaluation"
+author: "Richard Smith-Unna"
+date: "15 April 2015"
+output: html_document
+---
+
+We examine the ten lowest-scoring contigs by each score component.
+
+Load the data...
+
+```{r echo=FALSE}
+library(data.table)
+library(dplyr)
+setwd('~/code/transrate-paper')
+yeast_oases <- fread('data/yeast/transrate/trinity/yeast-trinity_Trinity.fasta_contigs.csv')
+setwd('notes')
+dir.create('score_component_examination')
+setwd('score_component_examination')
+```
+
+### p_bases_covered
+
+```{r echo=FALSE}
+top30 <- head(yeast_oases[order(rank(p_bases_covered)),], n=30)$contig_name
+fc <- file('p_bases_covered_top30.txt')
+writeLines(top30, fc)
+close(fc)
+```
+
+### p_seq_true
+
+```{r echo=FALSE}
+top30 <- head(yeast_oases[order(rank(p_seq_true)),], n=30)
+write.csv(select(top30, contig_name, p_seq_true),
+          'p_seq_true_top30.csv', row.names=F)
+fc <- file('p_seq_true_top30.txt')
+writeLines(top30$contig_name, fc)
+close(fc)
+```
+
+### p_not_segmented
+
+```{r echo=FALSE}
+top30 <- head(yeast_oases[order(rank(p_not_segmented)),], n=30)
+write.csv(select(top30, contig_name, p_not_segmented),
+          'p_not_segmented_top30.csv', row.names=F)
+fc <- file('p_not_segmented_top30.txt')
+writeLines(top30$contig_name, fc)
+close(fc)
+```
+
+### p_good
+
+```{r echo=FALSE}
+top30 <- head(filter(yeast_oases, eff_count > 0)[order(rank(p_good)),], n=30)
+write.csv(select(top30, contig_name, p_good),
+          'p_good_top30.csv', row.names=F)
+fc <- file('p_good_top30.txt')
+writeLines(top30$contig_name, fc)
+close(fc)
+```

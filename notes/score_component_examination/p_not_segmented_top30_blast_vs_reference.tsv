@@ -1,0 +1,305 @@
+# BLASTN 2.2.30+
+# Query: comp2222_c0_seq1 len=407 path=[385:0-329 715:330-406]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 3 hits found
+comp2222_c0_seq1	YMR242W-A	100.00	90	0	0	164	253	90	1	2e-40	  163
+comp2222_c0_seq1	YMR242C	100.00	78	0	0	330	407	1	78	6e-34	  141
+comp2222_c0_seq1	YOR312C	92.31	78	6	0	330	407	1	78	9e-26	  114
+# BLASTN 2.2.30+
+# Query: comp3736_c0_seq1 len=267 path=[1:0-266]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 2 hits found
+comp3736_c0_seq1	YGR085C	100.00	39	0	0	229	267	1	39	6e-13	71.6
+comp3736_c0_seq1	YPR102C	92.31	39	3	0	229	267	1	39	1e-08	57.2
+# BLASTN 2.2.30+
+# Query: comp2527_c0_seq1 len=687 path=[1723:0-556 868:557-580 2303:581-608 2331:609-632 3077:633-686]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 6 hits found
+comp2527_c0_seq1	YPR163C	100.00	439	0	0	249	687	1311	873	0.0	  792
+comp2527_c0_seq1	YPR163C	84.52	168	20	1	519	686	957	796	3e-47	  187
+comp2527_c0_seq1	YPR163C	79.04	167	29	1	520	686	878	718	9e-35	  145
+comp2527_c0_seq1	YPR163C	88.54	96	11	0	558	653	768	673	3e-28	  123
+comp2527_c0_seq1	YPR163C	80.00	90	12	1	603	686	1041	952	9e-16	82.4
+comp2527_c0_seq1	YPR163C	71.59	88	10	2	558	642	690	615	2e-06	51.8
+# BLASTN 2.2.30+
+# Query: comp2420_c1_seq1 len=252 path=[570:0-251]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 2 hits found
+comp2420_c1_seq1	YLR333C	100.00	93	0	0	1	93	93	1	3e-42	  168
+comp2420_c1_seq1	YGR027C	95.70	93	4	0	1	93	93	1	7e-37	  150
+# BLASTN 2.2.30+
+# Query: comp3779_c0_seq1 len=288 path=[1:0-287]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 3 hits found
+comp3779_c0_seq1	YMR230W-A	100.00	111	0	0	178	288	1	111	5e-52	  201
+comp3779_c0_seq1	YMR230W	100.00	51	0	0	1	51	268	318	2e-19	93.3
+comp3779_c0_seq1	YOR293W	92.16	51	4	0	1	51	268	318	5e-14	75.2
+# BLASTN 2.2.30+
+# Query: comp3698_c0_seq1 len=1041 path=[1:0-1040]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 1 hits found
+comp3698_c0_seq1	YOL040C	100.00	429	0	0	481	909	1	429	0.0	  774
+# BLASTN 2.2.30+
+# Query: comp2292_c0_seq1 len=8093 path=[8071:0-798 8870:799-8092]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 4 hits found
+comp2292_c0_seq1	YER093C	99.60	4293	17	0	3706	7998	4293	1	0.0	 7665
+comp2292_c0_seq1	YER091C	99.65	2304	8	0	249	2552	2304	1	0.0	 4120
+comp2292_c0_seq1	YER092W	99.47	378	2	0	3241	3618	1	378	0.0	  673
+comp2292_c0_seq1	YER091C-A	99.55	222	1	0	2775	2996	222	1	4e-109	  396
+# BLAST processed 7 queries
+# BLASTN 2.2.30+
+# Query: comp3016_c0_seq1 len=357 path=[335:0-61 397:62-356]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# 0 hits found
+# BLASTN 2.2.30+
+# Query: comp3414_c0_seq1 len=354 path=[6874:0-353]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# 0 hits found
+# BLASTN 2.2.30+
+# Query: comp3669_c0_seq1 len=3164 path=[3201:0-3163]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 2 hits found
+comp3669_c0_seq1	YKL059C	100.00	1326	0	0	1801	3126	1326	1	0.0	 2392
+comp3669_c0_seq1	YKL060C	100.00	1080	0	0	91	1170	1080	1	0.0	 1948
+# BLASTN 2.2.30+
+# Query: comp2338_c0_seq1 len=1169 path=[2301:0-473 2775:474-530 536:531-1168]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 2 hits found
+comp2338_c0_seq1	YGL103W	100.00	49	0	0	532	580	49	1	1e-17	89.7
+comp2338_c0_seq1	YGL102C	100.00	42	0	0	1	42	388	429	7e-14	77.0
+# BLASTN 2.2.30+
+# Query: comp3807_c0_seq1 len=3707 path=[1:0-3706]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 6 hits found
+comp3807_c0_seq1	YNL065W	100.00	1761	0	0	102	1862	1	1761	0.0	 3177
+comp3807_c0_seq1	YNL064C	99.92	1230	1	0	2246	3475	1230	1	0.0	 2214
+comp3807_c0_seq1	YNL007C	69.76	205	56	3	3271	3475	199	1	5e-15	82.4
+comp3807_c0_seq1	YIL121W	67.37	236	77	0	828	1063	610	845	6e-14	78.8
+comp3807_c0_seq1	YMR214W	68.63	204	55	5	3231	3428	299	99	4e-10	66.2
+comp3807_c0_seq1	YIL120W	74.23	97	15	4	855	946	661	752	2e-06	53.6
+# BLASTN 2.2.30+
+# Query: comp3097_c1_seq1 len=675 path=[7759:0-173 7933:174-226 7986:227-674]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 1 hits found
+comp3097_c1_seq1	YBR054W	100.00	48	0	0	1	48	48	1	2e-17	87.8
+# BLASTN 2.2.30+
+# Query: comp3665_c2_seq32 len=1373 path=[5730:0-842 6573:843-932 16778:933-948 16873:949-1004 11209:1005-1053 11258:1054-1078 7375:1079-1126 12365:1127-1136 8034:1137-1372]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 57 hits found
+comp3665_c2_seq32	YML133C	99.90	1033	1	0	1	1033	1827	795	0.0	 1858
+comp3665_c2_seq32	YML133C	99.17	241	2	0	1133	1373	794	554	4e-119	  426
+comp3665_c2_seq32	YLL067C	99.81	1033	2	0	1	1033	1320	288	0.0	 1855
+comp3665_c2_seq32	YLL067C	99.17	241	2	0	1133	1373	287	47	4e-119	  426
+comp3665_c2_seq32	YLL066C	99.81	1033	2	0	1	1033	1320	288	0.0	 1855
+comp3665_c2_seq32	YLL066C	99.17	241	2	0	1133	1373	287	47	4e-119	  426
+comp3665_c2_seq32	YBL111C	99.32	1033	7	0	1	1033	1827	795	0.0	 1831
+comp3665_c2_seq32	YBL111C	98.76	241	3	0	1133	1373	794	554	2e-117	  421
+comp3665_c2_seq32	YHR218W	99.32	1033	7	0	1	1033	1635	603	0.0	 1831
+comp3665_c2_seq32	YHR218W	98.76	241	3	0	1133	1373	602	362	2e-117	  421
+comp3665_c2_seq32	YNL339C	100.00	953	0	0	1	953	3285	2333	0.0	 1719
+comp3665_c2_seq32	YNL339C	98.78	245	3	0	1129	1373	990	746	1e-119	  428
+comp3665_c2_seq32	YNL339C	62.06	282	6	4	947	1127	1874	1593	7e-21	  100
+comp3665_c2_seq32	YGR296W	100.00	953	0	0	1	953	3285	2333	0.0	 1719
+comp3665_c2_seq32	YGR296W	98.78	245	3	0	1129	1373	990	746	1e-119	  428
+comp3665_c2_seq32	YGR296W	62.06	282	6	4	947	1127	1874	1593	7e-21	  100
+comp3665_c2_seq32	YPL283C	100.00	953	0	0	1	953	3285	2333	0.0	 1719
+comp3665_c2_seq32	YPL283C	98.78	245	3	0	1129	1373	990	746	1e-119	  428
+comp3665_c2_seq32	YPL283C	62.06	282	6	4	947	1127	1874	1593	7e-21	  100
+comp3665_c2_seq32	YER190W	100.00	953	0	0	1	953	2751	1799	0.0	 1719
+comp3665_c2_seq32	YER190W	98.78	245	3	0	1129	1373	456	212	1e-119	  428
+comp3665_c2_seq32	YER190W	62.06	282	6	4	947	1127	1340	1059	7e-21	  100
+comp3665_c2_seq32	YDR545W	99.90	953	1	0	1	953	3093	2141	0.0	 1714
+comp3665_c2_seq32	YDR545W	98.78	245	3	0	1129	1373	798	554	1e-119	  428
+comp3665_c2_seq32	YDR545W	62.06	282	6	4	947	1127	1682	1401	7e-21	  100
+comp3665_c2_seq32	YLR466W	99.90	953	1	0	1	953	1851	899	0.0	 1714
+comp3665_c2_seq32	YLR466W	62.41	282	5	4	947	1127	440	159	6e-22	  104
+comp3665_c2_seq32	YOR396W	99.90	953	1	0	1	953	3093	2141	0.0	 1714
+comp3665_c2_seq32	YOR396W	98.78	245	3	0	1129	1373	798	554	1e-119	  428
+comp3665_c2_seq32	YOR396W	62.06	282	6	4	947	1127	1682	1401	7e-21	  100
+comp3665_c2_seq32	YLR467W	99.90	953	1	0	1	953	3093	2141	0.0	 1714
+comp3665_c2_seq32	YLR467W	98.78	245	3	0	1129	1373	798	554	1e-119	  428
+comp3665_c2_seq32	YLR467W	62.06	282	6	4	947	1127	1682	1401	7e-21	  100
+comp3665_c2_seq32	YEL077C	99.06	953	9	0	1	953	1368	416	0.0	 1678
+comp3665_c2_seq32	YIL177C	98.85	953	11	0	1	953	2706	1754	0.0	 1669
+comp3665_c2_seq32	YIL177C	99.59	245	1	0	1129	1373	798	554	2e-122	  437
+comp3665_c2_seq32	YIL177C	96.61	59	2	0	947	1005	1295	1237	2e-20	98.7
+comp3665_c2_seq32	YJL225C	98.74	953	12	0	1	953	2706	1754	0.0	 1665
+comp3665_c2_seq32	YJL225C	99.59	245	1	0	1129	1373	798	554	2e-122	  437
+comp3665_c2_seq32	YJL225C	96.61	59	2	0	947	1005	1295	1237	2e-20	98.7
+comp3665_c2_seq32	YPR204W	99.86	696	1	0	1	696	696	1	0.0	 1251
+comp3665_c2_seq32	YFL066C	99.43	696	4	0	1	696	696	1	0.0	 1238
+comp3665_c2_seq32	YHL050C	99.06	641	6	0	56	696	641	1	0.0	 1130
+comp3665_c2_seq32	YPR203W	99.62	263	1	0	1111	1373	309	47	4e-132	  470
+comp3665_c2_seq32	YHL049C	99.24	263	2	0	1111	1373	816	554	4e-131	  466
+comp3665_c2_seq32	YFL065C	99.24	263	2	0	1111	1373	309	47	4e-131	  466
+comp3665_c2_seq32	YLR463C	85.71	245	3	2	1129	1373	96	308	3e-82	  304
+comp3665_c2_seq32	YEL075W-A	85.71	245	3	2	1129	1373	96	308	3e-82	  304
+comp3665_c2_seq32	YLR464W	99.32	147	1	0	1129	1275	150	4	3e-69	  260
+comp3665_c2_seq32	YLR464W	100.00	34	0	0	972	1005	651	618	2e-09	62.6
+comp3665_c2_seq32	YLR464W	96.97	33	1	0	996	1028	596	564	3e-07	55.4
+comp3665_c2_seq32	YEL076C-A	99.32	147	1	0	1129	1275	150	4	3e-69	  260
+comp3665_c2_seq32	YEL076C-A	100.00	34	0	0	972	1005	651	618	2e-09	62.6
+comp3665_c2_seq32	YEL076C-A	96.97	33	1	0	996	1028	596	564	3e-07	55.4
+comp3665_c2_seq32	YEL076C	99.32	147	1	0	1129	1275	150	4	3e-69	  260
+comp3665_c2_seq32	YLR465C	82.95	88	1	1	1054	1127	22	109	7e-21	  100
+comp3665_c2_seq32	YLR462W	96.30	54	2	0	1320	1373	607	554	1e-17	89.7
+# BLASTN 2.2.30+
+# Query: comp4106_c0_seq1 len=2905 path=[2955:0-2904]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 2 hits found
+comp4106_c0_seq1	YMR204C	100.00	1263	0	0	46	1308	1	1263	0.0	 2278
+comp4106_c0_seq1	YMR203W	99.91	1164	1	0	1716	2879	1164	1	0.0	 2094
+# BLASTN 2.2.30+
+# Query: comp2456_c0_seq3 len=865 path=[857:0-578 1436:579-616 1994:617-864]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 3 hits found
+comp2456_c0_seq3	YJR094W-A	100.00	279	0	0	427	705	1	279	1e-142	  504
+comp2456_c0_seq3	YPR043W	89.89	277	28	0	427	703	1	277	1e-103	  374
+comp2456_c0_seq3	YPR044C	89.82	275	28	0	429	703	307	33	2e-102	  370
+# BLASTN 2.2.30+
+# Query: comp2386_c0_seq1 len=502 path=[480:0-452 933:453-501]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# 0 hits found
+# BLASTN 2.2.30+
+# Query: comp3685_c0_seq1 len=677 path=[655:0-676]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 2 hits found
+comp3685_c0_seq1	YFR032C-B	100.00	202	0	0	314	515	202	1	5e-101	  365
+comp3685_c0_seq1	YFR032C-A	100.00	180	0	0	131	310	180	1	5e-89	  325
+# BLASTN 2.2.30+
+# Query: comp2060_c0_seq1 len=1615 path=[1593:0-1467 3061:1468-1482 3076:1483-1614]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 5 hits found
+comp2060_c0_seq1	YEL034C-A	99.83	603	1	0	838	1440	603	1	0.0	 1083
+comp2060_c0_seq1	YEL035C	100.00	501	0	0	270	770	501	1	0.0	  904
+comp2060_c0_seq1	YEL034W	99.79	474	1	0	901	1374	1	474	0.0	  850
+comp2060_c0_seq1	YJR047C	91.33	473	41	0	901	1373	1	473	0.0	  668
+comp2060_c0_seq1	YEL033W	100.00	190	0	0	1404	1593	1	190	4e-94	  343
+# BLASTN 2.2.30+
+# Query: comp3448_c2_seq1 len=919 path=[13596:0-885 14482:886-918]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 3 hits found
+comp3448_c2_seq1	YIL011W	100.00	448	0	0	472	919	1	448	0.0	  809
+comp3448_c2_seq1	YIL011W	100.00	31	0	0	889	919	484	514	5e-08	57.2
+comp3448_c2_seq1	YIL012W	100.00	96	0	0	1	96	247	342	2e-43	  174
+# BLASTN 2.2.30+
+# Query: comp3533_c0_seq3 len=409 path=[11869:0-277 5216:278-317 14855:318-408]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 2 hits found
+comp3533_c0_seq3	YEL017C-A	100.00	132	0	0	203	334	1	132	3e-63	  239
+comp3533_c0_seq3	YCR024C-A	91.67	120	10	0	215	334	4	123	4e-43	  172
+# BLASTN 2.2.30+
+# Query: comp3191_c0_seq1 len=6753 path=[8065:0-3496 12871:3497-6752]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 3 hits found
+comp3191_c0_seq1	YDL223C	100.00	3141	0	0	284	3424	3141	1	0.0	 5665
+comp3191_c0_seq1	YDL220C	100.00	2775	0	0	3954	6728	2775	1	0.0	 5005
+comp3191_c0_seq1	YDL221W	100.00	552	0	0	3721	4272	1	552	0.0	  996
+# BLASTN 2.2.30+
+# Query: comp3600_c1_seq1 len=3615 path=[159:0-798 958:799-1342 1502:1343-3614]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 3 hits found
+comp3600_c1_seq1	YCL017C	100.00	1494	0	0	2009	3502	1494	1	0.0	 2695
+comp3600_c1_seq1	YCL018W	100.00	1095	0	0	556	1650	1	1095	0.0	 1975
+comp3600_c1_seq1	YIL094C	76.34	93	17	3	1408	1496	886	977	2e-08	60.8
+# BLASTN 2.2.30+
+# Query: comp3377_c0_seq1 len=1465 path=[1443:0-170 1614:171-1464]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 17 hits found
+comp3377_c0_seq1	YHR096C	99.33	448	3	0	1	448	1332	1779	0.0	  794
+comp3377_c0_seq1	YHR094C	79.88	343	67	2	1	342	1269	1610	4e-81	  300
+comp3377_c0_seq1	YDR345C	78.36	365	77	2	1	364	1260	1623	2e-79	  295
+comp3377_c0_seq1	YDR343C	76.82	371	84	2	1	370	1269	1638	2e-73	  275
+comp3377_c0_seq1	YDR342C	76.55	371	85	2	1	370	1269	1638	7e-72	  269
+comp3377_c0_seq1	YHR092C	75.97	308	72	2	1	307	1287	1593	1e-55	  215
+comp3377_c0_seq1	YJL214W	73.84	344	86	2	2	343	1276	1617	6e-54	  210
+comp3377_c0_seq1	YLR081W	72.31	372	97	4	2	370	1288	1656	4e-49	  194
+comp3377_c0_seq1	YMR011W	71.92	349	86	3	1	343	1242	1584	2e-46	  185
+comp3377_c0_seq1	YFL011W	72.22	324	84	2	3	323	1223	1543	1e-43	  176
+comp3377_c0_seq1	YEL069C	70.78	373	101	5	2	370	1249	1617	6e-41	  167
+comp3377_c0_seq1	YJL219W	69.87	385	114	2	1	384	1263	1646	2e-40	  165
+comp3377_c0_seq1	YOL156W	69.61	385	115	2	1	384	1263	1646	9e-39	  159
+comp3377_c0_seq1	YDL245C	70.24	373	103	5	2	370	1258	1626	3e-38	  158
+comp3377_c0_seq1	YIL170W	69.33	388	111	4	1	384	933	1316	1e-36	  152
+comp3377_c0_seq1	YJR158W	69.97	373	104	5	2	370	1258	1626	1e-36	  152
+comp3377_c0_seq1	YNR072W	69.25	374	105	5	2	370	1249	1617	7e-34	  143
+# BLASTN 2.2.30+
+# Query: comp3432_c0_seq1 len=498 path=[10746:0-497]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 2 hits found
+comp3432_c0_seq1	YOL039W	100.00	269	0	0	230	498	1	269	2e-137	  486
+comp3432_c0_seq1	YDR382W	71.53	281	68	4	230	498	1	281	3e-33	  140
+# BLASTN 2.2.30+
+# Query: comp2320_c0_seq1 len=2773 path=[2751:0-596 3348:597-2772]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 4 hits found
+comp2320_c0_seq1	YAL036C	100.00	1110	0	0	52	1161	1	1110	0.0	 2003
+comp2320_c0_seq1	YAL037W	100.00	804	0	0	1381	2184	804	1	0.0	 1451
+comp2320_c0_seq1	YAL037C-A	100.00	88	0	0	2686	2773	1	88	2e-38	  159
+comp2320_c0_seq1	YGR173W	66.02	512	167	5	67	576	13	519	1e-27	  123
+# BLASTN 2.2.30+
+# Query: comp4240_c0_seq1 len=3870 path=[1:0-3869]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 6 hits found
+comp4240_c0_seq1	YJL111W	99.70	1653	5	0	2154	3806	1653	1	0.0	 2958
+comp4240_c0_seq1	YJL110C	98.79	1656	20	0	107	1762	1	1656	0.0	 2897
+comp4240_c0_seq1	YKR034W	74.00	150	39	0	501	650	95	244	8e-19	95.1
+comp4240_c0_seq1	YKR033C	74.00	150	39	0	501	650	313	164	8e-19	95.1
+comp4240_c0_seq1	YDR212W	68.46	149	47	0	3469	3617	338	190	2e-07	57.2
+comp4240_c0_seq1	YIL142W	70.47	149	38	5	3472	3617	317	172	3e-06	53.6
+# BLASTN 2.2.30+
+# Query: comp3252_c0_seq1 len=764 path=[8660:0-763]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 2 hits found
+comp3252_c0_seq1	YML034C-A	99.50	399	2	0	323	721	399	1	0.0	  711
+comp3252_c0_seq1	YML034W	99.71	345	1	0	420	764	1	345	6e-177	  618
+# BLASTN 2.2.30+
+# Query: comp3256_c0_seq1 len=5870 path=[5848:0-120 5969:121-1673 7522:1674-5869]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 4 hits found
+comp3256_c0_seq1	YOR156C	100.00	2156	0	0	3715	5870	2181	26	0.0	 3889
+comp3256_c0_seq1	YOR154W	100.00	1764	0	0	84	1847	1	1764	0.0	 3182
+comp3256_c0_seq1	YOR155C	100.00	1353	0	0	1983	3335	1353	1	0.0	 2441
+comp3256_c0_seq1	YDR409W	69.00	229	71	0	4667	4895	1298	1070	4e-18	93.3
+# BLASTN 2.2.30+
+# Query: comp3179_c1_seq1 len=7140 path=[7128:0-7139]
+# Database: /Users/rds45/code/transrate-paper/data/yeast/transcriptome/Saccharomyces_cerevisiae.R64-1-1.cdna.all.fa
+# Fields: query id, subject id, % identity, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 9 hits found
+comp3179_c1_seq1	YGL234W	100.00	2409	0	0	129	2537	2409	1	0.0	 4345
+comp3179_c1_seq1	YGL236C	98.71	2010	26	0	3225	5234	1	2010	0.0	 3508
+comp3179_c1_seq1	YFR008W	99.06	637	6	0	5861	6497	30	666	0.0	 1122
+comp3179_c1_seq1	YGL235W	99.26	537	4	0	3206	3742	537	1	0.0	  951
+comp3179_c1_seq1	YGL237C	98.24	398	7	0	5493	5890	1	398	0.0	  686
+comp3179_c1_seq1	YLR334C	79.55	88	18	0	6900	6987	269	182	1e-13	78.8
+comp3179_c1_seq1	YIL060W	96.97	33	1	0	7108	7140	154	122	1e-06	55.4
+comp3179_c1_seq1	YDR034C-D	94.29	35	2	0	7106	7140	36	2	1e-06	55.4
+comp3179_c1_seq1	YDR034C-C	94.29	35	2	0	7106	7140	36	2	1e-06	55.4
+# BLAST processed 23 queries
