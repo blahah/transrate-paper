@@ -28,11 +28,6 @@
      - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_protein.fa.gz'
     :fa:
      - 'Osativa_204_protein.fa'
-  :transcriptome:
-    :url:
-     - 'ftp://ftp.jgi-psf.org/pub/compgen/phytozome/v9.0/Osativa/annotation/Osativa_204_transcript.fa.gz'
-    :fa:
-     - 'Osativa_204_transcript.fa'
   :sim_inputs:
     :genome:
       :url: 'ftp://ftp.ensemblgenomes.org/pub/release-25/plants/fasta/oryza_sativa/dna/Oryza_sativa.IRGSP-1.0.25.dna.chromosome.*.fa.gz'
@@ -56,9 +51,9 @@
      - 'SRR203276_2.fastq'
   :reference:
     :url:
-    - 'ftp://ftp.ensembl.org/pub/release-64/fasta/mus_musculus/pep/Mus_musculus.NCBIM37.64.pep.all.fa.gz'
+    - 'ftp://ftp.ensembl.org/pub/release-78/fasta/mus_musculus/pep/Mus_musculus.GRCm38.pep.all.fa.gz'
     :fa:
-    - 'Mus_musculus.NCBIM37.64.pep.all.fa'
+    - 'Mus_musculus.GRCm38.pep.all.fa'
   :sim_inputs:
     :genome:
       :url: 'ftp://ftp.ensembl.org/pub/release-78/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.chromosome*'
@@ -114,9 +109,9 @@
      - 'SRR493366_2.fastq'
   :reference:
     :url:
-    - 'ftp://ftp.ensembl.org/pub/current_fasta/homo_sapiens/pep/Homo_sapiens.GRCh37.75.pep.all.fa.gz'
+    - 'ftp://ftp.ensembl.org/pub/release-78/fasta/homo_sapiens/pep/Homo_sapiens.GRCh38.pep.all.fa.gz'
     :fa:
-    - 'Homo_sapiens.GRCh37.75.pep.all.fa'
+    - 'Homo_sapiens.GRCh38.pep.all.fa'
   :sim_inputs:
     :genome:
       :url: 'ftp://ftp.ensembl.org/pub/release-78/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.chromosome.*.fa.gz'
@@ -154,9 +149,9 @@
      - 'SRR453571_2.fastq'
   :reference:
     :url:
-      - 'ftp://ftp.ensembl.org/pub/current_fasta/saccharomyces_cerevisiae/pep/Saccharomyces_cerevisiae.R64-1-1.75.pep.all.fa.gz'
+      - 'ftp://ftp.ensembl.org/pub/release-78/fasta/saccharomyces_cerevisiae/pep/Saccharomyces_cerevisiae.R64-1-1.pep.all.fa.gz'
     :fa:
-      - 'Saccharomyces_cerevisiae.R64-1-1.75.pep.all.fa'
+      - 'Saccharomyces_cerevisiae.R64-1-1.pep.all.fa'
   :sim_inputs:
     :genome:
       :url: 'ftp://ftp.ensembl.org/pub/release-78/fasta/saccharomyces_cerevisiae/dna/Saccharomyces_cerevisiae.R64-1-1.dna.chromosome.*.fa.gz'

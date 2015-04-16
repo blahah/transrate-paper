@@ -2,8 +2,5 @@ coverage
 data
 .DS_Store
 *lock
-<<<<<<< HEAD
 .RData
 .Rhistory
-=======
->>>>>>> 5b66ebbfbef56f80f259f4aaa391dbe46b507ab7
