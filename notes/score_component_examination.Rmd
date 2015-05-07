@@ -1,62 +1,406 @@
 ---
 title: "Score component evaluation"
-author: "Richard Smith-Unna"
-date: "15 April 2015"
-output: html_document
+output:
+  html_document:
+    css: table.css
+    theme: journal
+    self_contained: false
 ---
 
-We examine the ten lowest-scoring contigs by each score component.
+To inspect the performance of the contig score components, we used the smallest of the assemblies from real data, the Trinity assembly of yeast.
 
-Load the data...
+The contigs were aligned to the reference transcriptome and the reference genome with blastn, and the assigned read alignments output by Salmon were used to calculate per-bases coverage using samtools mpileup.
 
-```{r echo=FALSE}
+Although contigs that score poorly on any given score component are likely to contain assembly problems, it does not follow that contigs scoring well on any given score componenet are well-assembled, as they often score poorly on other components. Thus, the lowest scoring set of contigs are more informative than the highest scoring, but we include both for completeness.
+
+```{r echo=FALSE, include=FALSE}
 library(data.table)
+library(plyr)
 library(dplyr)
-setwd('~/code/transrate-paper')
-yeast_oases <- fread('data/yeast/transrate/trinity/yeast-trinity_Trinity.fasta_contigs.csv')
-setwd('notes')
+library(ggplot2)
+library(scales)
+library(grid)
+library(xtable)
+library(RColorBrewer)
+
+bar_colours <- c("#333333", brewer.pal(3, "Set1"))
+names(bar_colours) <- c('contig', 'a', 'b', 'c')
+
+# return at most n unique values in x
+unique_n <- function(x, n) {
+  unique_all <- unique(x)
+  return(unique_all[1:min(length(unique_all), n)])
+}
+
+setup_colours <- function(dt) {
+    ## if there are more than three unique hits, discard the extras
+  dt <- filter(dt, txp_name %in% unique_n(txp_name, 3))
+  colournames <- c('a', 'b', 'c')[1:length(unique(dt$txp_name))]
+  dt[, txp_name := mapvalues(txp_name, unique(dt$txp_name), colournames)]
+}
+
+add_contig_row <- function(dt, expand_hits) {
+    ## create a dummy row to represent the contig
+  toprow <- dt[1,]
+  toprow$txp_name <- 'contig'
+  toprow$q_start <- 0
+  toprow$q_end <- toprow$length
+  dt <- rbind(toprow, dt)
+  
+  ## set the dummy row to be full width, full alpha and sit above the hits
+  nhits <- nrow(dt) - 1
+  hitmins <- NULL
+  hitmaxes <- NULL
+  if (expand_hits) {
+    unique_hits <- unique(dt[2:nrow(dt),]$txp_name)
+    nhits <- length(unique_hits)
+    unimins <- c(21, 11, 1)[1:nhits]
+    unimaxes <- c(29, 19, 9)[1:nhits]
+    hitmins <- sapply(dt[2:nrow(dt),]$txp_name, function(x) {
+      unimins[which(unique_hits == x)[1]]
+    })
+    hitmaxes <- sapply(dt[2:nrow(dt),]$txp_name, function(x) {
+      unimaxes[which(unique_hits == x)[1]]
+    })
+  } else {
+    hitmins <- rep(0, nhits)
+    hitmaxes <- rep(9, nhits)
+  }
+  dt$ymin <- c(max(hitmins) + 10, hitmins)
+  dt$ymax <- c(max(hitmaxes) + 20, hitmaxes)
+  return(dt)
+}
+
+plot_blasthits <- function(dt, dir, expand_hits=FALSE) {
+  
+  dt <- setup_colours(dt)
+  dt <- add_contig_row(dt, expand_hits)
+  y_ticks <- c(1, (max(dt$ymax) - 10))
+  ## create the plot
+  p <- ggplot(dt, aes(xmin=q_start, xmax=q_end,
+    ymin=ymin, ymax=ymax, fill=txp_name)) +
+    geom_rect() +
+    scale_y_continuous(breaks = y_ticks, 
+                       labels = c('hits', 'contig'),
+                       limits = c(0, max(dt$ymax)),
+                       expand = c(0, 0)) +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_fill_manual(values = bar_colours) +
+    theme(axis.line=element_blank(),
+      axis.text.x=element_blank(),
+      axis.text.y = element_text(size=12, hjust=1),
+      axis.ticks=element_blank(),
+      axis.title.x=element_blank(),
+      axis.title.y=element_blank(),
+      legend.position="none",
+      panel.background=element_blank(),
+      panel.border=element_blank(),
+      panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      plot.background=element_blank(),
+      plot.margin=unit(c(0,0,0,0),"mm")) +
+    labs(x=NULL, y=NULL)
+  
+  ## save the plot
+  filename <- paste(dt[1,]$contig_name, 'png', sep='.')
+  filepath <- paste(dir, filename, sep='/')
+  ggsave(filepath, p, width=12, height=1, units='cm')
+}
+
+add_blanks <- function(top30, blasthits) {
+  nohits <- unlist(setdiff(top30$contig_name, blasthits$contig_name))
+  if (length(nohits) == 0) {
+    return(blasthits)
+  }
+  colnames <- union(blastcols, names(yeast_trin))
+  cols <- length(colnames)
+  blankrow <- data.table(data.frame((c(list('name', 'txp'),
+                         as.list(rep(0, cols - 2))))))
+  setnames(blankrow, colnames)
+  blanks <- blankrow[rep(1, length(nohits)),]
+  blanks$contig_name <- nohits
+  blanks$length <- 100
+  blasthits <- rbind(blanks, blasthits)
+}
+
+plot_hits <- function(blasthits, dir) {
+  dir.create(dir)
+  group_by(blasthits, contig_name) %>%
+    do(plot_blasthits(., dir))
+}
+
+plot_expanded_hits <- function(blasthits, dir) {
+  dir.create(dir)
+  group_by(blasthits, contig_name) %>%
+    do(plot_blasthits(., dir, expand_hits=TRUE))
+}
+
+img_path <- function(contig_name, dir) {
+  filename <- paste(contig_name, 'png', sep='.')
+  filepath <- paste('score_component_examination', dir, filename, sep='/')
+  return(filepath)
+}
+
+img_tag <- function(path) {
+  return(paste('<img style="width:100%; height:30px;" src="', 
+               path, '">', sep=''))
+}
+
+print_results <- function(top30, component, dir) {
+  res <- data.table(
+    "Component score" = top30[, component, with=F],
+    "Plot" = img_tag(img_path(top30$contig_name, dir))
+    )
+  setnames(res, 1, "Component score")
+  rownames(res) <- top30$contig_name
+  tab <- xtable(res,
+                align=c('l', 'l', 'c'),
+                display=c('s', 'f' , 's'))
+  print(tab, type="html", sanitize.text.function = function(x){x})
+}
+
+coverage_rle <- function(cov) {
+  length <- cov[1,]$length
+  contig_name <- cov[1,]$contig_name
+  rle_raw <- rle(diff(cov$pos))
+  rle_dt <- data.table(
+    length = rle_raw$lengths,
+    value = rle_raw$values
+  )
+  res <- data.table(
+    contig_name = character(0),
+    q_start = integer(0),
+    q_end = integer(0)
+  )
+  k <- 1
+  for (i in 1:nrow(rle_dt)) {
+    if (i < k) {
+      next
+    }
+    row <- rle_dt[i,]
+    pos <- cov$pos[i]
+    res <- rbind(res, list(contig_name, pos, pos + row$length))
+    k <- pos + row$length + 1
+  }
+  res$length <- length
+  res$txp_name <- 'reads'
+  return(res)
+}
+
+setwd('~/code/transrate-paper/notes')
+yeast_trin <- fread('../data/yeast/transrate/trinity/yeast-trinity_Trinity.fasta_contigs.csv')
+blast <- fread('vs_cdna.tsv')
+blastcols <- c('contig_name', 'txp_name', 'id', 'alnlen', 'mismatches', 'gap',
+               'q_start', 'q_end', 's_start', 's_end', 'evalue', 'bitscore')
+setnames(blast, blastcols)
+genome_blast <- fread('vs_genome.tsv')
+setnames(genome_blast, blastcols)
+all_blast <- rbind(blast, genome_blast)
 dir.create('score_component_examination')
 setwd('score_component_examination')
 ```
 
-### p_bases_covered
+## $s(C_{nuc})$
 
-```{r echo=FALSE}
-top30 <- head(yeast_oases[order(rank(p_bases_covered)),], n=30)$contig_name
-fc <- file('p_bases_covered_top30.txt')
-writeLines(top30, fc)
-close(fc)
+$s(C_{nuc})$ measures how well the read evidence supports the identity of each base in a contig. A low score might indicate family collapse (Figure 1), thus we visualised reference genes hitting each contig for the lowest and highest scoring 30 contigs according to this score component, vertically stacking the alignments to highlight cases where multiple genes hit a single contig. The number of visualised hits was limited to 3 per contig.
+
+#### 30 lowest scoring
+
+```{r p_seq_true_lo, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
+setwd('score_component_examination')
+
+## lowest scoring
+top30 <- head(yeast_trin[order(rank(p_seq_true)),], n=30)
+
+blasthits <- filter(all_blast, contig_name %in% top30$contig_name)
+blasthits <- merge(blasthits, yeast_trin, by='contig_name')
+blasthits <- blasthits[order(rank(p_seq_true)),]
+blasthits <- add_blanks(top30, blasthits)
+
+plot_expanded_hits(blasthits, 'p_seq_true_lo')
+print_results(top30, 'p_seq_true', 'p_seq_true_lo')
 ```
 
-### p_seq_true
+## 30 highest scoring
 
-```{r echo=FALSE}
-top30 <- head(yeast_oases[order(rank(p_seq_true)),], n=30)
-write.csv(select(top30, contig_name, p_seq_true),
-          'p_seq_true_top30.csv', row.names=F)
-fc <- file('p_seq_true_top30.txt')
-writeLines(top30$contig_name, fc)
-close(fc)
+```{r p_seq_true_hi, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
+setwd('score_component_examination')
+
+## highest scoring
+top30 <- head(yeast_trin[order(-rank(p_seq_true)),], n=30)
+
+blasthits <- filter(all_blast, contig_name %in% top30$contig_name)
+blasthits <- merge(blasthits, yeast_trin, by='contig_name')
+blasthits <- blasthits[order(-rank(p_seq_true)),]
+blasthits <- add_blanks(top30, blasthits)
+
+plot_expanded_hits(blasthits, 'p_seq_true_hi')
+print_results(top30, 'p_seq_true', 'p_seq_true_hi')
 ```
 
-### p_not_segmented
+## $s(C_{seg})$
 
-```{r echo=FALSE}
-top30 <- head(yeast_oases[order(rank(p_not_segmented)),], n=30)
-write.csv(select(top30, contig_name, p_not_segmented),
-          'p_not_segmented_top30.csv', row.names=F)
-fc <- file('p_not_segmented_top30.txt')
-writeLines(top30$contig_name, fc)
-close(fc)
+$s(C_{seg})$ estimates the probability that the coverage along the contig is best explained by a single Dirichlet distribution, as opposed to two or more. A low score might indicate chimerism (Figure 1), therefore we visualised reference gene hits on a single plane, to highlight cases where hits against different genes are non-overlapping, indicating a chimera. Each reference gene is assigned a single colour.
+
+#### 30 lowest scoring
+
+```{r p_not_segmented_lo, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
+setwd('score_component_examination')
+
+## lowest scoring
+top30 <- head(yeast_trin[order(rank(p_not_segmented)),], n=30)
+
+blasthits <- filter(blast, contig_name %in% top30$contig_name)
+blasthits <- merge(blasthits, yeast_trin, by='contig_name')
+blasthits <- blasthits[order(rank(p_not_segmented)),]
+blasthits <- add_blanks(top30, blasthits)
+
+plot_hits(blasthits, 'p_not_segmented_lo')
+print_results(top30, 'p_not_segmented', 'p_not_segmented_lo')
 ```
 
-### p_good
+## 30 highest scoring
 
-```{r echo=FALSE}
-top30 <- head(filter(yeast_oases, eff_count > 0)[order(rank(p_good)),], n=30)
-write.csv(select(top30, contig_name, p_good),
-          'p_good_top30.csv', row.names=F)
-fc <- file('p_good_top30.txt')
-writeLines(top30$contig_name, fc)
-close(fc)
+```{r p_not_segmented_hi, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
+setwd('score_component_examination')
+
+## highest scoring
+top30 <- head(yeast_trin[order(-rank(p_not_segmented)),], n=30)
+
+blasthits <- filter(blast, contig_name %in% top30$contig_name)
+blasthits <- merge(blasthits, yeast_trin, by='contig_name')
+blasthits <- blasthits[order(-rank(p_not_segmented)),]
+blasthits <- add_blanks(top30, blasthits)
+
+plot_hits(blasthits, 'p_not_segmented_hi')
+print_results(top30, 'p_not_segmented', 'p_not_segmented_hi')
 ```
+
+## $s(C_{ord})$
+
+$s(C_{seg})$ measures the structural correctness of the contig. A low score might indicate misassembly (Figure 1). We visualised reference hits on a single plane, to highlight cases where transcripts are poorly covered by reference hits. Each reference gene is assigned a single colour.
+
+#### 30 lowest scoring
+
+```{r p_good_lo, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
+setwd('score_component_examination')
+
+## lowest scoring
+top30 <- head(filter(yeast_trin, eff_count > 1)[order(rank(p_good)),], n=30)
+
+blasthits <- filter(blast, contig_name %in% top30$contig_name)
+blasthits <- merge(blasthits, yeast_trin, by='contig_name')
+blasthits <- blasthits[order(rank(p_good)),]
+blasthits <- add_blanks(top30, blasthits)
+
+plot_hits(blasthits, 'p_good_lo')
+print_results(top30, 'p_good', 'p_good_lo')
+```
+
+#### 30 highest scoring
+
+```{r p_good_hi, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
+setwd('score_component_examination')
+
+## highest scoring
+top30 <- head(filter(yeast_trin, eff_count > 1)[order(-rank(p_good)),], n=30)
+
+blasthits <- filter(blast, contig_name %in% top30$contig_name)
+blasthits <- merge(blasthits, yeast_trin, by='contig_name')
+blasthits <- blasthits[order(-rank(p_good)),]
+blasthits <- add_blanks(top30, blasthits)
+
+plot_hits(blasthits, 'p_good_hi')
+print_results(top30, 'p_good', 'p_good_hi')
+```
+
+## $s(C_{cov})$
+
+$s(C_{seg})$ measures the proportion of bases that have read support. We therefore visualised whether each base was covered by at least one supporting read.
+
+#### 30 lowest scoring
+
+```{r p_bases_covered_lo, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
+setwd('score_component_examination')
+
+# coverage counts generated using mpileup from samtools v1.2:
+# samtools mpileup -f Trinity.fasta -A --excl-flags QCFAIL -B -Q0 -q0 -I assigned.sorted.bam > assigned.coverage
+# cut -f 1,2,4 assigned.coverage > assigned.coverage.count
+
+## lowest scoring
+top30 <- head(yeast_trin[order(rank(p_bases_covered)),], n=30)
+
+if (!file.exists('p_bases_covered_lo_cov.txt')) {
+  ## write to file and grep out coverage
+  grep_names <- sapply(top30$contig_name, function(x) {
+    paste(x, '\\s', sep="")
+    })
+  file.remove("p_bases_covered_lo_ids.txt")
+  lapply(grep_names, write, "p_bases_covered_lo_ids.txt", append=TRUE, ncolumns=1)
+  system("grep -f p_bases_covered_lo_ids.txt ../assigned.coverage.count > p_bases_covered_lo_cov.txt")
+}
+
+cov_rle <- NULL
+if (file.info('p_bases_covered_lo_cov.txt')$size == 0) {
+  ## no hits, make blanks to illustrate by reusing blank from last metric
+  cov_rle <- blasthits[rep(1, 30),]
+  cov_rle$contig_name <- top30$contig_name
+  cov_rle$q_start <- 0
+  cov_rle$q_finish <- 0
+} else {
+  # hits
+  cov <- fread("p_bases_covered_lo_cov.txt")
+  setnames(cov, c('contig_name', 'pos', 'cov'))
+  cov_res <- merge(cov, yeast_trin, by='contig_name')
+  cov_rle <- group_by(cov_res, contig_name) %>%
+    do(coverage_rle(.))
+  cov_rle <- add_blanks(top30, cov_rle)
+}
+
+## find contiguous regions of coverage and convert to run-length encoding
+
+plot_hits(cov_rle, 'p_bases_covered_lo')
+print_results(top30, 'p_bases_covered', 'p_bases_covered_lo')
+```
+
+## 30 highest scoring
+
+```{r p_bases_covered_hi, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
+setwd('score_component_examination')
+
+## highest scoring
+top30 <- head(yeast_trin[order(-rank(p_bases_covered)),], n=30)
+
+## write to file and grep out coverage
+if (!file.exists('p_bases_covered_hi_cov.txt')) {
+  grep_names <- sapply(top30$contig_name, function(x) {
+    paste(x, '\\s', sep="")
+  })
+  file.remove("p_bases_covered_hi_ids.txt")
+  lapply(grep_names, write, "p_bases_covered_hi_ids.txt", append=TRUE, ncolumns=1)
+  system("grep -f p_bases_covered_hi_ids.txt ../assigned.coverage.count > p_bases_covered_hi_cov.txt")
+}
+
+cov_rle <- NULL
+if (file.info('p_bases_covered_hi_cov.txt')$size == 0) {
+  ## no hits, make blanks to illustrate by reusing blank from last metric
+  cov_rle <- blasthits[rep(1, 30),]
+  cov_rle$contig_name <- top30$contig_name
+  cov_rle$q_start <- 0
+  cov_rle$q_finish <- 0
+} else {
+  # hits
+  cov <- fread("p_bases_covered_hi_cov.txt")
+  setnames(cov, c('contig_name', 'pos', 'cov'))
+  cov_res <- merge(cov, yeast_trin, by='contig_name')
+  cov_rle <- group_by(cov_res, contig_name) %>%
+    do(coverage_rle(.))
+  cov_rle <- add_blanks(top30, cov_rle)
+}
+
+## find contiguous regions of coverage and convert to run-length encoding
+
+plot_hits(cov_rle, 'p_bases_covered_hi')
+print_results(top30, 'p_bases_covered', 'p_bases_covered_hi')
+```
+
