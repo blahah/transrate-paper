@@ -1,4 +1,4 @@
-# Transrate paper - figure 2
+# Transrate paper - figure 3
 
 # The first panel of this figure shows
 # the distribution of each contig-score component
@@ -7,7 +7,7 @@
 # of species and score component. Columns are species, rows
 # are metrics. Plots contain one line per assembly.
 library(ggplot2)
-fig2a <- ggplot(data, aes(x=value, colour=assembler)) +
+fig3a <- ggplot(data, aes(x=value, colour=assembler)) +
   geom_step(stat = "bin", binwidth=0.02) +
   scale_y_log10() +
   scale_x_continuous(breaks=c(0.0, 0.5, 1.0), limits=c(-0.02, 1.02)) +
@@ -27,7 +27,7 @@ fig2a <- ggplot(data, aes(x=value, colour=assembler)) +
 library(plyr)
 downsampled <- sample_n(wide_data, 5000)
 cor_data <- melt(cor(downsampled[,1:4, with=F]))
-fig2b <- ggplot(cor_data,
+fig3b <- ggplot(cor_data,
                 aes(x=Var1, y=Var2, fill=value)) +
   geom_tile() +
   theme_bw() +
@@ -35,10 +35,11 @@ fig2b <- ggplot(cor_data,
   scale_fill_gradientn(colours = rainbow(3), limits=c(-1, 1)) +
   scale_x_discrete(expand = c(0, 0)) +
   scale_y_discrete(expand = c(0, 0)) +
-  labs(x=NULL, y=NULL)
+  labs(x=NULL, y=NULL) +
+  geom_text(aes(label=round(value, 2)))
 
 ## Layout the two figures side-by-side
 library(gridExtra)
-fig2 <- arrangeGrob(fig2a, fig2b, ncol=2, widths=c(3, 2))
-ggsave(fig2, filename = "figure_2/figure.pdf", width = 15, height = 4.5)
-ggsave(fig2, filename = "figure_2/figure.png", width = 15, height = 4.5)
+fig3 <- arrangeGrob(fig3a, fig3b, ncol=2, widths=c(3, 2))
+ggsave(fig3, filename = "figure_3/figure.pdf", width = 15, height = 4.5)
+ggsave(fig3, filename = "figure_3/figure.png", width = 15, height = 4.5)
