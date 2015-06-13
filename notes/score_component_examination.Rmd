@@ -1,17 +1,15 @@
 ---
-title: "Score component evaluation"
-output:
+title: "Score component evaluation using a reference"
+output: 
   html_document:
     css: table.css
     theme: journal
     self_contained: false
 ---
 
-To inspect the performance of the contig score components, we used the smallest of the assemblies from real data, the Trinity assembly of yeast.
+To inspect the performance of the contig score components, we used the smallest of the assemblies from real data, the Trinity assembly of yeast from the Davidson & Oshlack (2014) dataset.
 
-The contigs were aligned to the reference transcriptome and the reference genome with blastn, and the assigned read alignments output by Salmon were used to calculate per-bases coverage using samtools mpileup.
-
-Although contigs that score poorly on any given score component are likely to contain assembly problems, it does not follow that contigs scoring well on any given score componenet are well-assembled, as they often score poorly on other components. Thus, the lowest scoring set of contigs are more informative than the highest scoring, but we include both for completeness.
+Although contigs that score poorly on any given score component are likely to contain assembly problems, it does not follow that contigs scoring well on any given score componenet are well-assembled, as they often score poorly on other components. Thus, the lowest scoring 30 contigs for each score component are visualised here with their supporting evidence.
 
 ```{r echo=FALSE, include=FALSE}
 library(data.table)
@@ -71,7 +69,7 @@ add_contig_row <- function(dt, expand_hits) {
   return(dt)
 }
 
-plot_blasthits <- function(dt, dir, expand_hits=FALSE) {
+plot_blasthits <- function(dt, dir, expand_hits=FALSE, hitlabel='hits') {
   
   dt <- setup_colours(dt)
   dt <- add_contig_row(dt, expand_hits)
@@ -81,7 +79,7 @@ plot_blasthits <- function(dt, dir, expand_hits=FALSE) {
     ymin=ymin, ymax=ymax, fill=txp_name)) +
     geom_rect() +
     scale_y_continuous(breaks = y_ticks, 
-                       labels = c('hits', 'contig'),
+                       labels = c(hitlabel, 'contig'),
                        limits = c(0, max(dt$ymax)),
                        expand = c(0, 0)) +
     scale_x_continuous(expand = c(0, 0)) +
@@ -123,10 +121,10 @@ add_blanks <- function(top30, blasthits) {
   blasthits <- rbind(blanks, blasthits)
 }
 
-plot_hits <- function(blasthits, dir) {
+plot_hits <- function(blasthits, dir, hitlabel='hits') {
   dir.create(dir)
   group_by(blasthits, contig_name) %>%
-    do(plot_blasthits(., dir))
+    do(plot_blasthits(., dir, hitlabel=hitlabel))
 }
 
 plot_expanded_hits <- function(blasthits, dir) {
@@ -202,7 +200,7 @@ setwd('score_component_examination')
 
 ## $s(C_{nuc})$
 
-$s(C_{nuc})$ measures how well the read evidence supports the identity of each base in a contig. A low score might indicate family collapse (Figure 1), thus we visualised reference genes hitting each contig for the lowest and highest scoring 30 contigs according to this score component, vertically stacking the alignments to highlight cases where multiple genes hit a single contig. The number of visualised hits was limited to 3 per contig.
+$s(C_{nuc})$ measures how well the read evidence supports the identity of each base in a contig. A low score might indicate family collapse (Figure 1), which might be detectable as multiple reference transcripts aligning in an overlapping manner to a single contig. We aligned all contigs to both the reference transcriptome and the reference genome using blastn. Alignments were visualised so that a black bar represents the assembled contig, while coloured bars represent the aligned transcripts and/or genes. Each row in the stack of alignment represents a different gene, allowing the identification of cases where alignments overlap. The number of genes in the stack is limited to three. While many contigs received no hits at all - presumably due to the incompleteness of the reference, and biological novelty in the assembly - those that did receive hits usually received multiple hits, consistent with family collapse.
 
 #### 30 lowest scoring
 
@@ -221,26 +219,9 @@ plot_expanded_hits(blasthits, 'p_seq_true_lo')
 print_results(top30, 'p_seq_true', 'p_seq_true_lo')
 ```
 
-## 30 highest scoring
-
-```{r p_seq_true_hi, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
-setwd('score_component_examination')
-
-## highest scoring
-top30 <- head(yeast_trin[order(-rank(p_seq_true)),], n=30)
-
-blasthits <- filter(all_blast, contig_name %in% top30$contig_name)
-blasthits <- merge(blasthits, yeast_trin, by='contig_name')
-blasthits <- blasthits[order(-rank(p_seq_true)),]
-blasthits <- add_blanks(top30, blasthits)
-
-plot_expanded_hits(blasthits, 'p_seq_true_hi')
-print_results(top30, 'p_seq_true', 'p_seq_true_hi')
-```
-
 ## $s(C_{seg})$
 
-$s(C_{seg})$ estimates the probability that the coverage along the contig is best explained by a single Dirichlet distribution, as opposed to two or more. A low score might indicate chimerism (Figure 1), therefore we visualised reference gene hits on a single plane, to highlight cases where hits against different genes are non-overlapping, indicating a chimera. Each reference gene is assigned a single colour.
+$s(C_{seg})$ estimates the probability that the coverage along the contig is best explained by a single Dirichlet distribution, as opposed to two or more. A low score might indicate chimerism (Figure 1), which could be detected as multiple distinct reference transcripts aligning to a contig in a non-overlapping manner. We aligned all contigs to the reference transcriptome using blastn. Alignments were visualised so that a black bar represents the assembled contig, while coloured bars represent the aligned transcripts and/or genes. All reference hits were placed on the same plane to allow identification of non-overlapping hits. Most contigs received hits, and the majority had non-overlapping hits from multiple distinct transcripts, consistent with chimerism.
 
 #### 30 lowest scoring
 
@@ -259,26 +240,9 @@ plot_hits(blasthits, 'p_not_segmented_lo')
 print_results(top30, 'p_not_segmented', 'p_not_segmented_lo')
 ```
 
-## 30 highest scoring
-
-```{r p_not_segmented_hi, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
-setwd('score_component_examination')
-
-## highest scoring
-top30 <- head(yeast_trin[order(-rank(p_not_segmented)),], n=30)
-
-blasthits <- filter(blast, contig_name %in% top30$contig_name)
-blasthits <- merge(blasthits, yeast_trin, by='contig_name')
-blasthits <- blasthits[order(-rank(p_not_segmented)),]
-blasthits <- add_blanks(top30, blasthits)
-
-plot_hits(blasthits, 'p_not_segmented_hi')
-print_results(top30, 'p_not_segmented', 'p_not_segmented_hi')
-```
-
 ## $s(C_{ord})$
 
-$s(C_{seg})$ measures the structural correctness of the contig. A low score might indicate misassembly (Figure 1). We visualised reference hits on a single plane, to highlight cases where transcripts are poorly covered by reference hits. Each reference gene is assigned a single colour.
+$s(C_{seg})$ measures the structural correctness of the contig. A low score might indicate various kinds of misassembly (Figure 1), which could be detected as multiple hits inverted relative to one another, or no hits at all. Alignments and visualisation were carried out as for $s(C_{seg})$. No contigs recieved hits, consistent with misassembly.
 
 #### 30 lowest scoring
 
@@ -297,28 +261,9 @@ plot_hits(blasthits, 'p_good_lo')
 print_results(top30, 'p_good', 'p_good_lo')
 ```
 
-#### 30 highest scoring
-
-```{r p_good_hi, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
-setwd('score_component_examination')
-
-## highest scoring
-top30 <- head(filter(yeast_trin, eff_count > 1)[order(-rank(p_good)),], n=30)
-
-blasthits <- filter(blast, contig_name %in% top30$contig_name)
-blasthits <- merge(blasthits, yeast_trin, by='contig_name')
-blasthits <- blasthits[order(-rank(p_good)),]
-blasthits <- add_blanks(top30, blasthits)
-
-plot_hits(blasthits, 'p_good_hi')
-print_results(top30, 'p_good', 'p_good_hi')
-```
-
 ## $s(C_{cov})$
 
-$s(C_{seg})$ measures the proportion of bases that have read support. We therefore visualised whether each base was covered by at least one supporting read.
-
-#### 30 lowest scoring
+$s(C_{seg})$ measures the proportion of bases that have read support. A low score indicates unsupported noise sequence in the contig. Although this score component captures the information by definition, we performed an independent verification of the analysis by using samtools mpileup to generate per-base coverage from the assigned read alignments. We visualised contigs as a black bar with a red bar below each position that received at least one supporting read. All contigs received no supporting reads.
 
 ```{r p_bases_covered_lo, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
 setwd('score_component_examination')
@@ -359,48 +304,6 @@ if (file.info('p_bases_covered_lo_cov.txt')$size == 0) {
 
 ## find contiguous regions of coverage and convert to run-length encoding
 
-plot_hits(cov_rle, 'p_bases_covered_lo')
+plot_hits(cov_rle, 'p_bases_covered_lo', hitlabel='covered')
 print_results(top30, 'p_bases_covered', 'p_bases_covered_lo')
 ```
-
-## 30 highest scoring
-
-```{r p_bases_covered_hi, echo = FALSE, results = "asis", warning=FALSE, message=FALSE}
-setwd('score_component_examination')
-
-## highest scoring
-top30 <- head(yeast_trin[order(-rank(p_bases_covered)),], n=30)
-
-## write to file and grep out coverage
-if (!file.exists('p_bases_covered_hi_cov.txt')) {
-  grep_names <- sapply(top30$contig_name, function(x) {
-    paste(x, '\\s', sep="")
-  })
-  file.remove("p_bases_covered_hi_ids.txt")
-  lapply(grep_names, write, "p_bases_covered_hi_ids.txt", append=TRUE, ncolumns=1)
-  system("grep -f p_bases_covered_hi_ids.txt ../assigned.coverage.count > p_bases_covered_hi_cov.txt")
-}
-
-cov_rle <- NULL
-if (file.info('p_bases_covered_hi_cov.txt')$size == 0) {
-  ## no hits, make blanks to illustrate by reusing blank from last metric
-  cov_rle <- blasthits[rep(1, 30),]
-  cov_rle$contig_name <- top30$contig_name
-  cov_rle$q_start <- 0
-  cov_rle$q_finish <- 0
-} else {
-  # hits
-  cov <- fread("p_bases_covered_hi_cov.txt")
-  setnames(cov, c('contig_name', 'pos', 'cov'))
-  cov_res <- merge(cov, yeast_trin, by='contig_name')
-  cov_rle <- group_by(cov_res, contig_name) %>%
-    do(coverage_rle(.))
-  cov_rle <- add_blanks(top30, cov_rle)
-}
-
-## find contiguous regions of coverage and convert to run-length encoding
-
-plot_hits(cov_rle, 'p_bases_covered_hi')
-print_results(top30, 'p_bases_covered', 'p_bases_covered_hi')
-```
-
