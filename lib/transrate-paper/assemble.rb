@@ -52,22 +52,42 @@ module TransratePaper
     end
 
     def transrate(assemblies, left, right, reference)
-      cmd = "transrate "
-      cmd << " --assembly #{assemblies.join(',')} "
+      puts "evaluating assembly with transrate"
+      if File.exist? "transrate_k31_d3_D3_e3contigs.fa_contigs.csv"
+        puts "contig score file exists, skipping transrate"
+        return
+      end
+      cmd = "transrate"
+      cmd << " --assembly #{assemblies.join(',')}"
       cmd << " --left #{left}"
       cmd << " --right #{right}"
-      # cmd << " --insertsize 400"
-      # cmd << " --insertsd 50"
+      cmd << " --insertsize 400"
+      cmd << " --insertsd 50"
       cmd << " --reference #{reference}"
-      cmd << " --threads 40"
+      cmd << " --threads 1"
       puts cmd
       `#{cmd} > transrate.log`
     end
 
+    def rsem_eval(assembly, left, right)
+      puts "evaluating assembly with rsem-eval"
+      if File.exist? "rsem_eval.score.isoforms.results"
+        puts "contig score file exists, skipping rsem-eval"
+        return
+      end
+      cmd = "rsem-eval-calculate-score"
+      cmd << " -p 8"
+      cmd << " --paired-end #{left} #{right}"
+      cmd << " #{assembly} rsem_eval 200"
+      puts cmd
+      `#{cmd} > rsem-eval.log`
+    end
+
     def full_assembly(left, right)
-      assembly = soapdt(31, left, right, 3, 3, 3)
+      assembly = soapdt(23, left, right, 0, 2, 3)
       reference = "../simulation/reftranscripts.fa"
       transrate([assembly], left, right, reference)
+      rsem_eval(assembly, left, right)
     end
 
     def soapdt(k, l, r, d, e, bigd)
