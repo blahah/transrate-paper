@@ -6,7 +6,10 @@ require 'trollop'
 opts = Trollop::options do
   opt :all, "Run the entire paper analysis"
   opt :simulation, "Run the score evaluation on simulated data"
-  opt :existing, "Run the score evaluation on real data"
+  opt :real, "Run the score evaluation on real data"
+  opt :real_transrate, "Run transrate on real data"
+  opt :real_rsemeval, "Run RSEM-eval on real data"
+  opt :real_crbb, "Run CRB-Blast on real data"
   opt :tsa, "Run the TSA analysis"
   opt :threads, "Number of threads to use", :default => 8, :type => :int
 end
@@ -14,11 +17,27 @@ end
 paper = TransratePaper::TransratePaper.new
 paper.install_dependencies
 
-if (opts.all || opts.existing)
+if (opts.all || opts.real || opts.real_transrate ||
+    opts.real_rsemeval || opts.real_crbb)
   paper.download_data "data.yaml"
+end
+
+if (opts.all || opts.real)
   paper.run_transrate opts.threads
-  paper.run_transrate_merge opts.threads
+  paper.run_crbb opts.threads
   paper.run_rsem_eval opts.threads
+end
+
+if (opts.real_transrate)
+  paper.run_transrate opts.threads
+end
+
+if (opts.real_rsemeval)
+  paper.run_rsem_eval opts.threads
+end
+
+if (opts.real_crbb)
+  paper.run_crbb opts.threads
 end
 
 if (opts.all || opts.simulation)
