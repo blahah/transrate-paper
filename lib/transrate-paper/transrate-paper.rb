@@ -34,8 +34,11 @@ module TransratePaper
     def download_data yaml
       @data = YAML.load_file yaml
       puts "Downloading and extracting data..."
+      alldata = {}
       @data.each do |experiment_name, experiment_data|
         experiment_data.each do |key, value|
+          next unless key == :assembly # TODO: REMOVE THIS
+
           output_dir = File.join(@gem_dir, "data",
                                  experiment_name.to_s, key.to_s)
           if [:reads, :assembly, :reference].include? key
@@ -45,9 +48,16 @@ module TransratePaper
                   # create output directory
                   FileUtils.mkdir_p output_dir
                   name = File.join(output_dir, File.basename(url))
+                  # already downloaded by another entry?
+                  if alldata.key?(url)
+                    if File.exist? alldata[url]
+                      File.cp(alldata[url], name)
+                    end
+                  end
                   # download
                   if !already_downloaded name
                     download(url, name)
+                    alldata[url] = File.expand_path(name)
                   end
                   # extract
                   if !already_extracted name
@@ -110,56 +120,6 @@ module TransratePaper
       end
     end
 
-    def run_transrate_merge threads
-      @data.each do |experiment_name, experiment_data|
-        assemblies = []
-        output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
-                               "transrate", "merged")
-        reference_path = File.join(@gem_dir, "data", experiment_name.to_s,
-                                 "reference", experiment_data[:reference][:fa])
-        FileUtils.mkdir_p output_dir
-        experiment_data[:assembly][:fa].each do |assembler, path|
-          assembly_path = File.expand_path(File.join(@gem_dir, "data",
-                                      experiment_name.to_s, "assembly", path))
-          assemblies << assembly_path
-        end
-        Dir.chdir(output_dir) do |dir|
-          puts "changed to #{dir}"
-          cmd = "transrate "
-          cmd << " --assembly #{assemblies.join(",")} "
-          cmd << " --left "
-          left = []
-          experiment_data[:reads][:left].each do |fastq|
-            left << File.expand_path(File.join(@gem_dir, "data",
-                                   experiment_name.to_s, "reads", fastq))
-          end
-          cmd << left.join(",")
-          cmd << " --right "
-          right = []
-          experiment_data[:reads][:right].each do |fastq|
-            right << File.expand_path(File.join(@gem_dir, "data",
-                                   experiment_name.to_s, "reads", fastq))
-          end
-          cmd << right.join(",")
-          cmd << " --reference #{reference_path}"
-          cmd << " --threads #{threads}"
-          outfile = "#{experiment_name.to_s}"
-          cmd << " --outfile #{outfile}"
-          cmd << " --merge-assemblies #{experiment_name.to_s}.fasta"
-
-          puts cmd
-          if !File.exist?("#{outfile}_assemblies.csv")
-            transrate = Cmd.new cmd
-            transrate.run
-            File.open("log-#{outfile}.txt", "wb") do |out|
-              out.write(transrate.stdout)
-              out.write(transrate.stderr) unless transrate.status.success?
-            end
-          end
-        end
-      end
-    end
-
     def run_rsem_eval threads
       @data.each do |experiment_name, experiment_data|
         experiment_data[:assembly][:fa].each do |assembler, path|
@@ -189,6 +149,39 @@ module TransratePaper
               File.open(log, "wb") do |io|
                 io.write(eval.stdout)
                 io.write(eval.stderr) unless eval.status.success?
+              end
+            end
+          end
+        end
+      end
+    end
+
+    def run_crbb threads
+      @data.each do |experiment_name, experiment_data|
+        reference_path = File.join(@gem_dir, "data", experiment_name.to_s,
+                                 "reference", experiment_data[:reference][:fa])
+        experiment_data[:assembly][:fa].each do |assembler, path|
+          output_dir = File.join(@gem_dir, "data", experiment_name.to_s,
+                                 "crbb", assembler.to_s)
+          assembly_path = File.expand_path(File.join(@gem_dir, "data",
+                                      experiment_name.to_s, "assembly", path))
+          FileUtils.mkdir_p output_dir
+          Dir.chdir(output_dir) do |dir|
+            puts "changed to #{dir}"
+            cmd = "crb-blast "
+            cmd << " --query #{assembly_path} "
+            cmd << " --target #{reference_path}"
+            cmd << " --threads #{threads}"
+            output = "#{experiment_name.to_s}-#{assembler}.crbb.tsv"
+            cmd << " --output #{output}"
+
+            puts cmd
+            if !File.exist?(output)
+              crbb = Cmd.new cmd
+              crbb.run
+              File.open("log-#{output}.txt","wb") do |out|
+                out.write(crbb.stdout)
+                out.write(crbb.stderr) unless crbb.status.success?
               end
             end
           end
