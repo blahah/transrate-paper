@@ -18,8 +18,7 @@ The paper app will do the following:
 - install any software dependencies it needs
 - download all the data used in the analysis
 - run the analysis pipelines
-- generate figures from the analysis results
-- compile the figures into the paper
+- generate the figures from the analysis results
 
 ### Instructions
 
