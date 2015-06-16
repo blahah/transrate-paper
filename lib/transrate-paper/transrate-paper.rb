@@ -51,7 +51,7 @@ module TransratePaper
                   # already downloaded by another entry?
                   if alldata.key?(url)
                     if File.exist? alldata[url]
-                      File.cp(alldata[url], name)
+                      FileUtils.cp(alldata[url], name)
                     end
                   end
                   # download
