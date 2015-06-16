@@ -9,7 +9,7 @@ output:
 
 To inspect the performance of the contig score components, we used the smallest of the assemblies from real data, the Trinity assembly of yeast from the Davidson & Oshlack (2014) dataset.
 
-Although contigs that score poorly on any given score component are likely to contain assembly problems, it does not follow that contigs scoring well on any given score componenet are well-assembled, as they often score poorly on other components. Thus, the lowest scoring 30 contigs for each score component are visualised here with their supporting evidence.
+Although contigs that score poorly on any given score component are likely to contain assembly problems, it does not follow that contigs scoring well on any given score component are well-assembled, as they often score poorly on other components. Thus, the lowest scoring 30 contigs for each score component are visualised here with their supporting evidence.
 
 ```{r echo=FALSE, include=FALSE}
 library(data.table)

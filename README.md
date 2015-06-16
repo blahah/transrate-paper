@@ -11,17 +11,14 @@ By:
 
 ### Description
 
-[NOTE: the paper app will not be released until the paper is submitted - so don't expect the instructions below to work until then!]
-
-This is the paper describing transrate (v1). The entire paper is written as a reproducible analysis software package that can be run on a unix system with a single command.
+This is the paper describing transrate (v1). The entire paper is written as a reproducible analysis software package that can be run on a unix system with a single command-line interface.
 
 The paper app will do the following:
 
 - install any software dependencies it needs
 - download all the data used in the analysis
 - run the analysis pipelines
-- generate figures from the analysis results
-- compile the figures into the paper
+- generate the figures from the analysis results
 
 ### Instructions
 
@@ -35,18 +32,16 @@ You need:
 
 #### Install
 
-First you need to install the paper app. Choose one of the following:
-
-**EITHER** If you already have Ruby installed, this command will install the transrate-paper app:
-
 ```bash
-$ gem install transrate-paper
-```
-
-**OR** If you don't have Ruby yet, this command will install the latest Ruby and the transrate-paper app:
-
-```bash
-$ \curl -sSL https://get.rvm.io | bash -s stable --ruby --gems=transrate-paper
+# get the paper code
+$ git clone https://github.com/Blahah/transrate-paper.git
+$ cd transrate-paper
+# install a fresh ruby...
+$ \curl -sSL https://get.rvm.io | bash -s stable --ruby
+$ source ~/.rvm/scripts/rvm
+# install dependencies
+$ bundle install
+$ transrate --install-deps all
 ```
 
 #### Run
@@ -54,5 +49,5 @@ $ \curl -sSL https://get.rvm.io | bash -s stable --ruby --gems=transrate-paper
 Now you can run the paper:
 
 ```bash
-$ transrate-paper
+$ bundle exec bin/transrate-paper --help
 ```
